@@ -1,5 +1,5 @@
 ollama:
-  endpoint: "http://192.168.31.26:11434/api/generate"
+  endpoint: "http://localhost:11434/api/generate"
   model: "deepseek-r1:32b"  # 或您安装的其他模型
   temperature: 0.6  # 增加创意性
 
