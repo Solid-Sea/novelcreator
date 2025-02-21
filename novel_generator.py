@@ -190,7 +190,7 @@ class NovelGenerator:
 
 if __name__ == "__main__":
     print("小说生成器 v1.0")
-    title = input("请输入小说标题：").strip()
+    title ="星海形骸" #input("请输入小说标题：").strip()
     while not title:
         print("标题不能为空！")
         title = input("请输入小说标题：").strip()
