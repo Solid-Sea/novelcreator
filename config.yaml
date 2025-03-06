@@ -10,3 +10,4 @@ settings:
   min_chapter_words: 4000
   max_retries: 10      # 增加重试次数
   timeout: 3000        # 超时时间(秒)
+  max_length: 1024     # 增加生成文本的最大长度设置

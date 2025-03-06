@@ -4,6 +4,7 @@ import logging
 from pathlib import Path
 from tqdm import tqdm
 import re
+import yaml  # 添加缺失的导入
 
 def clean_content(text):
     """去除AI思考标签"""
@@ -36,7 +37,7 @@ def create_folder(path):
     try:
         Path(path).mkdir(parents=True, exist_ok=True)
     except Exception as e:
-        logger.error(f"创建目录失败: {str(e)}")
+        logger.error(f"创建目录失败: {str(e).encode('utf-8')}")
         raise
 
 def get_progress(book_title):
@@ -47,7 +48,7 @@ def get_progress(book_title):
             return 0
         return len([f for f in os.listdir(chap_dir) if f.endswith(".txt")])
     except Exception as e:
-        logger.error(f"获取进度失败: {str(e)}")
+        logger.error(f"获取进度失败: {str(e).encode('utf-8')}")
         return 0
 
 def show_progress(current, total):

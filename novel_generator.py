@@ -3,7 +3,7 @@ import os
 import json
 import time
 import requests
-from utils import logger, create_folder, get_progress, show_progress, clean_content
+from .utils import logger, create_folder, get_progress, show_progress, clean_content  # 修正导入路径
 
 class NovelGenerator:
     def __init__(self):
