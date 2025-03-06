@@ -1,13 +1,20 @@
-ollama:
-  endpoint: "http://localhost:11434/api/generate"
-  model: "deepseek-r1:32b"  # 或您安装的其他模型
-  temperature: 0.6  # 增加创意性
+# AI模型配置
+model:
+  name: "gpt2"  # 使用的模型名称
+  max_length: 1024  # 生成文本的最大长度
 
-paths:
-  novels_dir: "./novels"
-  
-settings:
-  min_chapter_words: 4000
-  max_retries: 10      # 增加重试次数
-  timeout: 3000        # 超时时间(秒)
-  max_length: 1024     # 增加生成文本的最大长度设置
+# 章节生成配置
+chapter:
+  min_words: 4000  # 每章最少字数
+  max_retries: 10  # 生成失败时的最大重试次数
+
+# 系统配置
+system:
+  timeout: 3000  # 请求超时时间（毫秒）
+  nbformat: 4  # Jupyter notebook 格式版本
+  nbformat_minor: 4  # Jupyter notebook 次版本号
+
+# 日志配置
+logging:
+  level: "info"  # 日志级别：debug, info, warning, error
+  file: "novel_creator.log"  # 日志文件路径
