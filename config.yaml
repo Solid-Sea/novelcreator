@@ -11,8 +11,6 @@ chapter:
 # 系统配置
 system:
   timeout: 3000  # 请求超时时间（毫秒）
-  nbformat: 4  # Jupyter notebook 格式版本
-  nbformat_minor: 4  # Jupyter notebook 次版本号
 
 # 日志配置
 logging:
