@@ -1,7 +1,7 @@
 # AI模型配置
 model:
   name: "gpt2"  # 使用的模型名称
-  max_length: 1024  # 生成文本的最大长度
+  max_length: 32768  # 生成文本的最大长度
 
 # 章节生成配置
 chapter:
