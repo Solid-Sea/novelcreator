@@ -1,6 +1,6 @@
-### novelcreator
-一个利用OLLAMA服务生成小说的软件。
-
+### novelcreator transformer
+一个利用大模型服务生成小说的软件。
+# 注意：本分支目前处在测试阶段，慎用
 ## 安装和使用
 1. 克隆本仓库。
 2. 运行 `novel_generator.py`。
