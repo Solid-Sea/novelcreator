@@ -1,3 +1,9 @@
 tqdm
-pyyaml  # 添加缺失的依赖
+pyyaml
 requests
+transformers
+torch
+opencv-python
+pillow
+accelerate
+bitsandbytes

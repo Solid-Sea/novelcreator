@@ -1,26 +1,15 @@
-# File: config.yaml
 ollama:
-  endpoint: "http://localhost:11434/api/generate"
+  endpoint: "http://192.168.31.26:11434/api/generate"
   model: "deepseek-r1:1.5b"
-
-transformers:
-  model_name: "uer/gpt2-chinese-cluecorpussmall"
-  device: "cuda:0"
+  hf_model: "onekq-ai/QwQ-32B-bnb-4bit"  # 本地模型名称
+  temperature: 0.6
 
 paths:
   novels_dir: "./novels"
-  output_dir: "./output"
-
-video:
-  resolution: (1080, 1920)
-  bg_color: (0, 0, 0)
-  font: "./fonts/SimHei.ttf"
-  font_size: 40
-  scroll_speed: 30
-  bgm: "./assets/bgm.mp3"
-
+  
 settings:
   min_chapter_words: 4000
   max_retries: 10
   timeout: 3000
-  model_type: "ollama"
+
+blacklist: "./blacklist.yaml"
