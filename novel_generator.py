@@ -179,7 +179,8 @@ class NovelGenerator:
         try:
             response = self.tf_pipeline(
                 prompt,
-                max_length=4000,
+                # max_length=4000,
+                max_new_tokens=32768,
                 temperature=self.ollama_cfg.get("temperature", 0.7),
                 top_p=0.9,
                 do_sample=True
