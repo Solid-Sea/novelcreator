@@ -28,7 +28,7 @@ class NovelGenerator:
                 device_map="auto",
                 load_in_4bit=True,
                 trust_remote_code=True,
-                llm_int8_enable_fp32_cpu_offload=True,
+                #llm_int8_enable_fp32_cpu_offload=True,
             )
 
     def _load_config(self):
