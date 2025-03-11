@@ -6,7 +6,8 @@ import time
 import requests
 import argparse
 import shutil
-from transformers import pipeline
+import torch  # 新增：导入torch用于检测GPU数量
+from ktransformers import pipeline  # 修改导入语句
 from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
@@ -19,16 +20,18 @@ class NovelGenerator:
         self.settings = self.config['settings']
         self.blacklist = load_blacklist()
         self.model_type = model_type
+        # 新增：使用Session复用HTTP连接，提升API调用性能
+        self.session = requests.Session()
         
-        # 初始化transformer模型
+        # 初始化Ktransformers模型
         if model_type == "transformer":
+            num_gpus = torch.cuda.device_count()
+            device_map = "balanced" if num_gpus > 1 else "auto"  # 优化多卡推理
             self.tf_pipeline = pipeline(
                 "text-generation",
                 model=self.ollama_cfg.get("hf_model"),
-                device_map="balanced",
-                #load_in_4bit=True,
+                device_map=device_map,  # 使用动态分配的device_map
                 trust_remote_code=True,
-                #llm_int8_enable_fp32_cpu_offload=True,
             )
 
     def _load_config(self):
@@ -129,7 +132,8 @@ class NovelGenerator:
                         break
                     except Exception as e:
                         logger.warning(f"第{chap_num}章生成失败（尝试{attempt+1}次）: {str(e)}")
-                        time.sleep(2 ** attempt)
+                        # 修改：对重试延时设置上限，防止延时无限增长
+                        time.sleep(min(2 ** attempt, 8))
                 if not success:
                     logger.error(f"第{chap_num}章生成失败，跳过继续")
                     self._save_chapter_content(base_dir, chap_num, f"第{chap_num}章生成失败，需要手动补写")
@@ -156,7 +160,8 @@ class NovelGenerator:
         }
         
         try:
-            response = requests.post(
+            # 修改：使用session发送请求，实现连接复用
+            response = self.session.post(
                 self.ollama_cfg["endpoint"],
                 json=payload,
                 timeout=self.settings['timeout']
@@ -179,7 +184,6 @@ class NovelGenerator:
         try:
             response = self.tf_pipeline(
                 prompt,
-                # max_length=4000,
                 max_new_tokens=8192,
                 temperature=self.ollama_cfg.get("temperature", 0.7),
                 top_p=0.9,
