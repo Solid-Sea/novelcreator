@@ -26,7 +26,7 @@ class NovelGenerator:
                 "text-generation",
                 model=self.ollama_cfg.get("hf_model"),
                 device_map="balanced",
-                #load_in_4bit=True,
+                load_in_4bit=True,
                 trust_remote_code=True,
                 #llm_int8_enable_fp32_cpu_offload=True,
             )
