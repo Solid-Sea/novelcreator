@@ -9,7 +9,7 @@ paths:
   
 settings:
   min_chapter_words: 4000
-  max_retries: 10
-  timeout: 3000
+  max_retries: 20
+  timeout: 30000
 
 blacklist: "./blacklist.yaml"
