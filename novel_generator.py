@@ -25,7 +25,7 @@ class NovelGenerator:
             self.tf_pipeline = pipeline(
                 "text-generation",
                 model=self.ollama_cfg.get("hf_model"),
-                device_map="cuda:0",
+                device_map="cuda",
                 #load_in_4bit=True,
                 trust_remote_code=True,
                 #llm_int8_enable_fp32_cpu_offload=True,
