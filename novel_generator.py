@@ -6,8 +6,8 @@ import time
 import requests
 import argparse
 import shutil
-import torch  # 新增：导入torch用于检测GPU数量
-from ktransformers import pipeline  # 修改导入语句
+import torch
+from ktransformers import pipeline, AutoConfig  # 添加AutoConfig导入
 from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
@@ -20,18 +20,38 @@ class NovelGenerator:
         self.settings = self.config['settings']
         self.blacklist = load_blacklist()
         self.model_type = model_type
-        # 新增：使用Session复用HTTP连接，提升API调用性能
         self.session = requests.Session()
         
-        # 初始化Ktransformers模型
+        # 优化Transformer模型初始化
         if model_type == "transformer":
+            model_name = self.ollama_cfg.get("hf_model")
+            model_config = AutoConfig.from_pretrained(model_name)
+            
+            # 设置模型参数
+            model_kwargs = {
+                "temperature": self.ollama_cfg.get("temperature", 0.7),
+                "top_p": 0.9,
+                "repetition_penalty": 1.1,
+                "max_new_tokens": 8192,
+                "pad_token_id": model_config.pad_token_id,
+                "eos_token_id": model_config.eos_token_id,
+            }
+            
+            # 优化设备配置
             num_gpus = torch.cuda.device_count()
-            device_map = "balanced" if num_gpus > 1 else "auto"  # 优化多卡推理
+            if num_gpus > 1:
+                device_map = "balanced"
+                model_kwargs["device_map"] = device_map
+                model_kwargs["low_cpu_mem_usage"] = True
+            else:
+                device_map = "auto"
+                model_kwargs["device_map"] = device_map
+            
             self.tf_pipeline = pipeline(
                 "text-generation",
-                model=self.ollama_cfg.get("hf_model"),
-                device_map=device_map,  # 使用动态分配的device_map
+                model=model_name,
                 trust_remote_code=True,
+                model_kwargs=model_kwargs,  # 使用model_kwargs配置模型参数
             )
 
     def _load_config(self):
@@ -181,13 +201,18 @@ class NovelGenerator:
             raise
 
     def _transformer_generate(self, prompt):
+        """优化Transformer生成方法"""
         try:
             response = self.tf_pipeline(
                 prompt,
                 max_new_tokens=8192,
                 temperature=self.ollama_cfg.get("temperature", 0.7),
                 top_p=0.9,
-                do_sample=True
+                do_sample=True,
+                repetition_penalty=1.1,  # 添加重复惩罚
+                num_return_sequences=1,
+                early_stopping=True,     # 启用早停
+                no_repeat_ngram_size=3   # 避免重复短语
             )
             return response[0]['generated_text']
         except Exception as e:
