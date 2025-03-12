@@ -72,6 +72,11 @@ class VideoGenerator:
             logger.error(f"加载字体失败：{str(e)}")
             raise
 
+    def _load_config(self):
+        import yaml
+        with open('config.yaml', 'r', encoding='utf-8') as f:
+            return yaml.safe_load(f)
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
