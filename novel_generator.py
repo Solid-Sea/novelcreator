@@ -8,6 +8,7 @@ import argparse
 import shutil
 import torch
 from ktransformers import pipeline, AutoConfig  # 添加AutoConfig导入
+from vllm import VLLM  # 添加VLLM导入
 from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
@@ -23,7 +24,7 @@ class NovelGenerator:
         self.session = requests.Session()
         
         # 优化Transformer模型初始化
-        if model_type == "transformer":
+        if model_type == "tf":
             model_name = self.ollama_cfg.get("hf_model")
             model_config = AutoConfig.from_pretrained(model_name)
             
@@ -51,8 +52,15 @@ class NovelGenerator:
                 "text-generation",
                 model=model_name,
                 trust_remote_code=True,
+                device_map=device_map,  # 使用device_map配置多卡推理
                 model_kwargs=model_kwargs,  # 使用model_kwargs配置模型参数
             )
+        elif model_type == "ktf":
+            # 初始化KTransformers模型
+            self.ktf_pipeline = pipeline("text-generation", model=self.ollama_cfg.get("hf_model"))
+        elif model_type == "vllm":
+            # 初始化VLLM模型
+            self.vllm_model = VLLM(self.ollama_cfg.get("hf_model"))
 
     def _load_config(self):
         """加载配置文件"""
@@ -163,8 +171,12 @@ class NovelGenerator:
         """安全的API调用"""
         if self.model_type == "ollama":
             return self._ollama_api_call(prompt)
-        elif self.model_type == "transformer":
+        elif self.model_type == "tf":
             return self._transformer_generate(prompt)
+        elif self.model_type == "ktf":
+            return self._ktf_generate(prompt)
+        elif self.model_type == "vllm":
+            return self._vllm_generate(prompt)
         else:
             raise ValueError(f"不支持的模型类型: {self.model_type}")
 
@@ -217,6 +229,24 @@ class NovelGenerator:
             return response[0]['generated_text']
         except Exception as e:
             logger.error(f"本地模型生成失败: {str(e)}")
+            raise
+
+    def _ktf_generate(self, prompt):
+        """KTransformers生成方法"""
+        try:
+            response = self.ktf_pipeline(prompt)
+            return response[0]['generated_text']
+        except Exception as e:
+            logger.error(f"KTransformers模型生成失败: {str(e)}")
+            raise
+
+    def _vllm_generate(self, prompt):
+        """VLLM生成方法"""
+        try:
+            response = self.vllm_model.generate(prompt)
+            return response[0]['generated_text']
+        except Exception as e:
+            logger.error(f"VLLM模型生成失败: {str(e)}")
             raise
 
     def _compress_novel(self, base_dir):
@@ -274,7 +304,7 @@ class NovelGenerator:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='小说生成器')
     parser.add_argument('--title', type=str, required=True, help='小说标题')
-    parser.add_argument('--model', type=str, choices=['ollama', 'transformer'], 
+    parser.add_argument('--model', type=str, choices=['ollama', 'tf', 'ktf', 'vllm'], 
                        default='ollama', help='选择使用的模型类型')
     
     args = parser.parse_args()
