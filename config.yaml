@@ -1,20 +1,24 @@
 ollama:
-  endpoint: "http://192.168.31.26:11434/api/generate"
-  model: "deepseek-r1:1.5b"
-  hf_model: "onekq-ai/QwQ-32B-bnb-4bit"  # 本地模型名称
-  temperature: 0.6
+  endpoint: "http://localhost:11434/api/generate"
+  model: "llama2"
+  hf_model: "THUDM/chatglm2-6b"
+  temperature: 0.7
 
 paths:
-  novels_dir: "./novels"
+  novels_dir: "novels"
+  model_cache: "model_cache"
   
 settings:
-  min_chapter_words: 4000
-  max_retries: 20
-  timeout: 30000
-  video:                   # 新增：视频生成配置
-    resolution: "1280x720"  # 视频分辨率
-    font: "./novelcreator/assets/SimHei.ttf"  # 字体文件路径
-    font_size: 24           # 字体大小
-    scroll_speed: 2         # 滚动速度
+  timeout: 120
+  max_retries: 3
+  video:
+    resolution: "1920x1080"
+    font: "assets/SimHei.ttf"
+    font_size: 24
+    scroll_speed: 2
+
+memory:
+  gpu_memory_fraction: 0.9
+  model_offload: true
 
 blacklist: "./blacklist.yaml"

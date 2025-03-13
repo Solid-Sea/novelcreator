@@ -7,6 +7,8 @@ import requests
 import argparse
 import shutil
 import torch
+import gc
+from typing import Optional, Dict, Any
 from ktransformers import pipeline, AutoConfig  # 添加AutoConfig导入
 from vllm import VLLM  # 添加VLLM导入
 from utils import (
@@ -15,52 +17,113 @@ from utils import (
 )
 
 class NovelGenerator:
-    def __init__(self, model_type="ollama"):
+    def __init__(self, model_type="ollama", model_cache_dir: Optional[str] = None):
         self.config = self._load_config()
         self.ollama_cfg = self.config['ollama']
         self.settings = self.config['settings']
         self.blacklist = load_blacklist()
         self.model_type = model_type
         self.session = requests.Session()
+        self.model_cache_dir = model_cache_dir
+        self._model_cache: Dict[str, Any] = {}
         
-        # 优化Transformer模型初始化
-        if model_type == "tf":
-            model_name = self.ollama_cfg.get("hf_model")
-            model_config = AutoConfig.from_pretrained(model_name)
+        # 检查CUDA可用性
+        self.cuda_available = torch.cuda.is_available()
+        if not self.cuda_available:
+            logger.warning("CUDA不可用，将使用CPU模式")
             
-            # 设置模型参数
-            model_kwargs = {
-                "temperature": self.ollama_cfg.get("temperature", 0.7),
-                "top_p": 0.9,
-                "repetition_penalty": 1.1,
-                "max_new_tokens": 8192,
-                "pad_token_id": model_config.pad_token_id,
-                "eos_token_id": model_config.eos_token_id,
-            }
+        # 添加内存管理
+        self._setup_memory_management()
+        
+        try:
+            self._initialize_model(model_type)
+        except Exception as e:
+            logger.error(f"模型初始化失败: {e}")
+            raise
+
+    def _setup_memory_management(self):
+        """设置内存管理"""
+        if self.cuda_available:
+            # 设置GPU内存分配器
+            torch.cuda.set_per_process_memory_fraction(0.9)  # 限制GPU内存使用
+            torch.cuda.empty_cache()
             
-            # 优化设备配置
-            num_gpus = torch.cuda.device_count()
-            if num_gpus > 1:
-                device_map = "balanced"
-                model_kwargs["device_map"] = device_map
-                model_kwargs["low_cpu_mem_usage"] = True
-            else:
-                device_map = "auto"
-                model_kwargs["device_map"] = device_map
+    def _initialize_model(self, model_type: str):
+        """统一的模型初始化接口"""
+        if model_type in self._model_cache:
+            logger.info("使用缓存模型")
+            return self._model_cache[model_type]
             
-            self.tf_pipeline = pipeline(
-                "text-generation",
-                model=model_name,
-                trust_remote_code=True,
-                device_map=device_map,  # 使用device_map配置多卡推理
-                model_kwargs=model_kwargs,  # 使用model_kwargs配置模型参数
-            )
-        elif model_type == "ktf":
-            # 初始化KTransformers模型
-            self.ktf_pipeline = pipeline("text-generation", model=self.ollama_cfg.get("hf_model"))
-        elif model_type == "vllm":
-            # 初始化VLLM模型
-            self.vllm_model = VLLM(self.ollama_cfg.get("hf_model"))
+        model_name = self.ollama_cfg.get("hf_model")
+        device_config = self._get_device_config()
+        
+        try:
+            if model_type == "tf":
+                self._init_transformer_model(model_name, device_config)
+            elif model_type == "ktf":
+                self._init_ktransformer_model(model_name, device_config)
+            elif model_type == "vllm":
+                self._init_vllm_model(model_name, device_config)
+                
+            # 缓存模型
+            if self.model_cache_dir:
+                self._cache_model(model_type)
+                
+        except Exception as e:
+            logger.error(f"模型{model_type}初始化失败: {e}")
+            self._cleanup_on_error()
+            raise
+
+    def _get_device_config(self) -> Dict[str, Any]:
+        """获取设备配置"""
+        config = {
+            "device_map": "cpu",
+            "torch_dtype": torch.float32,
+        }
+        
+        if self.cuda_available:
+            free_memory = self._get_gpu_memory()
+            if free_memory >= 4 * 1024 * 1024 * 1024:  # 4GB
+                config.update({
+                    "device_map": "balanced" if torch.cuda.device_count() > 1 else "auto",
+                    "torch_dtype": torch.float16,
+                    "low_cpu_mem_usage": True,
+                })
+        return config
+
+    def _get_gpu_memory(self) -> int:
+        """获取GPU可用内存"""
+        if not self.cuda_available:
+            return 0
+        return min(torch.cuda.get_device_properties(i).total_memory 
+                  for i in range(torch.cuda.device_count()))
+
+    def _cleanup_on_error(self):
+        """错误时清理资源"""
+        torch.cuda.empty_cache()
+        gc.collect()
+        if hasattr(self, "tf_pipeline"):
+            del self.tf_pipeline
+        if hasattr(self, "ktf_pipeline"):
+            del self.ktf_pipeline
+        if hasattr(self, "vllm_model"):
+            del self.vllm_model
+
+    def _cache_model(self, model_type: str):
+        """缓存模型到磁盘"""
+        if not self.model_cache_dir:
+            return
+            
+        cache_path = os.path.join(self.model_cache_dir, f"{model_type}_model.pt")
+        try:
+            if model_type == "tf":
+                torch.save(self.tf_pipeline.state_dict(), cache_path)
+            elif model_type == "ktf":
+                torch.save(self.ktf_pipeline.state_dict(), cache_path)
+            # VLLM模型不支持缓存
+            logger.info(f"模型已缓存: {cache_path}")
+        except Exception as e:
+            logger.warning(f"模型缓存失败: {e}")
 
     def _load_config(self):
         """加载配置文件"""
