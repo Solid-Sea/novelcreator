@@ -10,7 +10,7 @@ import torch
 import gc
 from typing import Optional, Dict, Any
 #from ktransformers import pipeline, AutoConfig  # 添加AutoConfig导入
-from vllm import VLLM  # 添加VLLM导入
+from vllm.engine import LLM  # 修改导入方式
 from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
