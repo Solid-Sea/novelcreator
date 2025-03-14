@@ -9,7 +9,8 @@ import shutil
 import torch
 import gc
 from typing import Optional, Dict, Any
-#from ktransformers import pipeline, AutoConfig  # 添加AutoConfig导入
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+#from ktransformers import pipeline as ktf_pipeline, AutoConfig  # 添加AutoConfig导入
 
 # 修改vLLM导入
 try:
@@ -380,6 +381,54 @@ class NovelGenerator:
         """保存章节内容"""
         chap_path = os.path.join(base_dir, "chaps", f"chap_{chap_num:03d}.txt")
         self._save_text(chap_path, content)
+
+    def _init_transformer_model(self, model_name: str, device_config: Dict[str, Any]):
+        """初始化Transformer模型"""
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                **device_config
+            )
+            self.tf_pipeline = pipeline(
+                "text-generation",
+                model=model,
+                tokenizer=tokenizer,
+                device=device_config.get("device_map", "cpu")
+            )
+            logger.info("Transformer模型加载成功")
+        except Exception as e:
+            logger.error(f"Transformer模型加载失败: {e}")
+            raise
+
+    def _init_ktransformer_model(self, model_name: str, device_config: Dict[str, Any]):
+        """初始化KTransformer模型"""
+        try:
+            from ktransformers import pipeline as ktf_pipeline
+            self.ktf_pipeline = ktf_pipeline(
+                "text-generation",
+                model_name=model_name,
+                device=device_config.get("device_map", "cpu")
+            )
+            logger.info("KTransformer模型加载成功")
+        except Exception as e:
+            logger.error(f"KTransformer模型加载失败: {e}")
+            raise
+
+    def _init_vllm_model(self, model_name: str, device_config: Dict[str, Any]):
+        """初始化vLLM模型"""
+        try:
+            tensor_parallel_size = torch.cuda.device_count() if self.cuda_available else 1
+            self.vllm_model = LLM(
+                model=model_name,
+                tensor_parallel_size=tensor_parallel_size,
+                dtype=device_config.get("torch_dtype", "auto"),
+                trust_remote_code=True
+            )
+            logger.info("vLLM模型加载成功")
+        except Exception as e:
+            logger.error(f"vLLM模型加载失败: {e}")
+            raise
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='小说生成器')
