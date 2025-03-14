@@ -10,7 +10,17 @@ import torch
 import gc
 from typing import Optional, Dict, Any
 #from ktransformers import pipeline, AutoConfig  # 添加AutoConfig导入
-from vllm.engine import LLM  # 修改导入方式
+
+# 修改vLLM导入
+try:
+    from vllm import LLM
+except ImportError:
+    try:
+        from vllm.engine.llm_engine import LLM
+    except ImportError:
+        logger.warning("vLLM导入失败，vllm模式将不可用")
+        LLM = None
+
 from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
@@ -63,6 +73,8 @@ class NovelGenerator:
             elif model_type == "ktf":
                 self._init_ktransformer_model(model_name, device_config)
             elif model_type == "vllm":
+                if LLM is None:
+                    raise ImportError("vLLM模块未正确安装")
                 self._init_vllm_model(model_name, device_config)
                 
             # 缓存模型
@@ -306,8 +318,13 @@ class NovelGenerator:
     def _vllm_generate(self, prompt):
         """VLLM生成方法"""
         try:
-            response = self.vllm_model.generate(prompt)
-            return response[0]['generated_text']
+            if not hasattr(self, 'vllm_model'):
+                raise RuntimeError("vLLM模型未初始化")
+            outputs = self.vllm_model.generate(prompts=[prompt],
+                                             temperature=self.ollama_cfg.get("temperature", 0.7),
+                                             top_p=0.9,
+                                             max_tokens=8192)
+            return outputs[0].outputs[0].text
         except Exception as e:
             logger.error(f"VLLM模型生成失败: {str(e)}")
             raise
