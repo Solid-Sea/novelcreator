@@ -385,15 +385,22 @@ class NovelGenerator:
     def _init_transformer_model(self, model_name: str, device_config: Dict[str, Any]):
         """初始化Transformer模型"""
         try:
-            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            tokenizer = AutoTokenizer.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+                use_auth_token=True  # 如果需要访问私有模型
+            )
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,
+                trust_remote_code=True,
+                use_auth_token=True,  # 如果需要访问私有模型
                 **device_config
             )
             self.tf_pipeline = pipeline(
                 "text-generation",
                 model=model,
                 tokenizer=tokenizer,
+                trust_remote_code=True,
                 device=device_config.get("device_map", "cpu")
             )
             logger.info("Transformer模型加载成功")
@@ -408,6 +415,7 @@ class NovelGenerator:
             self.ktf_pipeline = ktf_pipeline(
                 "text-generation",
                 model_name=model_name,
+                trust_remote_code=True,
                 device=device_config.get("device_map", "cpu")
             )
             logger.info("KTransformer模型加载成功")
