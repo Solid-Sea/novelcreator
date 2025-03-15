@@ -395,6 +395,21 @@ class NovelGenerator:
                 trust_remote_code=True,
                 **device_config
             )
+
+            # 手动设置设备
+            if self.cuda_available:
+                model = model.to("cuda")
+            else:
+                model = model.to("cpu")
+
+            # 初始化生成管道
+            self.tf_pipeline = pipeline(
+                "text-generation",
+                model=model,
+                tokenizer=tokenizer,
+                trust_remote_code=True
+            )
+            logger.info("Transformer模型加载成功")
         except Exception as e:
             # 如果失败且提示需要token，则使用配置文件或环境变量中的token
             if "token" in str(e).lower():
@@ -414,22 +429,27 @@ class NovelGenerator:
                         use_auth_token=hf_token,
                         **device_config
                     )
+
+                    # 手动设置设备
+                    if self.cuda_available:
+                        model = model.to("cuda")
+                    else:
+                        model = model.to("cpu")
+
+                    # 初始化生成管道
+                    self.tf_pipeline = pipeline(
+                        "text-generation",
+                        model=model,
+                        tokenizer=tokenizer,
+                        trust_remote_code=True
+                    )
+                    logger.info("Transformer模型加载成功")
                 except Exception as token_error:
                     logger.error(f"使用Hugging Face token加载模型失败: {token_error}")
                     raise
             else:
                 logger.error(f"模型加载失败: {e}")
                 raise
-
-        # 初始化生成管道
-        self.tf_pipeline = pipeline(
-            "text-generation",
-            model=model,
-            tokenizer=tokenizer,
-            trust_remote_code=True,
-            device=device_config.get("device_map", "cpu")
-        )
-        logger.info("Transformer模型加载成功")
 
     def _init_ktransformer_model(self, model_name: str, device_config: Dict[str, Any]):
         """初始化KTransformer模型"""
