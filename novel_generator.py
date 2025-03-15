@@ -26,6 +26,7 @@ from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
 )
+from accelerate import init_empty_weights, load_checkpoint_and_dispatch
 
 class NovelGenerator:
     def __init__(self, model_type="ollama", model_cache_dir: Optional[str] = None):
@@ -390,17 +391,20 @@ class NovelGenerator:
                 model_name,
                 trust_remote_code=True
             )
-            model = AutoModelForCausalLM.from_pretrained(
+            
+            # 使用 accelerate 的 load_checkpoint_and_dispatch 加载模型
+            with init_empty_weights():
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    trust_remote_code=True
+                )
+            model = load_checkpoint_and_dispatch(
+                model,
                 model_name,
-                trust_remote_code=True,
-                **device_config
+                device_map=device_config.get("device_map", "auto"),
+                offload_folder="./offload",
+                dtype=device_config.get("torch_dtype", torch.float16)
             )
-
-            # 手动设置设备
-            if self.cuda_available:
-                model = model.to("cuda")
-            else:
-                model = model.to("cpu")
 
             # 初始化生成管道
             self.tf_pipeline = pipeline(
@@ -423,18 +427,19 @@ class NovelGenerator:
                         trust_remote_code=True,
                         use_auth_token=hf_token
                     )
-                    model = AutoModelForCausalLM.from_pretrained(
+                    with init_empty_weights():
+                        model = AutoModelForCausalLM.from_pretrained(
+                            model_name,
+                            trust_remote_code=True,
+                            use_auth_token=hf_token
+                        )
+                    model = load_checkpoint_and_dispatch(
+                        model,
                         model_name,
-                        trust_remote_code=True,
-                        use_auth_token=hf_token,
-                        **device_config
+                        device_map=device_config.get("device_map", "auto"),
+                        offload_folder="./offload",
+                        dtype=device_config.get("torch_dtype", torch.float16)
                     )
-
-                    # 手动设置设备
-                    if self.cuda_available:
-                        model = model.to("cuda")
-                    else:
-                        model = model.to("cpu")
 
                     # 初始化生成管道
                     self.tf_pipeline = pipeline(
