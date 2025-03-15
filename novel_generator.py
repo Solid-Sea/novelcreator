@@ -385,28 +385,51 @@ class NovelGenerator:
     def _init_transformer_model(self, model_name: str, device_config: Dict[str, Any]):
         """初始化Transformer模型"""
         try:
+            # 尝试直接加载模型
             tokenizer = AutoTokenizer.from_pretrained(
                 model_name,
-                trust_remote_code=True,
-                use_auth_token=True  # 如果需要访问私有模型
+                trust_remote_code=True
             )
             model = AutoModelForCausalLM.from_pretrained(
                 model_name,
                 trust_remote_code=True,
-                use_auth_token=True,  # 如果需要访问私有模型
                 **device_config
             )
-            self.tf_pipeline = pipeline(
-                "text-generation",
-                model=model,
-                tokenizer=tokenizer,
-                trust_remote_code=True,
-                device=device_config.get("device_map", "cpu")
-            )
-            logger.info("Transformer模型加载成功")
         except Exception as e:
-            logger.error(f"Transformer模型加载失败: {e}")
-            raise
+            # 如果失败且提示需要token，则使用配置文件或环境变量中的token
+            if "token" in str(e).lower():
+                logger.warning("模型加载失败，尝试使用Hugging Face token")
+                hf_token = self.ollama_cfg.get("hf_token") or os.getenv("HF_AUTH_TOKEN")
+                if not hf_token:
+                    raise ValueError("Hugging Face token 未提供，请在配置文件或环境变量中设置")
+                try:
+                    tokenizer = AutoTokenizer.from_pretrained(
+                        model_name,
+                        trust_remote_code=True,
+                        use_auth_token=hf_token
+                    )
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_name,
+                        trust_remote_code=True,
+                        use_auth_token=hf_token,
+                        **device_config
+                    )
+                except Exception as token_error:
+                    logger.error(f"使用Hugging Face token加载模型失败: {token_error}")
+                    raise
+            else:
+                logger.error(f"模型加载失败: {e}")
+                raise
+
+        # 初始化生成管道
+        self.tf_pipeline = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=tokenizer,
+            trust_remote_code=True,
+            device=device_config.get("device_map", "cpu")
+        )
+        logger.info("Transformer模型加载成功")
 
     def _init_ktransformer_model(self, model_name: str, device_config: Dict[str, Any]):
         """初始化KTransformer模型"""

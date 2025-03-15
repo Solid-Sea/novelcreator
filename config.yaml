@@ -6,6 +6,7 @@ ollama:
   trust_remote_code: true  # 添加信任远程代码选项
   allow_code_execution: true  # 允许执行模型代码
   use_auth_token: false  # 使用认证令牌访问私有模型
+  hf_token: "your_huggingface_token_here"  # 添加 Hugging Face 认证令牌
 
 paths:
   novels_dir: "novels"
