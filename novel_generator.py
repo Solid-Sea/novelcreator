@@ -463,22 +463,9 @@ class NovelGenerator:
     def _init_transformer_model(self, model_name: str, device_config: Dict[str, Any]):
         """优化的Transformer模型初始化"""
         try:
-            # 确保模型下载到本地
+            # 设置模型缓存目录
             local_model_dir = os.path.join(self.model_cache_dir or "./models", model_name.replace("/", "_"))
-            if not os.path.exists(local_model_dir):
-                logger.info(f"模型未找到，正在下载到本地: {local_model_dir}")
-                from transformers import snapshot_download
-                snapshot_download(repo_id=model_name, cache_dir=local_model_dir)
-            
-            # 检查下载后的路径是否有效
-            if not os.path.exists(local_model_dir):
-                raise FileNotFoundError(f"模型下载失败或路径无效: {local_model_dir}")
-
-            # 使用本地路径加载模型
-            tokenizer = AutoTokenizer.from_pretrained(
-                local_model_dir,
-                trust_remote_code=True
-            )
+            os.makedirs(local_model_dir, exist_ok=True)
             
             # 优化模型加载配置
             model_kwargs = {
@@ -487,19 +474,29 @@ class NovelGenerator:
                 'low_cpu_mem_usage': True,
                 'trust_remote_code': True,
                 'use_cache': True,
-                'max_memory': self._get_max_memory()
+                'max_memory': self._get_max_memory(),
+                'cache_dir': local_model_dir
             }
+
+            logger.info(f"开始下载模型到本地: {local_model_dir}")
+            
+            # 使用 from_pretrained 下载并加载模型
+            tokenizer = AutoTokenizer.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+                cache_dir=local_model_dir
+            )
             
             with init_empty_weights():
                 model = AutoModelForCausalLM.from_pretrained(
-                    local_model_dir,
+                    model_name,
                     **model_kwargs
                 )
             
             model = load_checkpoint_and_dispatch(
                 model,
-                local_model_dir,
-                no_split_module_classes=["DeepseekTransformerBlock"],  # 适配DeepSeek模型
+                model_name,  # 使用原始模型名称
+                no_split_module_classes=["DeepseekTransformerBlock"],
                 **model_kwargs
             )
 
