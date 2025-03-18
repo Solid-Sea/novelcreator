@@ -38,6 +38,23 @@ class NovelGenerator:
         self.session = requests.Session()
         self.model_cache_dir = model_cache_dir
         self._model_cache: Dict[str, Any] = {}
+        self._generation_cache = {}  # 添加生成结果缓存
+        self._batch_size = 4  # 批处理大小
+        
+        # 优化配置
+        self.generation_config = {
+            'max_new_tokens': 8192,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'do_sample': True,
+            'repetition_penalty': 1.1,
+            'num_return_sequences': 1,
+            'early_stopping': True,
+            'no_repeat_ngram_size': 3,
+            'pad_token_id': 0,
+            'eos_token_id': 2,
+            'use_cache': True
+        }
         
         # 检查CUDA可用性
         self.cuda_available = torch.cuda.is_available()
@@ -54,11 +71,13 @@ class NovelGenerator:
             raise
 
     def _setup_memory_management(self):
-        """设置内存管理"""
+        """优化内存管理设置"""
         if self.cuda_available:
-            # 设置GPU内存分配器
-            torch.cuda.set_per_process_memory_fraction(0.9)  # 限制GPU内存使用
             torch.cuda.empty_cache()
+            # 设置固定内存大小以减少内存碎片
+            torch.backends.cudnn.benchmark = True
+            if hasattr(torch.cuda, 'memory_reserved'):
+                torch.cuda.memory_reserved()
             
     def _initialize_model(self, model_type: str):
         """统一的模型初始化接口"""
@@ -149,8 +168,8 @@ class NovelGenerator:
             logger.error(f"加载配置文件失败: {str(e)}")
             raise
 
-    def generate_novel(self, title):
-        """主生成流程"""
+    def generate_novel(self, title: str) -> bool:
+        """优化的主生成流程"""
         base_dir = os.path.join(self.config['paths']['novels_dir'], title)
         total_chaps = 50  # 50万字 / 2000字每章
         
@@ -164,7 +183,8 @@ class NovelGenerator:
                 self._generate_outline(title, base_dir)
                 self._generate_chapter_outlines(title, total_chaps, base_dir)
 
-            self._generate_chapters(title, total_chaps, base_dir, progress)
+            # 使用批量生成替代单章生成
+            self._generate_chapters_batch(title, total_chaps, base_dir, progress)
             
             # 合并章节并压缩
             merge_chapters(base_dir)
@@ -220,29 +240,86 @@ class NovelGenerator:
                 logger.info(f"已生成{i}章大纲")
         logger.info("章节大纲全部生成完成")
 
-    def _generate_chapters(self, title, total_chaps, base_dir, progress):
-        """生成章节正文"""
-        logger.info("开始生成章节内容...")
+    def _generate_chapters_batch(self, title: str, total_chaps: int, base_dir: str, progress: int):
+        """批量生成章节内容"""
+        logger.info("开始批量生成章节内容...")
         with show_progress(progress, total_chaps) as bar:
-            for chap_num in range(progress+1, total_chaps+1):
-                success = False
-                for attempt in range(self.settings['max_retries']):
-                    try:
-                        outline = self._load_chapter_outline(base_dir, chap_num)
-                        content = self._generate_chapter_content(outline)
-                        cleaned_content = clean_content(content, self.blacklist)
-                        self._save_chapter_content(base_dir, chap_num, cleaned_content)
+            batch = []
+            batch_outlines = []
+            
+            for chap_num in range(progress + 1, total_chaps + 1):
+                try:
+                    # 检查缓存
+                    cache_key = f"{title}_{chap_num}"
+                    if cache_key in self._generation_cache:
+                        content = self._generation_cache[cache_key]
+                        self._save_chapter_content(base_dir, chap_num, content)
                         bar.update(1)
-                        success = True
-                        break
-                    except Exception as e:
-                        logger.warning(f"第{chap_num}章生成失败（尝试{attempt+1}次）: {str(e)}")
-                        # 修改：对重试延时设置上限，防止延时无限增长
-                        time.sleep(min(2 ** attempt, 8))
-                if not success:
-                    logger.error(f"第{chap_num}章生成失败，跳过继续")
-                    self._save_chapter_content(base_dir, chap_num, f"第{chap_num}章生成失败，需要手动补写")
-                    bar.update(1)
+                        continue
+                    
+                    outline = self._load_chapter_outline(base_dir, chap_num)
+                    batch.append(chap_num)
+                    batch_outlines.append(outline)
+                    
+                    # 达到批处理大小或最后一章时进行生成
+                    if len(batch) == self._batch_size or chap_num == total_chaps:
+                        contents = self._batch_generate_content(batch_outlines)
+                        
+                        for idx, (chap_num, content) in enumerate(zip(batch, contents)):
+                            try:
+                                cleaned_content = clean_content(content, self.blacklist)
+                                if len(cleaned_content) >= 1800:
+                                    self._generation_cache[f"{title}_{chap_num}"] = cleaned_content
+                                    self._save_chapter_content(base_dir, chap_num, cleaned_content)
+                                else:
+                                    logger.warning(f"第{chap_num}章内容过短，重新生成")
+                                    content = self._generate_chapter_content(batch_outlines[idx])
+                                    cleaned_content = clean_content(content, self.blacklist)
+                                    self._save_chapter_content(base_dir, chap_num, cleaned_content)
+                            except Exception as e:
+                                logger.error(f"处理第{chap_num}章失败: {e}")
+                            bar.update(1)
+                            
+                        batch = []
+                        batch_outlines = []
+                        
+                except Exception as e:
+                    logger.error(f"生成章节{chap_num}时发生错误: {e}")
+                    continue
+
+    def _batch_generate_content(self, outlines: list) -> list:
+        """批量生成内容"""
+        prompts = [self._create_chapter_prompt(outline) for outline in outlines]
+        
+        if self.model_type in ["tf", "ktf"]:
+            try:
+                pipeline = self.tf_pipeline if self.model_type == "tf" else self.ktf_pipeline
+                outputs = pipeline(
+                    prompts,
+                    batch_size=len(prompts),
+                    **self.generation_config
+                )
+                return [output['generated_text'] for output in outputs]
+            except Exception as e:
+                logger.error(f"批量生成失败: {e}")
+                # 回退到单个生成
+                return [self._safe_api_call(prompt) for prompt in prompts]
+        else:
+            return [self._safe_api_call(prompt) for prompt in prompts]
+
+    def _create_chapter_prompt(self, outline: str) -> str:
+        """创建章节生成提示"""
+        return (
+            f"根据以下大纲编写2000-2500字的小说章节：\n{outline}\n"
+            "要求：\n"
+            "1. 使用简体中文书面语\n"
+            "2. 保持段落长度适中（3-5行）\n"
+            "3. 包含至少3段对话\n"
+            "4. 结尾留有悬念\n"
+            "5. 避免使用违禁词汇\n"
+            "6. 生成物直接面向读者\n"
+            "7. 保证段落过渡自然，描写细腻"
+        )
 
     def _safe_api_call(self, prompt):
         """安全的API调用"""
@@ -384,77 +461,74 @@ class NovelGenerator:
         self._save_text(chap_path, content)
 
     def _init_transformer_model(self, model_name: str, device_config: Dict[str, Any]):
-        """初始化Transformer模型"""
+        """优化的Transformer模型初始化"""
         try:
-            # 尝试直接加载模型
+            # 确保模型下载到本地
+            local_model_dir = os.path.join(self.model_cache_dir or "./models", model_name.replace("/", "_"))
+            if not os.path.exists(local_model_dir):
+                logger.info(f"模型未找到，正在下载到本地: {local_model_dir}")
+                from transformers import snapshot_download
+                snapshot_download(repo_id=model_name, cache_dir=local_model_dir)
+            
+            # 检查下载后的路径是否有效
+            if not os.path.exists(local_model_dir):
+                raise FileNotFoundError(f"模型下载失败或路径无效: {local_model_dir}")
+
+            # 使用本地路径加载模型
             tokenizer = AutoTokenizer.from_pretrained(
-                model_name,
+                local_model_dir,
                 trust_remote_code=True
             )
             
-            # 使用 accelerate 的 load_checkpoint_and_dispatch 加载模型
+            # 优化模型加载配置
+            model_kwargs = {
+                'device_map': device_config.get("device_map", "auto"),
+                'torch_dtype': device_config.get("torch_dtype", torch.float16),
+                'low_cpu_mem_usage': True,
+                'trust_remote_code': True,
+                'use_cache': True,
+                'max_memory': self._get_max_memory()
+            }
+            
             with init_empty_weights():
                 model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    trust_remote_code=True
+                    local_model_dir,
+                    **model_kwargs
                 )
+            
             model = load_checkpoint_and_dispatch(
                 model,
-                model_name,
-                device_map=device_config.get("device_map", "auto"),
-                offload_folder="./offload",
-                dtype=device_config.get("torch_dtype", torch.float16)
+                local_model_dir,
+                no_split_module_classes=["DeepseekTransformerBlock"],  # 适配DeepSeek模型
+                **model_kwargs
             )
 
-            # 初始化生成管道
+            # 初始化优化的生成管道
             self.tf_pipeline = pipeline(
                 "text-generation",
                 model=model,
                 tokenizer=tokenizer,
-                trust_remote_code=True
+                batch_size=self._batch_size,
+                **self.generation_config
             )
-            logger.info("Transformer模型加载成功")
+            
+            logger.info(f"Transformer模型加载成功: {local_model_dir}")
+            
         except Exception as e:
-            # 如果失败且提示需要token，则使用配置文件或环境变量中的token
-            if "token" in str(e).lower():
-                logger.warning("模型加载失败，尝试使用Hugging Face token")
-                hf_token = self.ollama_cfg.get("hf_token") or os.getenv("HF_AUTH_TOKEN")
-                if not hf_token:
-                    raise ValueError("Hugging Face token 未提供，请在配置文件或环境变量中设置")
-                try:
-                    tokenizer = AutoTokenizer.from_pretrained(
-                        model_name,
-                        trust_remote_code=True,
-                        use_auth_token=hf_token
-                    )
-                    with init_empty_weights():
-                        model = AutoModelForCausalLM.from_pretrained(
-                            model_name,
-                            trust_remote_code=True,
-                            use_auth_token=hf_token
-                        )
-                    model = load_checkpoint_and_dispatch(
-                        model,
-                        model_name,
-                        device_map=device_config.get("device_map", "auto"),
-                        offload_folder="./offload",
-                        dtype=device_config.get("torch_dtype", torch.float16)
-                    )
+            logger.error(f"模型加载失败: {e}")
+            raise
 
-                    # 初始化生成管道
-                    self.tf_pipeline = pipeline(
-                        "text-generation",
-                        model=model,
-                        tokenizer=tokenizer,
-                        trust_remote_code=True
-                    )
-                    logger.info("Transformer模型加载成功")
-                except Exception as token_error:
-                    logger.error(f"使用Hugging Face token加载模型失败: {token_error}")
-                    raise
-            else:
-                logger.error(f"模型加载失败: {e}")
-                raise
+    def _get_max_memory(self) -> Dict[str, str]:
+        """获取每个设备的最大内存配置"""
+        if not self.cuda_available:
+            return {"cpu": "24GB"}
+            
+        max_memory = {}
+        for i in range(torch.cuda.device_count()):
+            mem = torch.cuda.get_device_properties(i).total_memory
+            max_memory[f"cuda:{i}"] = f"{int(mem * 0.9 / 1024**3)}GB"  # 预留10%
+        max_memory["cpu"] = "24GB"  # CPU内存限制
+        return max_memory
 
     def _init_ktransformer_model(self, model_name: str, device_config: Dict[str, Any]):
         """初始化KTransformer模型"""
