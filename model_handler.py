@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Optional
 import yaml
+import openai
 
 logger = logging.getLogger('ModelHandler')
 
@@ -37,9 +38,16 @@ class ModelHandler:
         # 记录正在初始化模型的信息
         logger.info(f"正在初始化模型: {model_config['model_name']}")
         # 这里可以添加实际的模型初始化代码
+        if model_config.get('provider') == 'openai':
+            openai.api_key = self.config['openai']['api_key']
+            return {
+                'status': 'success',
+                'model_name': model_config['model_name'],
+                'provider': 'openai'
+            }
         return {
             'status': 'success',
-                    'model_name': model_config['model_name'],
+            'model_name': model_config['model_name'],
             'base_url': model_config['base_url']
         }
 
@@ -56,4 +64,12 @@ class ModelHandler:
             raise ValueError("prompt不能为空")
         logger.debug("正在生成文本，参数: %s", params)
         # 这里可以添加实际的模型调用代码
+        if model_config.get('provider') == 'openai':
+            response = openai.Completion.create(
+                engine=model_config['model'],
+                prompt=prompt,
+                temperature=params['temperature'],
+                max_tokens=params['max_tokens']
+            )
+            return response.choices[0].text.strip()
         return f"Generated text for: {prompt}"

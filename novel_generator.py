@@ -35,6 +35,7 @@ class NovelGenerator:
         self.settings = self.config['settings']
         self.blacklist = load_blacklist()
         self.model_type = model_type
+        self.openai_provider = 'openai' if self.config.get('openai') else None
         self.session = requests.Session()
         self.model_cache_dir = model_cache_dir
         self._model_cache: Dict[str, Any] = {}
@@ -81,7 +82,7 @@ class NovelGenerator:
             
     def _initialize_model(self, model_type: str):
         """统一的模型初始化接口"""
-        if model_type in self._model_cache:
+        if model_type in self._model_cache or (self.openai_provider and model_type == self.openai_provider):
             logger.info("使用缓存模型")
             return self._model_cache[model_type]
             
@@ -89,7 +90,9 @@ class NovelGenerator:
         device_config = self._get_device_config()
         
         try:
-            if model_type == "tf":
+            if self.openai_provider and model_type == self.openai_provider:
+            self._init_openai_model()
+        elif model_type == "tf":
                 self._init_transformer_model(model_name, device_config)
             elif model_type == "ktf":
                 self._init_ktransformer_model(model_name, device_config)
@@ -106,6 +109,9 @@ class NovelGenerator:
             logger.error(f"模型{model_type}初始化失败: {e}")
             self._cleanup_on_error()
             raise
+
+    def _init_openai_model(self):
+        self.model_handler.initialize_model()
 
     def _get_device_config(self) -> Dict[str, Any]:
         """获取设备配置"""
@@ -149,7 +155,9 @@ class NovelGenerator:
             
         cache_path = os.path.join(self.model_cache_dir, f"{model_type}_model.pt")
         try:
-            if model_type == "tf":
+            if self.openai_provider and model_type == self.openai_provider:
+            self._init_openai_model()
+        elif model_type == "tf":
                 torch.save(self.tf_pipeline.state_dict(), cache_path)
             elif model_type == "ktf":
                 torch.save(self.ktf_pipeline.state_dict(), cache_path)
