@@ -12,15 +12,22 @@ class ModelHandler:
         self._validate_model_config()
 
     def _load_config(self):
+        config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         try:
-            # 打开配置文件并加载内容
-            if not os.path.exists('config.yaml'):
-                logger.error("配置文件 config.yaml 不存在")
-                raise FileNotFoundError("配置文件不存在")
-            with open('config.yaml', 'r', encoding='utf-8') as f:
-                return yaml.safe_load(f)
+            # 使用绝对路径加载配置文件
+            if not os.path.exists(config_path):
+                logger.error(f"配置文件 {config_path} 不存在")
+                raise FileNotFoundError(f"配置文件 {config_path} 不存在")
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+                if not config:
+                    logger.error("配置文件内容为空")
+                    raise ValueError("配置文件内容为空")
+                return config
+        except yaml.YAMLError as e:
+            logger.error(f"配置文件解析错误: {str(e)}")
+            raise ValueError(f"配置文件解析错误: {str(e)}")
         except Exception as e:
-            # 记录加载配置文件失败的错误信息
             logger.error(f"加载配置文件失败: {str(e)}")
             raise
 
