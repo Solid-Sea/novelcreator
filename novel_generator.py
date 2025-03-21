@@ -158,39 +158,41 @@ class NovelGenerator:
         except Exception as e:
             logger.warning(f"模型缓存失败: {e}")
 
-    def _load_config(self):
-        """加载配置文件"""
-        try:
-            with open('config.yaml', 'r', encoding='utf-8') as f:
-                import yaml
-                return yaml.safe_load(f)
-        except Exception as e:
-            logger.error(f"加载配置文件失败: {str(e)}")
-            raise
+    def __init__(self):
+        self.model_handler = ModelHandler()
+        self.config = self.model_handler.config
 
-    def generate_novel(self, title: str) -> bool:
+    def generate_novel(self, novel_title: str) -> bool:
         """优化的主生成流程"""
-        base_dir = os.path.join(self.config['paths']['novels_dir'], title)
-        total_chaps = 50  # 50万字 / 2000字每章
+        # 构建小说存储的基础目录
+        novel_base_dir = os.path.join(self.config['paths']['novels_dir'], novel_title)
+        # 计算总章节数，假设每章2000字，共50万字
+        total_chapter_count = 50  # 50万字 / 2000字每章
         
         try:
-            create_folder(base_dir)
-            create_folder(os.path.join(base_dir, "chaps"))
-            create_folder(os.path.join(base_dir, "tl"))
+            # 创建小说基础目录
+            create_folder(novel_base_dir)
+            # 创建章节存储目录
+            create_folder(os.path.join(novel_base_dir, "chaps"))
+            # 创建翻译相关目录
+            create_folder(os.path.join(novel_base_dir, "tl"))
 
-            progress = get_progress(title)
-            if progress == 0:
-                self._generate_outline(title, base_dir)
-                self._generate_chapter_outlines(title, total_chaps, base_dir)
+            # 获取小说生成进度
+            generation_progress = get_progress(novel_title)
+            if generation_progress == 0:
+                # 生成小说大纲
+                self._generate_outline(novel_title, novel_base_dir)
+                # 生成章节大纲
+                self._generate_chapter_outlines(novel_title, total_chapter_count, novel_base_dir)
 
             # 使用批量生成替代单章生成
-            self._generate_chapters_batch(title, total_chaps, base_dir, progress)
+            self._generate_chapters_batch(novel_title, total_chapter_count, novel_base_dir, generation_progress)
             
             # 合并章节并压缩
-            merge_chapters(base_dir)
-            self._compress_novel(base_dir)
+            merge_chapters(novel_base_dir)
+            self._compress_novel(novel_base_dir)
             
-            logger.info(f"小说《{title}》生成完成！")
+            logger.info(f"小说《{novel_title}》生成完成！")
             return True
             
         except Exception as e:
