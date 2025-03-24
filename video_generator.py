@@ -52,7 +52,8 @@ class VideoGenerator:
             分割后的文本行列表
         """
         char_per_line = self.width // (self.font_size // 2)
-        return [text[i:i+char_per_line] for i in range(0, len(text), char_per_line)]
+        # 使用生成器表达式减少内存占用
+        return list(text[i:i+char_per_line] for i in range(0, len(text), char_per_line))
 
     def _generate_frames(self, lines: list[str]) -> list[np.ndarray]:
         """
@@ -64,22 +65,27 @@ class VideoGenerator:
         Returns:
             包含所有视频帧的numpy数组列表
         """
-        frames = []
+        # 预分配内存
         total_frames = (len(lines) * self.height) // self.scroll_speed
+        frames = [None] * total_frames
+        
+        # 预创建图像对象
+        img = Image.new('RGB', (self.width, self.height), color=(0, 0, 0))
+        draw = ImageDraw.Draw(img)
         
         for frame_num in range(total_frames):
-            with Image.new('RGB', (self.width, self.height), color=(0, 0, 0)) as img:
-                draw = ImageDraw.Draw(img)
-                y_pos = self.height - (frame_num * self.scroll_speed)
-                
-                for i, line in enumerate(lines):
-                    draw.text(
-                        (10, y_pos + i * self.font_size),
-                        line,
-                        font=self.font,
-                        fill=(255, 255, 255))
-                
-                frames.append(np.array(img))
+            # 复用图像对象
+            img.paste((0, 0, 0), (0, 0, self.width, self.height))
+            y_pos = self.height - (frame_num * self.scroll_speed)
+            
+            for i, line in enumerate(lines):
+                draw.text(
+                    (10, y_pos + i * self.font_size),
+                    line,
+                    font=self.font,
+                    fill=(255, 255, 255))
+            
+            frames[frame_num] = np.array(img)
         
         return frames
 
