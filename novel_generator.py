@@ -100,6 +100,9 @@ class NovelGenerator:
                 if LLM is None:
                     raise ImportError("vLLM模块未正确安装")
                 self._init_vllm_model(model_name, device_config)
+                if LLM is None:
+                    raise ImportError("vLLM模块未正确安装")
+                self._init_vllm_model(model_name, device_config)
                 
             # 缓存模型
             if self.model_cache_dir:
