@@ -67,6 +67,9 @@ class NovelGenerator:
         
         try:
             self._initialize_model(model_type)
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"模型初始化失败: {e}")
             raise
@@ -91,7 +94,7 @@ class NovelGenerator:
         
         try:
             if self.openai_provider and model_type == self.openai_provider:
-            self._init_openai_model()
+                self._init_openai_model()
         elif model_type == "tf":
                 self._init_transformer_model(model_name, device_config)
             elif model_type == "ktf":
@@ -108,6 +111,9 @@ class NovelGenerator:
             if self.model_cache_dir:
                 self._cache_model(model_type)
                 
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"模型{model_type}初始化失败: {e}")
             self._cleanup_on_error()
@@ -159,13 +165,16 @@ class NovelGenerator:
         cache_path = os.path.join(self.model_cache_dir, f"{model_type}_model.pt")
         try:
             if self.openai_provider and model_type == self.openai_provider:
-            self._init_openai_model()
+                self._init_openai_model()
         elif model_type == "tf":
                 torch.save(self.tf_pipeline.state_dict(), cache_path)
             elif model_type == "ktf":
                 torch.save(self.ktf_pipeline.state_dict(), cache_path)
             # VLLM模型不支持缓存
             logger.info(f"模型已缓存: {cache_path}")
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.warning(f"模型缓存失败: {e}")
 
@@ -175,6 +184,8 @@ class NovelGenerator:
 
     def generate_novel(self, novel_title: str) -> bool:
         """优化的主生成流程"""
+        if not re.match(r'^[^\\/:*?"<>|]+$', novel_title):
+            raise ValueError(f"非法小说标题: {novel_title} 包含无效字符")
         # 构建小说存储的基础目录
         novel_base_dir = os.path.join(self.config['paths']['novels_dir'], novel_title)
         # 计算总章节数，假设每章2000字，共50万字
@@ -206,6 +217,9 @@ class NovelGenerator:
             logger.info(f"小说《{novel_title}》生成完成！")
             return True
             
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.critical(f"生成失败: {str(e)}")
             return False
@@ -289,14 +303,20 @@ class NovelGenerator:
                                     content = self._generate_chapter_content(batch_outlines[idx])
                                     cleaned_content = clean_content(content, self.blacklist)
                                     self._save_chapter_content(base_dir, chap_num, cleaned_content)
-                            except Exception as e:
+                            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
+        except Exception as e:
                                 logger.error(f"处理第{chap_num}章失败: {e}")
                             bar.update(1)
                             
                         batch = []
                         batch_outlines = []
                         
-                except Exception as e:
+                except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
+        except Exception as e:
                     logger.error(f"生成章节{chap_num}时发生错误: {e}")
                     continue
 
@@ -313,7 +333,10 @@ class NovelGenerator:
                     **self.generation_config
                 )
                 return [output['generated_text'] for output in outputs]
-            except Exception as e:
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
+        except Exception as e:
                 logger.error(f"批量生成失败: {e}")
                 # 回退到单个生成
                 return [self._safe_api_call(prompt) for prompt in prompts]
@@ -394,6 +417,9 @@ class NovelGenerator:
                 no_repeat_ngram_size=3   # 避免重复短语
             )
             return response[0]['generated_text']
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"本地模型生成失败: {str(e)}")
             raise
@@ -403,6 +429,9 @@ class NovelGenerator:
         try:
             response = self.ktf_pipeline(prompt)
             return response[0]['generated_text']
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"KTransformers模型生成失败: {str(e)}")
             raise
@@ -417,6 +446,9 @@ class NovelGenerator:
                                              top_p=0.9,
                                              max_tokens=8192)
             return outputs[0].outputs[0].text
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"VLLM模型生成失败: {str(e)}")
             raise
@@ -436,6 +468,9 @@ class NovelGenerator:
         try:
             with open(path, 'w', encoding='utf-8') as f:
                 f.write(content)
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"保存文件失败: {str(e)}")
             raise
@@ -446,6 +481,9 @@ class NovelGenerator:
         try:
             with open(outline_path, 'r', encoding='utf-8') as f:
                 return f.read()
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"读取大纲失败: {str(e)}")
             raise
@@ -524,6 +562,9 @@ class NovelGenerator:
             
             logger.info(f"Transformer模型加载成功: {local_model_dir}")
             
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"模型加载失败: {e}")
             raise
@@ -551,6 +592,9 @@ class NovelGenerator:
                 device=device_config.get("device_map", "cpu")
             )
             logger.info("KTransformer模型加载成功")
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"KTransformer模型加载失败: {e}")
             raise
@@ -566,6 +610,9 @@ class NovelGenerator:
                 trust_remote_code=True
             )
             logger.info("vLLM模型加载成功")
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
+            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            raise
         except Exception as e:
             logger.error(f"vLLM模型加载失败: {e}")
             raise
