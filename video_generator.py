@@ -121,15 +121,40 @@ class VideoConfig:
     def __init__(self, config: dict):
         self._load_config(config)
 
-    def _load_config(self, config):
-        video_settings = config['settings']['video']
-        self.resolution = video_settings['resolution']
-        self.width, self.height = map(int, self.resolution.split('x'))
-        self.font_size: int = video_settings['font_size']
-        self.scroll_speed: int = video_settings['scroll_speed']
-        self.fps: int = video_settings.get('fps', 24)
-        self.codec: str = video_settings.get('codec', 'libx264')
-        self.font_file: str = video_settings['font']
+    def _load_config(self, config: dict) -> None:
+        """
+        加载并验证视频配置参数
+        
+        Args:
+            config: 从config.yaml加载的配置字典
+            
+        Raises:
+            KeyError: 当缺少必需配置项时
+            ValueError: 当配置值无效时
+        """
+        try:
+            video_settings = config['settings']['video']
+            
+            # 解析分辨率
+            self.resolution: str = video_settings['resolution']
+            try:
+                self.width, self.height = map(int, self.resolution.split('x'))
+            except ValueError:
+                raise ValueError(f"无效的分辨率格式: {self.resolution}, 应为'宽度x高度'格式")
+                
+            # 视频参数
+            self.font_size: int = video_settings.get('font_size', 24)
+            self.scroll_speed: int = video_settings.get('scroll_speed', 2)
+            self.fps: int = video_settings.get('fps', 24)
+            self.codec: str = video_settings.get('codec', 'libx264')
+            
+            # 必需参数检查
+            self.font_file: str = video_settings['font']
+            if not os.path.exists(self.font_file):
+                raise FileNotFoundError(f"字体文件不存在: {self.font_file}")
+                
+        except KeyError as e:
+            raise KeyError(f"缺少必需的视频配置项: {str(e)}")
 
 def main() -> None:
     """
