@@ -1,0 +1,16 @@
+[2025-04-06 10:27:58] WARNING - vLLM导入失败，vllm模式将不可用
+[2025-04-06 10:30:28] WARNING - vLLM导入失败，vllm模式将不可用
+[2025-04-06 10:34:01] WARNING - vLLM导入失败，vllm模式将不可用
+[2025-04-06 10:34:03] WARNING - CUDA不可用，将使用CPU模式
+[2025-04-06 10:34:03] ERROR - 模型加载失败: 'NoneType' object has no attribute 'replace'
+[2025-04-06 10:34:03] ERROR - 模型tf初始化失败: 'NoneType' object has no attribute 'replace'
+[2025-04-06 10:34:03] ERROR - 模型初始化失败: 'NoneType' object has no attribute 'replace'
+[2025-04-06 11:01:35] WARNING - vLLM导入失败，vllm模式将不可用
+[2025-04-06 11:01:37] WARNING - CUDA不可用，将使用CPU模式
+[2025-04-06 11:01:38] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
+[2025-04-06 11:02:18] ERROR - 模型加载失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-06 11:02:18] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-06 11:02:18] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.

@@ -8,9 +8,13 @@ import argparse
 import shutil
 import torch
 import gc
+import re
+import yaml
 from typing import Optional, Dict, Any
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 #from ktransformers import pipeline as ktf_pipeline, AutoConfig  # 添加AutoConfig导入
+
+from utils import logger
 
 # 修改vLLM导入
 try:
@@ -27,6 +31,7 @@ from utils import (
     clean_content, merge_chapters, load_blacklist
 )
 from accelerate import init_empty_weights, load_checkpoint_and_dispatch
+from model_handler import ModelHandler
 
 class NovelGenerator:
     def __init__(self, model_type="ollama", model_cache_dir: Optional[str] = None):
@@ -95,14 +100,11 @@ class NovelGenerator:
         try:
             if self.openai_provider and model_type == self.openai_provider:
                 self._init_openai_model()
-        elif model_type == "tf":
+            elif model_type == "tf":
                 self._init_transformer_model(model_name, device_config)
             elif model_type == "ktf":
                 self._init_ktransformer_model(model_name, device_config)
             elif model_type == "vllm":
-                if LLM is None:
-                    raise ImportError("vLLM模块未正确安装")
-                self._init_vllm_model(model_name, device_config)
                 if LLM is None:
                     raise ImportError("vLLM模块未正确安装")
                 self._init_vllm_model(model_name, device_config)
@@ -157,6 +159,29 @@ class NovelGenerator:
         if hasattr(self, "vllm_model"):
             del self.vllm_model
 
+    def _load_config(self) -> Dict[str, Any]:
+        """加载配置文件"""
+        config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"配置文件不存在: {config_path}")
+            
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = yaml.safe_load(f)
+                
+            # 验证必需配置项
+            required_sections = ['ollama', 'paths', 'settings']
+            for section in required_sections:
+                if section not in config:
+                    raise ValueError(f"配置文件中缺少必需部分: {section}")
+                    
+            return config
+            
+        except yaml.YAMLError as e:
+            raise ValueError(f"配置文件格式错误: {str(e)}")
+        except Exception as e:
+            raise RuntimeError(f"加载配置文件失败: {str(e)}")
+            
     def _cache_model(self, model_type: str):
         """缓存模型到磁盘"""
         if not self.model_cache_dir:
@@ -166,7 +191,7 @@ class NovelGenerator:
         try:
             if self.openai_provider and model_type == self.openai_provider:
                 self._init_openai_model()
-        elif model_type == "tf":
+            elif model_type == "tf":
                 torch.save(self.tf_pipeline.state_dict(), cache_path)
             elif model_type == "ktf":
                 torch.save(self.ktf_pipeline.state_dict(), cache_path)
@@ -178,9 +203,7 @@ class NovelGenerator:
         except Exception as e:
             logger.warning(f"模型缓存失败: {e}")
 
-    def __init__(self):
-        self.model_handler = ModelHandler()
-        self.config = self.model_handler.config
+
 
     def generate_novel(self, novel_title: str) -> bool:
         """优化的主生成流程"""
@@ -304,9 +327,9 @@ class NovelGenerator:
                                     cleaned_content = clean_content(content, self.blacklist)
                                     self._save_chapter_content(base_dir, chap_num, cleaned_content)
                             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
-        except Exception as e:
+                                logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+                                raise
+                            except Exception as e:
                                 logger.error(f"处理第{chap_num}章失败: {e}")
                             bar.update(1)
                             
@@ -314,9 +337,9 @@ class NovelGenerator:
                         batch_outlines = []
                         
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
-        except Exception as e:
+                    logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+                    raise
+                except Exception as e:
                     logger.error(f"生成章节{chap_num}时发生错误: {e}")
                     continue
 
@@ -334,9 +357,9 @@ class NovelGenerator:
                 )
                 return [output['generated_text'] for output in outputs]
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
-        except Exception as e:
+                logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+                raise
+            except Exception as e:
                 logger.error(f"批量生成失败: {e}")
                 # 回退到单个生成
                 return [self._safe_api_call(prompt) for prompt in prompts]
