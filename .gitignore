@@ -129,6 +129,8 @@ celerybeat.pid
 
 # Environments
 .env
+.conda
+models
 .venv
 env/
 venv/

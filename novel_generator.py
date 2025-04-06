@@ -14,23 +14,10 @@ from typing import Optional, Dict, Any
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 #from ktransformers import pipeline as ktf_pipeline, AutoConfig  # 添加AutoConfig导入
 
-from utils import logger
-
-# 修改vLLM导入
-try:
-    from vllm import LLM
-except ImportError:
-    try:
-        from vllm.engine.llm_engine import LLM
-    except ImportError:
-        logger.warning("vLLM导入失败，vllm模式将不可用")
-        LLM = None
-
 from utils import (
     logger, create_folder, get_progress, show_progress, 
     clean_content, merge_chapters, load_blacklist
 )
-from accelerate import init_empty_weights, load_checkpoint_and_dispatch
 from model_handler import ModelHandler
 
 class NovelGenerator:
@@ -43,29 +30,39 @@ class NovelGenerator:
         self.openai_provider = 'openai' if self.config.get('openai') else None
         self.session = requests.Session()
         self.model_cache_dir = model_cache_dir
-        self._model_cache: Dict[str, Any] = {}
         self._generation_cache = {}  # 添加生成结果缓存
         self._batch_size = 4  # 批处理大小
         
-        # 优化配置
-        self.generation_config = {
-            'max_new_tokens': 8192,
-            'temperature': 0.7,
-            'top_p': 0.9,
-            'do_sample': True,
-            'repetition_penalty': 1.1,
-            'num_return_sequences': 1,
-            'early_stopping': True,
-            'no_repeat_ngram_size': 3,
-            'pad_token_id': 0,
-            'eos_token_id': 2,
-            'use_cache': True
-        }
+        # 初始化模型处理器
+        self.model_handler = ModelHandler(model_type, model_cache_dir)
         
-        # 检查CUDA可用性
-        self.cuda_available = torch.cuda.is_available()
-        if not self.cuda_available:
-            logger.warning("CUDA不可用，将使用CPU模式")
+        # 检查CUDA可用性并优化设备选择
+        try:
+            self.cuda_available = torch.cuda.is_available()
+            if self.cuda_available:
+                if torch.cuda.device_count() > 0:
+                    current_device = torch.cuda.current_device()
+                    assert isinstance(current_device, int), f"CUDA设备索引必须为整数类型，当前类型：{type(current_device)}"
+                    device_name = torch.cuda.get_device_name(current_device)
+                    logger.info(f"检测到CUDA设备[{current_device}]: {device_name}")
+                    # 设置默认设备为当前设备
+                    self.device = torch.device("cuda")
+                    # 验证CUDA是否真正可用
+                    torch.zeros(1).cuda()  # 简单测试CUDA是否工作
+                else:
+                    logger.warning("未检测到可用CUDA设备")
+                    self.cuda_available = False
+                    self.device = torch.device("cpu")
+            else:
+                logger.warning("CUDA不可用，将使用CPU模式")
+                self.device = torch.device("cpu")
+        except Exception as e:
+            logger.error(f"CUDA初始化失败: {str(e)}")
+            self.cuda_available = False
+            self.device = torch.device("cpu")
+            # 清理CUDA缓存
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             
         # 添加内存管理
         self._setup_memory_management()
@@ -90,35 +87,10 @@ class NovelGenerator:
             
     def _initialize_model(self, model_type: str):
         """统一的模型初始化接口"""
-        if model_type in self._model_cache or (self.openai_provider and model_type == self.openai_provider):
-            logger.info("使用缓存模型")
-            return self._model_cache[model_type]
-            
-        model_name = self.ollama_cfg.get("hf_model")
-        device_config = self._get_device_config()
-        
         try:
-            if self.openai_provider and model_type == self.openai_provider:
-                self._init_openai_model()
-            elif model_type == "tf":
-                self._init_transformer_model(model_name, device_config)
-            elif model_type == "ktf":
-                self._init_ktransformer_model(model_name, device_config)
-            elif model_type == "vllm":
-                if LLM is None:
-                    raise ImportError("vLLM模块未正确安装")
-                self._init_vllm_model(model_name, device_config)
-                
-            # 缓存模型
-            if self.model_cache_dir:
-                self._cache_model(model_type)
-                
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
+            self.model_handler.initialize_model(model_type)
         except Exception as e:
             logger.error(f"模型{model_type}初始化失败: {e}")
-            self._cleanup_on_error()
             raise
 
     def _init_openai_model(self):
@@ -139,6 +111,11 @@ class NovelGenerator:
                     "torch_dtype": torch.float16,
                     "low_cpu_mem_usage": True,
                 })
+            else:
+                logger.warning(f"GPU内存不足({free_memory/1024**3:.2f}GB)，将使用CPU模式")
+        else:
+            logger.warning("CUDA不可用，将使用CPU模式")
+            
         return config
 
     def _get_gpu_memory(self) -> int:
@@ -462,16 +439,7 @@ class NovelGenerator:
     def _vllm_generate(self, prompt):
         """VLLM生成方法"""
         try:
-            if not hasattr(self, 'vllm_model'):
-                raise RuntimeError("vLLM模型未初始化")
-            outputs = self.vllm_model.generate(prompts=[prompt],
-                                             temperature=self.ollama_cfg.get("temperature", 0.7),
-                                             top_p=0.9,
-                                             max_tokens=8192)
-            return outputs[0].outputs[0].text
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
+            return self.model_handler.generate_text(prompt, "vllm", self.ollama_cfg.get("temperature", 0.7))
         except Exception as e:
             logger.error(f"VLLM模型生成失败: {str(e)}")
             raise

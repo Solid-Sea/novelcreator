@@ -31,6 +31,12 @@ settings:
   timeout: 120                # API请求超时（秒）
   max_retries: 3              # 最大重试次数
 
+  # 显存监控配置
+  cuda_monitor:
+    mem_threshold: 16384        # 显存使用阈值(MB)
+    check_interval: 60         # 监控间隔(秒)
+    log_level: debug           # 日志级别
+
   # 视频生成参数
   video:
     resolution: "1920x1080"   # 输出视频分辨率
