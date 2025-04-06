@@ -115,11 +115,21 @@ class VideoGenerator:
         self.font = self._load_font()
 
     def _parse_video_params(self):
-        self.width, self.height = map(int, self.config['settings']['video']['resolution'].split('x'))
-        self.font_size: int = self.config['settings']['video']['font_size']
-        self.scroll_speed: int = self.config['settings']['video']['scroll_speed']
-        self.fps: int = self.config['settings']['video'].get('fps', 24)
-        self.codec: str = self.config['settings']['video'].get('codec', 'libx264')
+        self.video_config = VideoConfig(self.config)
+
+class VideoConfig:
+    def __init__(self, config: dict):
+        self._load_config(config)
+
+    def _load_config(self, config):
+        video_settings = config['settings']['video']
+        self.resolution = video_settings['resolution']
+        self.width, self.height = map(int, self.resolution.split('x'))
+        self.font_size: int = video_settings['font_size']
+        self.scroll_speed: int = video_settings['scroll_speed']
+        self.fps: int = video_settings.get('fps', 24)
+        self.codec: str = video_settings.get('codec', 'libx264')
+        self.font_file: str = video_settings['font']
 
 def main() -> None:
     """

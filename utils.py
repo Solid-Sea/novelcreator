@@ -101,11 +101,20 @@ def get_progress(book_title):
         return 0
 
 # 进度条显示
-def show_progress(current, total):
-    """进度条显示"""
+def show_progress(current: int, total: int) -> tqdm:
+    """
+    生成并返回进度条对象
+
+    Args:
+        current (int): 当前已完成的章节数
+        total (int): 总章节数
+
+    Returns:
+        tqdm: 配置好的进度条对象
+    """
     return tqdm(
         total=total, 
-        initial=current, 
+        initial=current,
         unit="章",
         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [已用:{elapsed}, 剩余:{remaining}]"
     )
