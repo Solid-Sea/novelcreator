@@ -94,7 +94,19 @@ class ModelHandler:
     def _find_model_subdir(self, base_path: str) -> Optional[str]:
         """智能查找模型子目录"""
         # 定义必要文件列表
-        required_files = ["config.json", "pytorch_model.bin", "tokenizer_config.json"]
+        required_files = ["config.json", "tokenizer_config.json"]
+        
+        # 检查模型目录是否存在
+        if not os.path.exists(base_path):
+            raise FileNotFoundError(f"模型目录不存在: {base_path}")
+            
+        # 检查safetensors或pytorch_model.bin文件
+        safetensors_files = []
+        if os.path.exists(base_path):
+            safetensors_files = [f for f in os.listdir(base_path) if f.startswith('model-') and f.endswith('.safetensors')]
+            
+        if not safetensors_files and not os.path.exists(os.path.join(model_dir, "pytorch_model.bin")):
+            raise FileNotFoundError(f"模型目录缺少必要文件: 未找到pytorch_model.bin或safetensors文件")
         
         # 1. 检查当前目录是否包含所有必要文件
         if all(os.path.exists(os.path.join(base_path, f)) for f in required_files):
@@ -103,15 +115,19 @@ class ModelHandler:
         # 2. 检查配置中指定的模型子目录
         if model_name := self.config['ollama'].get("hf_model"):
             subdir = os.path.join(base_path, model_name)
-            if os.path.isdir(subdir) and all(os.path.exists(os.path.join(subdir, f)) for f in required_files):
-                return subdir
+            if os.path.isdir(subdir):
+                if all(os.path.exists(os.path.join(subdir, f)) for f in required_files):
+                    return subdir
+                logger.debug(f"模型子目录存在但缺少必要文件: {subdir}")
                 
         # 3. 检查常见模型子目录结构
         common_subdirs = ["model", "models", "checkpoint", "checkpoints"]
         for subdir in common_subdirs:
             candidate = os.path.join(base_path, subdir)
-            if os.path.isdir(candidate) and all(os.path.exists(os.path.join(candidate, f)) for f in required_files):
-                return candidate
+            if os.path.isdir(candidate):
+                if all(os.path.exists(os.path.join(candidate, f)) for f in required_files):
+                    return candidate
+                logger.debug(f"常见子目录存在但缺少必要文件: {candidate}")
                 
         # 4. 遍历所有子目录查找
         for root, dirs, files in os.walk(base_path):
@@ -124,6 +140,7 @@ class ModelHandler:
                 logger.warning(f"找到部分匹配的模型目录: {root}, 缺少tokenizer_config.json")
                 return root
                 
+        logger.debug(f"未找到有效的模型目录结构，检查路径: {base_path}")
         return None
 
     def _load_model_from_path(self, model_path: str):
@@ -148,22 +165,50 @@ class ModelHandler:
             raise FileNotFoundError(f"模型目录不存在: {model_dir}")
             
         # 定义必要文件列表
-        required_files = ["config.json", "pytorch_model.bin", "tokenizer_config.json"]
+        required_files = ["config.json", "tokenizer_config.json"]
+        
+        # 检查模型目录是否存在
+        if not os.path.exists(model_dir):
+            raise FileNotFoundError(f"模型目录不存在: {model_dir}")
+            
+        # 检查safetensors或pytorch_model.bin文件
+        safetensors_files = []
+        if os.path.exists(model_dir):
+            safetensors_files = [f for f in os.listdir(model_dir) if f.startswith('model-') and f.endswith('.safetensors')]
+            
+        if not safetensors_files and not os.path.exists(os.path.join(model_dir, "pytorch_model.bin")):
+            raise FileNotFoundError(f"模型目录缺少必要文件: 未找到pytorch_model.bin或safetensors文件")
         
         # 查找有效的模型目录
-        model_dir = self._find_model_subdir(model_dir)
-        if not model_dir:
+        found_path = self._find_model_subdir(model_dir)
+        if not found_path:
             # 获取更详细的错误信息
             dir_contents = []
-            for root, dirs, files in os.walk(model_dir):
+            for root, dirs, files in os.walk(base_path):
                 dir_contents.extend(f"{root}/{f}" for f in files)
                 
             missing_files = [f for f in required_files if not os.path.exists(os.path.join(model_dir, f))]
-            logger.error(f"模型目录结构检查失败，缺少文件: {missing_files}")
+            logger.error(f"模型目录结构检查失败，路径: {model_dir}, 缺少文件: {missing_files}")
             logger.debug(f"目录内容: {dir_contents}")
+            
+            # 检查是否有部分匹配的文件
+            partial_matches = []
+            for root, dirs, files in os.walk(model_dir):
+                found_files = [f for f in required_files if f in files]
+                if found_files:
+                    partial_matches.append({
+                        "path": root,
+                        "files": found_files,
+                        "missing": [f for f in required_files if f not in files]
+                    })
+            
+            if partial_matches:
+                logger.warning(f"找到部分匹配的模型目录: {[m['path'] for m in partial_matches]}")
+                
             raise FileNotFoundError(
                 f"模型目录缺少必要文件: {missing_files}\n"
-                f"请确保模型目录包含以下文件: {required_files}"
+                f"请确保模型目录包含以下文件: {required_files}\n"
+                f"部分匹配的目录: {[m['path'] for m in partial_matches] if partial_matches else '无'}"
             )
             
         logger.info(f"加载模型目录: {model_dir}")
@@ -215,15 +260,22 @@ class ModelHandler:
         model_name = self.config['ollama'].get("hf_model")
         
         # 优先检查本地模型路径
-        model_path = os.path.join(os.path.dirname(__file__), "models", model_name)
+        local_model_name = model_name.replace('/', '_')
+        models_dir = os.path.join(os.path.dirname(__file__), "models")
+        model_path = os.path.join(models_dir, local_model_name)
+        
+        # 设置models为默认缓存目录
+        if not self.model_cache_dir:
+            self.model_cache_dir = models_dir
+            
         if os.path.exists(model_path):
             try:
-                logger.info(f"尝试从路径加载模型: {model_path}")
+                logger.info(f"尝试从本地路径加载模型: {model_path}")
                 self._model_cache["tf"] = self._load_model_from_path(model_path)
-                logger.info(f"成功从路径加载模型: {model_path}")
+                logger.info(f"成功从本地路径加载模型: {model_path}")
                 return self._model_cache[model_type]
             except Exception as e:
-                logger.error(f"从路径加载模型失败: {str(e)}")
+                logger.error(f"从本地路径加载模型失败: {str(e)}")
                 logger.debug(f"模型路径内容: {os.listdir(model_path)}")
                 if hasattr(e, 'args') and len(e.args) > 0:
                     logger.debug(f"详细错误信息: {e.args[0]}")
@@ -256,8 +308,19 @@ class ModelHandler:
             "low_cpu_mem_usage": True
         }
         
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name, **device_config)
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(model_name)
+            model = AutoModelForCausalLM.from_pretrained(model_name, **device_config)
+        except Exception as e:
+            logger.error(f"加载模型{model_name}失败: {str(e)}")
+            if "safetensors" in str(e):
+                logger.warning("尝试从本地缓存加载模型")
+                local_model_name = model_name.replace('/', '_')
+                models_dir = os.path.join(os.path.dirname(__file__), "models")
+                model_path = os.path.join(models_dir, local_model_name)
+                if os.path.exists(model_path):
+                    return self._load_model_from_path(model_path)
+            raise
         self._model_cache["tf"] = pipeline(
             "text-generation",
             model=model,

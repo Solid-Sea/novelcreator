@@ -251,3 +251,34 @@ Checkout your internet connection or see how to run the library in offline mode 
 [2025-04-07 12:57:56] INFO - 检测到CUDA设备[0]: Tesla T10
 [2025-04-07 13:03:32] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
 [2025-04-07 13:03:36] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-07 13:15:48] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 13:18:30] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-07 13:18:36] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-07 13:20:30] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 13:24:16] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 13:24:56] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-07 13:24:56] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-07 21:20:55] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 21:22:19] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-07 21:22:19] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-07 21:26:25] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 21:27:49] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:27:49] ERROR - 模型初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:39:14] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 21:40:38] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:40:38] ERROR - 模型初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:43:16] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 21:44:40] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:44:40] ERROR - 模型初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:46:55] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 21:48:20] ERROR - 模型tf初始化失败: name 'base_path' is not defined
+[2025-04-07 21:48:20] ERROR - 模型初始化失败: name 'base_path' is not defined
+[2025-04-07 21:54:32] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 21:56:04] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
+[2025-04-07 21:56:04] ERROR - 模型初始化失败: name 'model_dir' is not defined
+[2025-04-07 22:00:34] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 22:01:58] ERROR - 模型tf初始化失败: name 'base_path' is not defined
+[2025-04-07 22:01:58] ERROR - 模型初始化失败: name 'base_path' is not defined
+[2025-04-07 22:04:02] INFO - 检测到CUDA设备[0]: Tesla T10
