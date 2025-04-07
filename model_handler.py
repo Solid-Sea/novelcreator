@@ -2,16 +2,14 @@ import logging
 import os
 import torch
 import gc
+import json
 from typing import Optional, Dict, Any
 import yaml
 import openai
 import requests
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 
-try:
-    from vllm import LLM
-except ImportError:
-    LLM = None
+
 
 logger = logging.getLogger('ModelHandler')
 
@@ -39,55 +37,176 @@ class ModelHandler:
             'use_cache': True
         }
 
-    def _load_config(self):
+    def _load_config(self) -> dict:
+        """简化配置加载方式"""
         config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
+        
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"配置文件不存在: {config_path}")
+
         try:
-            if not os.path.exists(config_path):
-                logger.error(f"配置文件 {config_path} 不存在")
-                raise FileNotFoundError(f"配置文件 {config_path} 不存在")
             with open(config_path, 'r', encoding='utf-8') as f:
-                config = yaml.safe_load(f)
-                if not config:
-                    logger.error("配置文件内容为空")
-                    raise ValueError("配置文件内容为空")
-                
-                required_sections = ['ollama', 'paths', 'settings']
-                for section in required_sections:
-                    if section not in config:
-                        raise ValueError(f"配置文件中缺少必需部分: {section}")
-                
-                return config
+                config = yaml.safe_load(f) or {}
+
+            # 统一验证必需配置项
+            required = {'ollama', 'paths', 'settings'}
+            if missing := required - config.keys():
+                raise ValueError(f"缺失配置项: {', '.join(missing)}")
+
+            return config
+
         except yaml.YAMLError as e:
-            logger.error(f"配置文件解析错误: {str(e)}")
             raise ValueError(f"配置文件解析错误: {str(e)}")
         except Exception as e:
-            logger.error(f"加载配置文件失败: {str(e)}")
-            raise
+            raise RuntimeError(f"配置加载失败: {str(e)}")
 
     def _get_device(self):
+        """统一设备检测流程"""
         try:
-            if torch.cuda.is_available():
-                current_device = torch.cuda.current_device()
-                device_name = torch.cuda.get_device_name(current_device)
-                logger.info(f"检测到CUDA设备[{current_device}]: {device_name}")
-                torch.zeros(1).cuda()  # 测试CUDA是否工作
-                return torch.device("cuda")
-            else:
-                logger.warning("CUDA不可用，将使用CPU模式")
+            if not torch.cuda.is_available():
                 return torch.device("cpu")
+
+            # 统一检测流程
+            torch.cuda.init()
+            device = torch.device("cuda")
+            
+            # 显存检查
+            if torch.cuda.mem_get_info(device)[0] < 1024**3:  # 1GB
+                logger.warning("可用显存不足，自动回退CPU模式")
+                return torch.device("cpu")
+
+            # 测试设备可用性
+            torch.zeros(1).to(device)
+            logger.info(f"使用CUDA设备: {torch.cuda.get_device_name(device)}")
+            return device
+            
         except Exception as e:
-            logger.error(f"CUDA初始化失败: {str(e)}")
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
+            logger.error(f"CUDA初始化异常: {str(e)}")
+            torch.cuda.empty_cache()
             return torch.device("cpu")
 
     def _setup_memory_management(self):
+        """设置CUDA内存管理优化"""
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
             torch.backends.cudnn.benchmark = True
-            if hasattr(torch.cuda, 'memory_reserved'):
-                torch.cuda.memory_reserved()
 
+    def _find_model_subdir(self, base_path: str) -> Optional[str]:
+        """智能查找模型子目录"""
+        # 定义必要文件列表
+        required_files = ["config.json", "pytorch_model.bin", "tokenizer_config.json"]
+        
+        # 1. 检查当前目录是否包含所有必要文件
+        if all(os.path.exists(os.path.join(base_path, f)) for f in required_files):
+            return base_path
+            
+        # 2. 检查配置中指定的模型子目录
+        if model_name := self.config['ollama'].get("hf_model"):
+            subdir = os.path.join(base_path, model_name)
+            if os.path.isdir(subdir) and all(os.path.exists(os.path.join(subdir, f)) for f in required_files):
+                return subdir
+                
+        # 3. 检查常见模型子目录结构
+        common_subdirs = ["model", "models", "checkpoint", "checkpoints"]
+        for subdir in common_subdirs:
+            candidate = os.path.join(base_path, subdir)
+            if os.path.isdir(candidate) and all(os.path.exists(os.path.join(candidate, f)) for f in required_files):
+                return candidate
+                
+        # 4. 遍历所有子目录查找
+        for root, dirs, files in os.walk(base_path):
+            if all(f in files for f in required_files):
+                return root
+                
+        # 5. 尝试查找部分文件匹配的情况
+        for root, dirs, files in os.walk(base_path):
+            if "config.json" in files and "pytorch_model.bin" in files:
+                logger.warning(f"找到部分匹配的模型目录: {root}, 缺少tokenizer_config.json")
+                return root
+                
+        return None
+
+    def _load_model_from_path(self, model_path: str):
+        """智能加载模型文件或目录"""
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"模型路径不存在: {model_path}")
+
+        if os.path.isdir(model_path):
+            if found_path := self._find_model_subdir(model_path):
+                return self._load_model_from_dir(found_path)
+            raise ValueError(f"模型目录缺少必要文件: {model_path}")
+
+        if model_path.endswith('.pth'):
+            return self._handle_pth_file(model_path)
+                
+        raise ValueError(f"不支持的模型文件格式: {model_path}")
+            
+    def _load_model_from_dir(self, model_dir: str):
+        """从目录加载模型"""
+        # 检查模型目录是否存在
+        if not os.path.exists(model_dir):
+            raise FileNotFoundError(f"模型目录不存在: {model_dir}")
+            
+        # 定义必要文件列表
+        required_files = ["config.json", "pytorch_model.bin", "tokenizer_config.json"]
+        
+        # 查找有效的模型目录
+        model_dir = self._find_model_subdir(model_dir)
+        if not model_dir:
+            # 获取更详细的错误信息
+            dir_contents = []
+            for root, dirs, files in os.walk(model_dir):
+                dir_contents.extend(f"{root}/{f}" for f in files)
+                
+            missing_files = [f for f in required_files if not os.path.exists(os.path.join(model_dir, f))]
+            logger.error(f"模型目录结构检查失败，缺少文件: {missing_files}")
+            logger.debug(f"目录内容: {dir_contents}")
+            raise FileNotFoundError(
+                f"模型目录缺少必要文件: {missing_files}\n"
+                f"请确保模型目录包含以下文件: {required_files}"
+            )
+            
+        logger.info(f"加载模型目录: {model_dir}")
+        
+        # 设备配置
+        device_config = {
+            "device_map": "auto" if torch.cuda.is_available() else "cpu",
+            "torch_dtype": torch.float16 if torch.cuda.is_available() else torch.float32,
+            "low_cpu_mem_usage": True
+        }
+        
+        try:
+            # 加载tokenizer，优先尝试从目录加载
+            tokenizer_path = os.path.join(model_dir, "tokenizer_config.json")
+            if os.path.exists(tokenizer_path):
+                tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=self.config['ollama'].get('trust_remote_code', False))
+            else:
+                logger.warning(f"tokenizer_config.json不存在，尝试使用默认tokenizer")
+                tokenizer = AutoTokenizer.from_pretrained(
+                    self.config['ollama'].get("hf_model"), 
+                    trust_remote_code=self.config['ollama'].get('trust_remote_code', False)
+                )
+                
+            # 加载模型
+            model = AutoModelForCausalLM.from_pretrained(
+                model_dir,
+                **device_config,
+                trust_remote_code=self.config['ollama'].get('trust_remote_code', False)
+            )
+            
+            return pipeline(
+                "text-generation",
+                model=model,
+                tokenizer=tokenizer,
+                device=self.device
+            )
+        except Exception as e:
+            logger.error(f"从目录加载模型失败: {str(e)}")
+            logger.debug(f"模型目录内容: {os.listdir(model_dir)}")
+            if torch.cuda.is_available():
+                logger.debug(f"当前显存占用: {torch.cuda.memory_allocated()/1024**2:.2f}MB")
+            raise
+        
     def initialize_model(self, model_type: str):
         if model_type in self._model_cache:
             logger.info("使用缓存模型")
@@ -95,13 +214,24 @@ class ModelHandler:
             
         model_name = self.config['ollama'].get("hf_model")
         
+        # 优先检查本地模型路径
+        model_path = os.path.join(os.path.dirname(__file__), "models", model_name)
+        if os.path.exists(model_path):
+            try:
+                logger.info(f"尝试从路径加载模型: {model_path}")
+                self._model_cache["tf"] = self._load_model_from_path(model_path)
+                logger.info(f"成功从路径加载模型: {model_path}")
+                return self._model_cache[model_type]
+            except Exception as e:
+                logger.error(f"从路径加载模型失败: {str(e)}")
+                logger.debug(f"模型路径内容: {os.listdir(model_path)}")
+                if hasattr(e, 'args') and len(e.args) > 0:
+                    logger.debug(f"详细错误信息: {e.args[0]}")
+        
         try:
             if model_type == "tf":
                 self._init_transformer_model(model_name)
-            elif model_type == "vllm":
-                if LLM is None:
-                    raise ImportError("vLLM模块未正确安装")
-                self._init_vllm_model(model_name)
+            
             elif model_type == "ollama":
                 self._init_ollama_model()
             elif model_type == "openai" and "openai" in self.config:
@@ -135,12 +265,7 @@ class ModelHandler:
             device=self.device
         )
 
-    def _init_vllm_model(self, model_name: str):
-        self._model_cache["vllm"] = LLM(
-            model=model_name,
-            tensor_parallel_size=torch.cuda.device_count() if torch.cuda.is_available() else 1,
-            dtype="float16" if torch.cuda.is_available() else "float32"
-        )
+    
 
     def _init_ollama_model(self):
         self._model_cache["ollama"] = {
@@ -184,8 +309,7 @@ class ModelHandler:
             return self._ollama_generate(prompt, temperature)
         elif model_type == "tf":
             return self._transformer_generate(prompt, temperature)
-        elif model_type == "vllm":
-            return self._vllm_generate(prompt, temperature)
+        
         elif model_type == "openai":
             return self._openai_generate(prompt, temperature)
         else:
@@ -239,18 +363,7 @@ class ModelHandler:
             logger.error(f"Transformer模型生成失败: {str(e)}")
             raise
 
-    def _vllm_generate(self, prompt: str, temperature: Optional[float]) -> str:
-        try:
-            outputs = self._model_cache["vllm"].generate(
-                prompts=[prompt],
-                temperature=temperature or self.generation_config['temperature'],
-                top_p=self.generation_config['top_p'],
-                max_tokens=self.generation_config['max_new_tokens']
-            )
-            return outputs[0].outputs[0].text
-        except Exception as e:
-            logger.error(f"VLLM模型生成失败: {str(e)}")
-            raise
+    
 
     def _openai_generate(self, prompt: str, temperature: Optional[float]) -> str:
         try:

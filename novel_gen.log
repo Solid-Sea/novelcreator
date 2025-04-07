@@ -221,3 +221,33 @@ Checkout your internet connection or see how to run the library in offline mode 
 [2025-04-06 20:12:19] DEBUG - PyTorch编译版本: 12.4
 [2025-04-06 20:12:20] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
 [2025-04-06 20:28:04] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:08:45] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:10:10] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have a file named model-00006-of-00006.safetensors. Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-06 21:10:10] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have a file named model-00006-of-00006.safetensors. Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-06 21:14:28] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:15:09] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-06 21:15:09] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-06 21:19:33] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:20:13] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-06 21:20:13] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
+Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
+[2025-04-06 21:50:58] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:51:59] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:57:28] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 21:59:09] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:03:02] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:06:06] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:08:49] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:11:18] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:19:52] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:23:03] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:26:26] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:41:04] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-06 22:44:50] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 12:49:14] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 12:57:56] INFO - 检测到CUDA设备[0]: Tesla T10
+[2025-04-07 13:03:32] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
+[2025-04-07 13:03:36] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
