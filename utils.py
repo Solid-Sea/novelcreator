@@ -33,16 +33,16 @@ logger = setup_logger()
 def clean_content(text, blacklist=None):
     """内容清洗"""
     # 删除AI思考标签
-    text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL)
+    text = re.sub(r'<think>.*?</think>\s*', '', text, flags=re.DOTALL)
     
     if blacklist:
         # 范围删除
         for pattern in blacklist.get('ranges', []):
-            text = re.sub(pattern, '', text, flags=re.DOTALL)
+            text = re.sub(pattern + '\s*', '', text, flags=re.DOTALL)
         
         # 全字匹配删除
         for word in blacklist.get('exact', []):
-            text = re.sub(r'\b' + re.escape(word) + r'\b', '[已屏蔽]', text)
+            text = re.sub(r'(?<!\w)' + re.escape(word) + r'(?!\w)', '[已屏蔽]', text)
     
     # 清理空行
     return os.linesep.join([line for line in text.splitlines() if line.strip()])
@@ -118,3 +118,40 @@ def show_progress(current: int, total: int) -> tqdm:
         unit="章",
         bar_format="{l_bar}{bar}| {n_fmt}/{total_fmt} [已用:{elapsed}, 剩余:{remaining}]"
     )
+
+
+
+import os
+import yaml
+from typing import Dict, Any
+
+
+def load_config() -> Dict[str, Any]:
+    """加载配置文件
+    
+    Returns:
+        Dict[str, Any]: 配置字典
+    
+    Raises:
+        FileNotFoundError: 当配置文件不存在时
+        ValueError: 当配置文件格式错误或缺少必要配置项时
+        RuntimeError: 当其他错误发生时
+    """
+    try:
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yaml')
+        if not os.path.exists(config_path):
+            raise FileNotFoundError(f"配置文件不存在: {config_path}")
+            
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f) or {}
+            
+        required_sections = {'ollama', 'paths', 'settings'}
+        if missing := required_sections - config.keys():
+            raise ValueError(f"缺失必要配置项: {', '.join(missing)}")
+            
+        return config
+        
+    except yaml.YAMLError as e:
+        raise ValueError(f"配置文件解析错误: {str(e)}")
+    except Exception as e:
+        raise RuntimeError(f"配置加载失败: {str(e)}")

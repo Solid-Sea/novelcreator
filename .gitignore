@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+novels
+novel_gen.log
 # C extensions
 *.so
 

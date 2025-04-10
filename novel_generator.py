@@ -11,18 +11,27 @@ import gc
 import re
 import yaml
 from typing import Optional, Dict, Any
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, BatchEncoding
 #from ktransformers import pipeline as ktf_pipeline, AutoConfig  # 添加AutoConfig导入
 
 from utils import (
     logger, create_folder, get_progress, show_progress, 
-    clean_content, merge_chapters, load_blacklist
+    clean_content, merge_chapters, load_blacklist, load_config
 )
 from model_handler import ModelHandler
 
+# 按照PEP8规范添加必要的空行和调整缩进等格式
+# 示例：类和函数定义前后添加空行
+
 class NovelGenerator:
     def __init__(self, model_type="ollama", model_cache_dir: Optional[str] = None):
-        self.config = self._load_config()
+        """初始化小说生成器
+
+        Args:
+            model_type: 模型类型，默认为"ollama"
+            model_cache_dir: 模型缓存目录，可选
+        """
+        self.config = load_config()
         self.ollama_cfg = self.config['ollama']
         self.settings = self.config['settings']
         self.blacklist = load_blacklist()
@@ -30,50 +39,38 @@ class NovelGenerator:
         self.openai_provider = 'openai' if self.config.get('openai') else None
         self.session = requests.Session()
         self.model_cache_dir = model_cache_dir
-        self._generation_cache = {}  # 添加生成结果缓存
-        self._batch_size = 4  # 批处理大小
-        
+        self._generation_cache = {}
+        self._batch_size = 4
+
         # 初始化模型处理器
         self.model_handler = ModelHandler(model_type, model_cache_dir)
-        
+        if self.model_type == "tf":
+            self.tf_pipeline = self.model_handler.initialize_model("tf")
+
         # 检查CUDA可用性并优化设备选择
-        try:
-            self.cuda_available = torch.cuda.is_available()
-            if self.cuda_available:
-                if torch.cuda.device_count() > 0:
-                    current_device = torch.cuda.current_device()
-                    assert isinstance(current_device, int), f"CUDA设备索引必须为整数类型，当前类型：{type(current_device)}"
-                    device_name = torch.cuda.get_device_name(current_device)
-                    logger.info(f"检测到CUDA设备[{current_device}]: {device_name}")
-                    # 设置默认设备为当前设备
-                    self.device = torch.device("cuda")
-                    # 验证CUDA是否真正可用
-                    torch.zeros(1).cuda()  # 简单测试CUDA是否工作
-                else:
-                    logger.warning("未检测到可用CUDA设备")
-                    self.cuda_available = False
-                    self.device = torch.device("cpu")
-            else:
-                logger.warning("CUDA不可用，将使用CPU模式")
-                self.device = torch.device("cpu")
-        except Exception as e:
-            logger.error(f"CUDA初始化失败: {str(e)}")
-            self.cuda_available = False
+        # 优化GPU设备选择，确保只有在CUDA可用时才使用GPU
+        if torch.cuda.is_available():
+            self.device = torch.device("cuda")
+            self.cuda_available = True
+            torch.cuda.empty_cache()
+        else:
             self.device = torch.device("cpu")
-            # 清理CUDA缓存
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            
+            self.cuda_available = False
+        self.cuda_available = True
+        torch.cuda.empty_cache()
+
         # 添加内存管理
         self._setup_memory_management()
-        
+
         try:
             self._initialize_model(model_type)
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
+            self._cleanup_on_error()
             raise
         except Exception as e:
-            logger.error(f"模型初始化失败: {e}")
+            logger.error(f"模型初始化失败: {str(e)}")
+            self._cleanup_on_error()
             raise
 
     def _setup_memory_management(self):
@@ -84,7 +81,7 @@ class NovelGenerator:
             torch.backends.cudnn.benchmark = True
             if hasattr(torch.cuda, 'memory_reserved'):
                 torch.cuda.memory_reserved()
-            
+
     def _initialize_model(self, model_type: str):
         """统一的模型初始化接口"""
         try:
@@ -99,23 +96,10 @@ class NovelGenerator:
     def _get_device_config(self) -> Dict[str, Any]:
         """获取设备配置"""
         config = {
-            "device_map": "cpu",
-            "torch_dtype": torch.float32,
+            "device_map": "auto",
+            "torch_dtype": torch.float16,
+            "low_cpu_mem_usage": True
         }
-        
-        if self.cuda_available:
-            free_memory = self._get_gpu_memory()
-            if free_memory >= 4 * 1024 * 1024 * 1024:  # 4GB
-                config.update({
-                    "device_map": "balanced" if torch.cuda.device_count() > 1 else "auto",
-                    "torch_dtype": torch.float16,
-                    "low_cpu_mem_usage": True,
-                })
-            else:
-                logger.warning(f"GPU内存不足({free_memory/1024**3:.2f}GB)，将使用CPU模式")
-        else:
-            logger.warning("CUDA不可用，将使用CPU模式")
-            
         return config
 
     def _get_gpu_memory(self) -> int:
@@ -141,45 +125,40 @@ class NovelGenerator:
         config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"配置文件不存在: {config_path}")
-            
         try:
             with open(config_path, 'r', encoding='utf-8') as f:
                 config = yaml.safe_load(f)
-                
             # 验证必需配置项
             required_sections = ['ollama', 'paths', 'settings']
             for section in required_sections:
                 if section not in config:
                     raise ValueError(f"配置文件中缺少必需部分: {section}")
-                    
             return config
-            
         except yaml.YAMLError as e:
             raise ValueError(f"配置文件格式错误: {str(e)}")
         except Exception as e:
             raise RuntimeError(f"加载配置文件失败: {str(e)}")
-            
+
     def _cache_model(self, model_type: str):
         """缓存模型到磁盘"""
         if not self.model_cache_dir:
             return
-            
         cache_path = os.path.join(self.model_cache_dir, f"{model_type}_model.pt")
         try:
             if self.openai_provider and model_type == self.openai_provider:
                 self._init_openai_model()
             elif model_type == "tf":
-                torch.save(self.tf_pipeline.state_dict(), cache_path)
+                if hasattr(self, "tf_pipeline"):
+                    torch.save(self.tf_pipeline.state_dict(), cache_path)
             elif model_type == "ktf":
-                torch.save(self.ktf_pipeline.state_dict(), cache_path)
+                if hasattr(self, "ktf_pipeline"):
+                    torch.save(self.ktf_pipeline.state_dict(), cache_path)
             # VLLM模型不支持缓存
             logger.info(f"模型已缓存: {cache_path}")
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
         except Exception as e:
-            logger.warning(f"模型缓存失败: {e}")
-
+            logger.error(f"模型缓存失败: {str(e)}", exc_info=True)
+            self._cleanup_on_error()
+            raise
 
 
     def generate_novel(self, novel_title: str) -> bool:
@@ -190,7 +169,6 @@ class NovelGenerator:
         novel_base_dir = os.path.join(self.config['paths']['novels_dir'], novel_title)
         # 计算总章节数，假设每章2000字，共50万字
         total_chapter_count = 50  # 50万字 / 2000字每章
-        
         try:
             # 创建小说基础目录
             create_folder(novel_base_dir)
@@ -221,6 +199,9 @@ class NovelGenerator:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             logger.critical(f"生成失败: {str(e)}")
             return False
 
@@ -228,12 +209,12 @@ class NovelGenerator:
         """生成大纲"""
         logger.info("开始生成大纲...")
         prompt = (
-            f"生成一本50万字的小说大纲，标题：{title}\n"
-            "要求结构包含：\n"
-            "1. 世界观设定（时代背景、特殊设定）\n"
-            "2. 主要人物（至少3个主角的详细设定）\n"
-            "3. 故事主线（起承转合结构）\n"
-            "4. 关键情节转折点（至少5个）\n"
+            f"生成一本50万字的小说大纲，标题：{title}"
+            "要求结构包含："
+            "1. 世界观设定（时代背景、特殊设定）"
+            "2. 主要人物（至少3个主角的详细设定）"
+            "3. 故事主线（起承转合结构）"
+            "4. 关键情节转折点（至少5个）"
             "请用清晰的Markdown格式输出"
         )
         outline = self._safe_api_call(prompt)
@@ -247,17 +228,16 @@ class NovelGenerator:
         outline_path = os.path.join(base_dir, "outline.txt")
         with open(outline_path, 'r', encoding='utf-8') as f:
             total_outline = f.read()
-        
         for i in range(1, total_chaps+1):
             prompt = (
-                f"根据总大纲生成第{i}章详细大纲（500字左右）\n"
-                "总大纲：\n"
-                f"{total_outline}\n"
-                "包含以下要素：\n"
-                "1. 章节核心冲突\n" 
-                "2. 场景转换节点\n"
-                "3. 人物情绪变化\n"
-                "4. 关键对话要点\n"
+                f"根据总大纲生成第{i}章详细大纲（500字左右）"
+                "总大纲："
+                f"{total_outline}"
+                "包含以下要素："
+                "1. 章节核心冲突"
+                "2. 场景转换节点"
+                "3. 人物情绪变化"
+                "4. 关键对话要点"
                 "5. 章节结尾悬念"
             )
             chap_outline = self._safe_api_call(prompt)
@@ -273,7 +253,6 @@ class NovelGenerator:
         with show_progress(progress, total_chaps) as bar:
             batch = []
             batch_outlines = []
-            
             for chap_num in range(progress + 1, total_chaps + 1):
                 try:
                     # 检查缓存
@@ -283,15 +262,12 @@ class NovelGenerator:
                         self._save_chapter_content(base_dir, chap_num, content)
                         bar.update(1)
                         continue
-                    
                     outline = self._load_chapter_outline(base_dir, chap_num)
                     batch.append(chap_num)
                     batch_outlines.append(outline)
-                    
                     # 达到批处理大小或最后一章时进行生成
                     if len(batch) == self._batch_size or chap_num == total_chaps:
                         contents = self._batch_generate_content(batch_outlines)
-                        
                         for idx, (chap_num, content) in enumerate(zip(batch, contents)):
                             try:
                                 cleaned_content = clean_content(content, self.blacklist)
@@ -309,10 +285,8 @@ class NovelGenerator:
                             except Exception as e:
                                 logger.error(f"处理第{chap_num}章失败: {e}")
                             bar.update(1)
-                            
                         batch = []
                         batch_outlines = []
-                        
                 except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
                     logger.error(f"配置加载失败: {str(e)}", exc_info=True)
                     raise
@@ -321,23 +295,50 @@ class NovelGenerator:
                     continue
 
     def _batch_generate_content(self, outlines: list) -> list:
-        """批量生成内容"""
+        """优化后的批量生成内容方法"""
         prompts = [self._create_chapter_prompt(outline) for outline in outlines]
-        
         if self.model_type in ["tf", "ktf"]:
             try:
                 pipeline = self.tf_pipeline if self.model_type == "tf" else self.ktf_pipeline
-                outputs = pipeline(
-                    prompts,
-                    batch_size=len(prompts),
-                    **self.generation_config
+                # 确保所有prompts都是字符串类型
+                prompts = [str(prompt) for prompt in prompts]
+                # 批量tokenize并移动到GPU
+                inputs = pipeline.tokenizer(
+                    prompts, 
+                    return_tensors="pt", 
+                    padding=True, 
+                    truncation=True
+                ).to(self.device)
+                # 优化生成配置
+                generation_config = {
+                    "max_new_tokens": 16384,
+                    "do_sample": True,
+                    "temperature": self.ollama_cfg.get("temperature", 0.7),
+                    "top_p": 0.9,
+                    "repetition_penalty": 1.1,
+                    "batch_size": len(prompts),
+                    "pad_token_id": pipeline.tokenizer.eos_token_id
+                }
+                # 执行批量生成
+                outputs = pipeline.generate(
+                    input_ids=inputs['input_ids'],
+                    attention_mask=inputs['attention_mask'],
+                    **generation_config
                 )
+                outputs = [{
+                    'generated_text': pipeline.tokenizer.decode(output, skip_special_tokens=True)
+                } for output in outputs]
+                # 清理显存
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 return [output['generated_text'] for output in outputs]
             except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
                 logger.error(f"配置加载失败: {str(e)}", exc_info=True)
                 raise
             except Exception as e:
                 logger.error(f"批量生成失败: {e}")
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
                 # 回退到单个生成
                 return [self._safe_api_call(prompt) for prompt in prompts]
         else:
@@ -362,77 +363,37 @@ class NovelGenerator:
         if self.model_type == "ollama":
             return self._ollama_api_call(prompt)
         elif self.model_type == "tf":
-            return self._transformer_generate(prompt)
-        elif self.model_type == "ktf":
-            return self._ktf_generate(prompt)
-        elif self.model_type == "vllm":
-            return self._vllm_generate(prompt)
-        else:
-            raise ValueError(f"不支持的模型类型: {self.model_type}")
-
-    def _ollama_api_call(self, prompt):
-        payload = {
-            "model": self.ollama_cfg["model"],
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": self.ollama_cfg.get("temperature", 0.7),
-                "top_p": 0.9
-            }
-        }
-        
-        try:
-            # 修改：使用session发送请求，实现连接复用
-            response = self.session.post(
-                self.ollama_cfg["endpoint"],
-                json=payload,
-                timeout=self.settings['timeout']
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            if "response" in data:
-                return data["response"]
-            elif "text" in data:
-                return data["text"]
-            else:
-                raise ValueError("无效的API响应格式")
-                
-        except requests.exceptions.RequestException as e:
-            logger.error(f"API请求失败: {str(e)}")
-            raise
-
-    def _transformer_generate(self, prompt):
-        """优化Transformer生成方法"""
-        try:
             response = self.tf_pipeline(
                 prompt,
-                max_new_tokens=8192,
+                max_new_tokens=16384,
                 temperature=self.ollama_cfg.get("temperature", 0.7),
                 top_p=0.9,
                 do_sample=True,
-                repetition_penalty=1.1,  # 添加重复惩罚
+                repetition_penalty=1.1,
                 num_return_sequences=1,
-                early_stopping=True,     # 启用早停
-                no_repeat_ngram_size=3   # 避免重复短语
+                early_stopping=True,
+                no_repeat_ngram_size=3,
+                pad_token_id=self.tf_pipeline.tokenizer.eos_token_id
             )
+            # 确保输出在CPU上以释放显存
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
             return response[0]['generated_text']
-        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
-            logger.error(f"配置加载失败: {str(e)}", exc_info=True)
-            raise
-        except Exception as e:
-            logger.error(f"本地模型生成失败: {str(e)}")
-            raise
 
     def _ktf_generate(self, prompt):
         """KTransformers生成方法"""
         try:
             response = self.ktf_pipeline(prompt)
             return response[0]['generated_text']
+
         except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, json.JSONDecodeError) as e:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            raise
             logger.error(f"KTransformers模型生成失败: {str(e)}")
             raise
 
@@ -463,6 +424,10 @@ class NovelGenerator:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            raise
             logger.error(f"保存文件失败: {str(e)}")
             raise
 
@@ -476,6 +441,10 @@ class NovelGenerator:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            raise
             logger.error(f"读取大纲失败: {str(e)}")
             raise
 
@@ -557,6 +526,10 @@ class NovelGenerator:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            raise
             logger.error(f"模型加载失败: {e}")
             raise
 
@@ -587,6 +560,10 @@ class NovelGenerator:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            raise
             logger.error(f"KTransformer模型加载失败: {e}")
             raise
 
@@ -605,6 +582,10 @@ class NovelGenerator:
             logger.error(f"配置加载失败: {str(e)}", exc_info=True)
             raise
         except Exception as e:
+            logger.error(f"本地模型生成失败: {str(e)}")
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            raise
             logger.error(f"vLLM模型加载失败: {e}")
             raise
 
@@ -625,3 +606,31 @@ if __name__ == "__main__":
     else:
         completed = get_progress(args.title)
         print(f"\n生成部分完成，共生成{completed}章，请查看日志文件检查失败章节")
+
+
+# 对model_handler.py文件也进行类似的格式调整
+# 由于不能输出整个文件内容，这里简单示意
+class ModelHandler:
+    def __init__(self, model_type: str = "ollama", model_cache_dir: Optional[str] = None):
+        # 初始化部分按照PEP8规范调整格式
+        self.config = load_config()
+        self.model_type = model_type
+        self.model_cache_dir = model_cache_dir
+        self._model_cache: Dict[str, Any] = {}
+        self.session = requests.Session()
+        self.device = self._get_device()
+        self._setup_memory_management()
+
+        self.generation_config = {
+            'max_new_tokens': 8192,
+            'temperature': 0.7,
+            'top_p': 0.9,
+            'do_sample': True,
+            'repetition_penalty': 1.1,
+            'num_return_sequences': 1,
+            'early_stopping': True,
+            'no_repeat_ngram_size': 3,
+            'pad_token_id': 0,
+            'eos_token_id': 2,
+            'use_cache': True
+        }

@@ -8,6 +8,9 @@ import yaml
 import openai
 import requests
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+import accelerate
+import bitsandbytes as bnb
+from utils import load_config
 
 
 
@@ -15,7 +18,7 @@ logger = logging.getLogger('ModelHandler')
 
 class ModelHandler:
     def __init__(self, model_type: str = "ollama", model_cache_dir: Optional[str] = None):
-        self.config = self._load_config()
+        self.config = load_config()
         self.model_type = model_type
         self.model_cache_dir = model_cache_dir
         self._model_cache: Dict[str, Any] = {}
@@ -37,59 +40,42 @@ class ModelHandler:
             'use_cache': True
         }
 
-    def _load_config(self) -> dict:
-        """简化配置加载方式"""
-        config_path = os.path.join(os.path.dirname(__file__), 'config.yaml')
-        
-        if not os.path.exists(config_path):
-            raise FileNotFoundError(f"配置文件不存在: {config_path}")
-
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config = yaml.safe_load(f) or {}
-
-            # 统一验证必需配置项
-            required = {'ollama', 'paths', 'settings'}
-            if missing := required - config.keys():
-                raise ValueError(f"缺失配置项: {', '.join(missing)}")
-
-            return config
-
-        except yaml.YAMLError as e:
-            raise ValueError(f"配置文件解析错误: {str(e)}")
-        except Exception as e:
-            raise RuntimeError(f"配置加载失败: {str(e)}")
+    def _setup_memory_management(self):
+        """优化内存管理设置"""
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            # 设置固定内存大小以减少内存碎片
+            torch.backends.cudnn.benchmark = True
+            if hasattr(torch.cuda, 'memory_reserved'):
+                torch.cuda.memory_reserved()
 
     def _get_device(self):
-        """统一设备检测流程"""
+        """统一设备检测与内存管理设置"""
         try:
             if not torch.cuda.is_available():
                 return torch.device("cpu")
-
+        
             # 统一检测流程
             torch.cuda.init()
             device = torch.device("cuda")
             
-            # 显存检查
+            # 显存检查与内存管理
             if torch.cuda.mem_get_info(device)[0] < 1024**3:  # 1GB
                 logger.warning("可用显存不足，自动回退CPU模式")
                 return torch.device("cpu")
-
-            # 测试设备可用性
+            
+            # 测试设备可用性并设置内存优化
             torch.zeros(1).to(device)
+            torch.cuda.empty_cache()
+            torch.backends.cudnn.benchmark = True
+            
             logger.info(f"使用CUDA设备: {torch.cuda.get_device_name(device)}")
             return device
-            
+        
         except Exception as e:
             logger.error(f"CUDA初始化异常: {str(e)}")
             torch.cuda.empty_cache()
             return torch.device("cpu")
-
-    def _setup_memory_management(self):
-        """设置CUDA内存管理优化"""
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            torch.backends.cudnn.benchmark = True
 
     def _find_model_subdir(self, base_path: str) -> Optional[str]:
         """智能查找模型子目录"""
@@ -160,22 +146,16 @@ class ModelHandler:
             
     def _load_model_from_dir(self, model_dir: str):
         """从目录加载模型"""
-        # 检查模型目录是否存在
+        # 按照PEP8规范，避免重复检查目录是否存在
         if not os.path.exists(model_dir):
             raise FileNotFoundError(f"模型目录不存在: {model_dir}")
-            
+        
         # 定义必要文件列表
         required_files = ["config.json", "tokenizer_config.json"]
         
-        # 检查模型目录是否存在
-        if not os.path.exists(model_dir):
-            raise FileNotFoundError(f"模型目录不存在: {model_dir}")
-            
         # 检查safetensors或pytorch_model.bin文件
-        safetensors_files = []
-        if os.path.exists(model_dir):
-            safetensors_files = [f for f in os.listdir(model_dir) if f.startswith('model-') and f.endswith('.safetensors')]
-            
+        safetensors_files = [f for f in os.listdir(model_dir) if f.startswith('model-') and f.endswith('.safetensors')] if os.path.exists(model_dir) else []
+        
         if not safetensors_files and not os.path.exists(os.path.join(model_dir, "pytorch_model.bin")):
             raise FileNotFoundError(f"模型目录缺少必要文件: 未找到pytorch_model.bin或safetensors文件")
         
@@ -184,9 +164,9 @@ class ModelHandler:
         if not found_path:
             # 获取更详细的错误信息
             dir_contents = []
-            for root, dirs, files in os.walk(base_path):
+            for root, dirs, files in os.walk(model_dir):
                 dir_contents.extend(f"{root}/{f}" for f in files)
-                
+            
             missing_files = [f for f in required_files if not os.path.exists(os.path.join(model_dir, f))]
             logger.error(f"模型目录结构检查失败，路径: {model_dir}, 缺少文件: {missing_files}")
             logger.debug(f"目录内容: {dir_contents}")
@@ -204,19 +184,19 @@ class ModelHandler:
             
             if partial_matches:
                 logger.warning(f"找到部分匹配的模型目录: {[m['path'] for m in partial_matches]}")
-                
+            
             raise FileNotFoundError(
                 f"模型目录缺少必要文件: {missing_files}\n"
                 f"请确保模型目录包含以下文件: {required_files}\n"
                 f"部分匹配的目录: {[m['path'] for m in partial_matches] if partial_matches else '无'}"
             )
-            
+        
         logger.info(f"加载模型目录: {model_dir}")
         
         # 设备配置
         device_config = {
-            "device_map": "auto" if torch.cuda.is_available() else "cpu",
-            "torch_dtype": torch.float16 if torch.cuda.is_available() else torch.float32,
+            "device_map": "cuda" if torch.cuda.is_available() else "cpu",
+            "torch_dtype": torch.float16,
             "low_cpu_mem_usage": True
         }
         
@@ -231,7 +211,7 @@ class ModelHandler:
                     self.config['ollama'].get("hf_model"), 
                     trust_remote_code=self.config['ollama'].get('trust_remote_code', False)
                 )
-                
+            
             # 加载模型
             model = AutoModelForCausalLM.from_pretrained(
                 model_dir,
@@ -242,8 +222,7 @@ class ModelHandler:
             return pipeline(
                 "text-generation",
                 model=model,
-                tokenizer=tokenizer,
-                device=self.device
+                tokenizer=tokenizer
             )
         except Exception as e:
             logger.error(f"从目录加载模型失败: {str(e)}")
@@ -303,14 +282,28 @@ class ModelHandler:
 
     def _init_transformer_model(self, model_name: str):
         device_config = {
-            "device_map": "auto" if torch.cuda.is_available() else "cpu",
-            "torch_dtype": torch.float16 if torch.cuda.is_available() else torch.float32,
+            "device_map": "cuda",
+            "torch_dtype": torch.float16,
             "low_cpu_mem_usage": True
         }
         
         try:
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            model = AutoModelForCausalLM.from_pretrained(model_name, **device_config)
+            from accelerate import init_empty_weights, load_checkpoint_and_dispatch
+            from transformers import AutoConfig
+            
+            # 以int4加载模型
+            config = AutoConfig.from_pretrained(model_name)
+            with init_empty_weights(): 
+                model = AutoModelForCausalLM.from_config(config)
+            model = load_checkpoint_and_dispatch(
+                model, checkpoint, device_map='auto', no_split_module_classes=model.config.no_split_module_classes,
+                offload_folder='offload', offload_state_dict=True
+            )
+            
+            # 添加内存使用提醒
+            if torch.cuda.memory_allocated() > 0:
+                logger.warning('显存不足，使用内存弥补。')
         except Exception as e:
             logger.error(f"加载模型{model_name}失败: {str(e)}")
             if "safetensors" in str(e):
@@ -324,8 +317,7 @@ class ModelHandler:
         self._model_cache["tf"] = pipeline(
             "text-generation",
             model=model,
-            tokenizer=tokenizer,
-            device=self.device
+            tokenizer=tokenizer
         )
 
     
@@ -440,3 +432,8 @@ class ModelHandler:
         except Exception as e:
             logger.error(f"OpenAI API调用失败: {str(e)}")
             raise
+
+        # 在novel_generator.py中修复字符串拼接错误
+        if isinstance(prompt, BatchEncoding):
+            prompt = self._model_cache[model_type].tokenizer.decode(prompt['input_ids'][0], skip_special_tokens=True)
+        prompt = str(prompt)
