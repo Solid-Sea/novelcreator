@@ -3,25 +3,24 @@ import os
 import json
 import time
 import requests
-from utils import logger, create_folder, get_progress, show_progress, clean_content
+from utils import logger, create_folder, get_progress, show_progress, clean_content, load_model_handler
+from typing import Optional, Any
+from llama_cpp_handler import LlamaCppHandler
 
 class NovelGenerator:
-    def __init__(self):
-        self.config = self._load_config()
-        self.ollama_cfg = self.config['ollama']
-        self.settings = self.config['settings']
+    def __init__(self) -> None:
+        self.config: dict[str, Any] = self._load_config()
+        self.ollama_cfg: dict[str, Any] = self.config['ollama']
+        self.settings: dict[str, Any] = self.config['settings']
+        self.model_handler: Optional[LlamaCppHandler] = load_model_handler(self.config)
         
-    def _load_config(self):
+    def _load_config(self) -> dict[str, Any]:
         """加载配置文件"""
-        try:
-            with open('config.yaml', 'r', encoding='utf-8') as f:
-                import yaml
-                return yaml.safe_load(f)
-        except Exception as e:
-            logger.error(f"加载配置文件失败: {str(e)}")
-            raise
+        with open('config.yaml', 'r', encoding='utf-8') as f:
+            import yaml
+            return yaml.safe_load(f)
 
-    def generate_novel(self, title):
+    def generate_novel(self, title: str) -> bool:
         """主生成流程"""
         base_dir = os.path.join(self.config['paths']['novels_dir'], title)
         total_chaps = 50  # 50万字 / 2000字每章
@@ -45,7 +44,7 @@ class NovelGenerator:
             logger.critical(f"生成失败: {str(e)}")
             return False
 
-    def _generate_outline(self, title, base_dir):
+    def _generate_outline(self, title: str, base_dir: str) -> None:
         """生成大纲"""
         logger.info("开始生成大纲...")
         prompt = (
@@ -62,7 +61,7 @@ class NovelGenerator:
         self._save_text(outline_path, outline)
         logger.info("大纲生成完成")
 
-    def _generate_chapter_outlines(self, title, total_chaps, base_dir):
+    def _generate_chapter_outlines(self, title: str, total_chaps: int, base_dir: str) -> None:
         """生成章节大纲"""
         logger.info("开始生成章节大纲...")
         outline_path = os.path.join(base_dir, "outline.txt")
@@ -88,7 +87,7 @@ class NovelGenerator:
                 logger.info(f"已生成{i}章大纲")
         logger.info("章节大纲全部生成完成")
 
-    def _generate_chapters(self, title, total_chaps, base_dir, progress):
+    def _generate_chapters(self, title: str, total_chaps: int, base_dir: str, progress: int) -> None:
         """生成章节正文"""
         logger.info("开始生成章节内容...")
         with show_progress(progress, total_chaps) as bar:
@@ -111,8 +110,20 @@ class NovelGenerator:
                     self._save_chapter_content(base_dir, chap_num, f"第{chap_num}章生成失败，需要手动补写")
                     bar.update(1)
 
-    def _safe_api_call(self, prompt):
+    def _safe_api_call(self, prompt: str) -> str:
         """安全的API调用"""
+        # 优先使用本地模型
+        if self.model_handler is not None:
+            try:
+                return self.model_handler.generate(
+                    prompt=prompt,
+                    temperature=self.config['llama'].get('temperature', 0.7),
+                    max_tokens=self.config['llama'].get('max_tokens', 2048)
+                )
+            except Exception as e:
+                logger.error(f"本地模型调用失败，尝试Ollama: {str(e)}")
+
+        # 回退到Ollama API
         payload = {
             "model": self.ollama_cfg["model"],
             "prompt": prompt,
@@ -142,11 +153,11 @@ class NovelGenerator:
         except requests.exceptions.RequestException as e:
             logger.error(f"API请求失败: {str(e)}")
             raise
-        except json.JSONDecodeError:
-            logger.error(f"JSON解析失败，原始响应: {response.text[:200]}...")
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON解析失败: {str(e)}")
             raise
 
-    def _save_text(self, path, content):
+    def _save_text(self, path: str, content: str) -> None:
         """安全保存文本"""
         try:
             with open(path, 'w', encoding='utf-8') as f:
@@ -155,7 +166,7 @@ class NovelGenerator:
             logger.error(f"保存文件失败: {str(e)}")
             raise
 
-    def _load_chapter_outline(self, base_dir, chap_num):
+    def _load_chapter_outline(self, base_dir: str, chap_num: int) -> str:
         """加载章节大纲"""
         outline_path = os.path.join(base_dir, "tl", f"chap_{chap_num:03d}.txt")
         try:
@@ -165,7 +176,7 @@ class NovelGenerator:
             logger.error(f"读取大纲失败: {str(e)}")
             raise
 
-    def _generate_chapter_content(self, outline):
+    def _generate_chapter_content(self, outline: str) -> str:
         """生成章节内容"""
         prompt = (
             f"根据以下大纲编写2000-2500字的小说章节：\n{outline}\n"
@@ -183,7 +194,7 @@ class NovelGenerator:
             raise ValueError("生成内容过短")
         return content
 
-    def _save_chapter_content(self, base_dir, chap_num, content):
+    def _save_chapter_content(self, base_dir: str, chap_num: int, content: str) -> None:
         """保存章节内容"""
         chap_path = os.path.join(base_dir, "chaps", f"chap_{chap_num:03d}.txt")
         self._save_text(chap_path, content)

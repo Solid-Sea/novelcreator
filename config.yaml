@@ -3,6 +3,12 @@ ollama:
   model: "deepseek-r1:1.5b"  # 或您安装的其他模型
   temperature: 0.6  # 增加创意性
 
+llama:
+  model_path: "D:/novelcreator-v2/models/Zyphra_ZR1-1.5B-IQ4_XS.gguf"  # GGUF模型路径
+  n_ctx: 16384        # 上下文长度
+  n_gpu_layers: -1   # 使用全部GPU层数
+  temperature: 0.6
+
 paths:
   novels_dir: "./novels"
   

@@ -1,3 +1,4 @@
 tqdm
 pyyaml
 requests
+llama-cpp-python>=0.2.72,<0.3.0  # 确保兼容性
