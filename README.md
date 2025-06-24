@@ -25,8 +25,12 @@ cd novelcreator-tf
 # 安装Python依赖
 pip install -r requirements.txt
 
-# 确保Ollama服务运行并包含所需模型
-ollama serve
+# 安装Ollama并下载模型（示例使用llama3）
+curl -fsSL https://ollama.com/install.sh | sh
+ollama pull llama3
+
+# 启动Ollama服务（后台运行）
+ollama serve &
 ```
 
 ## 📝 配置文件
@@ -51,12 +55,13 @@ banned_words:
 
 ### 生成小说
 ```bash
-python novel_generator.py --prompt "科幻小说大纲" --output story.txt
+python main.py --mode novel --prompt "科幻小说大纲" --output story.txt
 ```
 
 ### 生成视频
 ```bash
-python video_generator.py --input story.txt --output video.mp4
+python main.py --mode video --input story.txt --output video.mp4 \
+  --font resources/SimHei.ttf
 ```
 
 ### 可选参数
@@ -73,13 +78,18 @@ python video_generator.py --input story.txt --output video.mp4
 | `utils.py`           | 通用工具函数 |
 | `blacklist.yaml`     | 内容过滤配置 |
 | `config.yaml`        | 全局配置文件 |
-| `assets/SimHei.ttf`  | 中文字体文件 |
+| `resources/SimHei.ttf` | 中文字体文件 |
+| `main.py`            | 统一入口脚本 |
 
 ## ⚠️ 注意事项
-1. 当前为测试版本，可能存在不稳定情况
-2. 确保Ollama服务包含config.yaml中指定的模型
-3. 视频生成需要FFmpeg环境
-4. 使用前请配置blacklist.yaml过滤敏感内容
+1. 安装依赖: `pip install -r requirements.txt`
+2. Ollama模型: 确保下载config.yaml中指定的模型 `ollama pull <model_name>`
+3. FFmpeg安装:
+   - Windows: 从 https://ffmpeg.org/download.html 下载并添加至PATH
+   - Linux: `sudo apt install ffmpeg`
+   - Mac: `brew install ffmpeg`
+4. 字体路径: 视频生成需指定字体文件路径 `--font resources/SimHei.ttf`
+5. 内容过滤: 使用前配置config/blacklist.yaml过滤敏感内容
 
 ## 📜 许可证
 本项目采用 [MIT License](LICENSE)
