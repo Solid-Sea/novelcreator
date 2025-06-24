@@ -91,7 +91,8 @@ class ModelHandler:
         if os.path.exists(base_path):
             safetensors_files = [f for f in os.listdir(base_path) if f.startswith('model-') and f.endswith('.safetensors')]
             
-        if not safetensors_files and not os.path.exists(os.path.join(model_dir, "pytorch_model.bin")):
+        # 修复未定义model_dir问题
+        if not safetensors_files and not os.path.exists(os.path.join(base_path, "pytorch_model.bin")):
             raise FileNotFoundError(f"模型目录缺少必要文件: 未找到pytorch_model.bin或safetensors文件")
         
         # 1. 检查当前目录是否包含所有必要文件
@@ -99,7 +100,8 @@ class ModelHandler:
             return base_path
             
         # 2. 检查配置中指定的模型子目录
-        if model_name := self.config['ollama'].get("hf_model"):
+        model_name = self.config['ollama'].get("hf_model")
+        if model_name:
             subdir = os.path.join(base_path, model_name)
             if os.path.isdir(subdir):
                 if all(os.path.exists(os.path.join(subdir, f)) for f in required_files):
@@ -135,7 +137,8 @@ class ModelHandler:
             raise FileNotFoundError(f"模型路径不存在: {model_path}")
 
         if os.path.isdir(model_path):
-            if found_path := self._find_model_subdir(model_path):
+            found_path = self._find_model_subdir(model_path)
+            if found_path:
                 return self._load_model_from_dir(found_path)
             raise ValueError(f"模型目录缺少必要文件: {model_path}")
 
@@ -282,28 +285,21 @@ class ModelHandler:
 
     def _init_transformer_model(self, model_name: str):
         device_config = {
-            "device_map": "cuda",
+            "device_map": "auto",
             "torch_dtype": torch.float16,
             "low_cpu_mem_usage": True
         }
         
         try:
+            # 简化模型加载逻辑
             tokenizer = AutoTokenizer.from_pretrained(model_name)
-            from accelerate import init_empty_weights, load_checkpoint_and_dispatch
-            from transformers import AutoConfig
+            model = AutoModelForCausalLM.from_pretrained(model_name, **device_config)
             
-            # 以int4加载模型
-            config = AutoConfig.from_pretrained(model_name)
-            with init_empty_weights(): 
-                model = AutoModelForCausalLM.from_config(config)
-            model = load_checkpoint_and_dispatch(
-                model, checkpoint, device_map='auto', no_split_module_classes=model.config.no_split_module_classes,
-                offload_folder='offload', offload_state_dict=True
+            self._model_cache["tf"] = pipeline(
+                "text-generation",
+                model=model,
+                tokenizer=tokenizer
             )
-            
-            # 添加内存使用提醒
-            if torch.cuda.memory_allocated() > 0:
-                logger.warning('显存不足，使用内存弥补。')
         except Exception as e:
             logger.error(f"加载模型{model_name}失败: {str(e)}")
             if "safetensors" in str(e):
@@ -314,11 +310,6 @@ class ModelHandler:
                 if os.path.exists(model_path):
                     return self._load_model_from_path(model_path)
             raise
-        self._model_cache["tf"] = pipeline(
-            "text-generation",
-            model=model,
-            tokenizer=tokenizer
-        )
 
     
 

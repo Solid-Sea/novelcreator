@@ -51,7 +51,13 @@ def clean_content(text, blacklist=None):
 def load_blacklist():
     """加载违禁词列表"""
     try:
-        with open('blacklist.yaml', 'r', encoding='utf-8') as f:
+        # 构建黑名单文件路径
+        blacklist_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config', 'blacklist.yaml')
+        if not os.path.exists(blacklist_path):
+            logging.warning(f"黑名单文件未找到: {blacklist_path}")
+            return {'exact': [], 'ranges': []}
+            
+        with open(blacklist_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     except FileNotFoundError:
         return {'exact': [], 'ranges': []}
@@ -138,7 +144,8 @@ def load_config() -> Dict[str, Any]:
         RuntimeError: 当其他错误发生时
     """
     try:
-        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.yaml')
+        # 更新配置文件路径
+        config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'config', 'config.yaml')
         if not os.path.exists(config_path):
             raise FileNotFoundError(f"配置文件不存在: {config_path}")
             
@@ -146,7 +153,8 @@ def load_config() -> Dict[str, Any]:
             config = yaml.safe_load(f) or {}
             
         required_sections = {'ollama', 'paths', 'settings'}
-        if missing := required_sections - config.keys():
+        missing = required_sections - config.keys()
+        if missing:
             raise ValueError(f"缺失必要配置项: {', '.join(missing)}")
             
         return config
