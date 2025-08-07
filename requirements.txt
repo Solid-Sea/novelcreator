@@ -1,16 +1,10 @@
 torch
-#torchvision
-#==0.18.1
+# 保留transformers/torch用于可选本地TF模式；若未来仅用Ollama可再移除
 transformers>=4.30.0
-sentencepiece>=0.1.99
-protobuf>=3.20.0
-vllm
 pyyaml>=6.0
 requests>=2.28.0
 tqdm>=4.65.0
 opencv-python
 pillow
-accelerate>=0.20.0
-bitsandbytes>=0.41.0
 moviepy
 numpy

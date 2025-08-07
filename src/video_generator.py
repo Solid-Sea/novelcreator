@@ -1,196 +1,233 @@
+# -*- coding: utf-8 -*-
+# File: video_generator.py
 import os
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
-from moviepy.editor import ImageSequenceClip
-from utils import logger
+import logging
+from pathlib import Path
+from typing import List, Tuple, Optional
+import re
+import textwrap
+from .utils import load_config, logger
 
 class VideoGenerator:
     def __init__(self):
-        self.config = self._load_config()
-        self.font = self._load_font()
-
-    def generate_video(self, text_file: str, output_file: str) -> bool:
-        """
-        生成滚动文本视频
+        self.config = load_config()
+        self.settings = self.config.get('settings', {})
+        self.video_settings = self.settings.get('video', {})
         
-        Args:
-            text_file: 输入文本文件路径
-            output_file: 输出视频文件路径
-            
-        Returns:
-            bool: 生成是否成功
-        """
+        # 视频参数
+        self.width = self.video_settings.get('width', 1920)
+        self.height = self.video_settings.get('height', 1080)
+        self.fps = self.video_settings.get('fps', 24)
+        self.font_size = self.video_settings.get('font_size', 32)
+        self.text_color = tuple(self.video_settings.get('text_color', [255, 255, 255]))
+        self.bg_color = tuple(self.video_settings.get('bg_color', [0, 0, 0]))
+        self.margin = self.video_settings.get('margin', 100)
+        self.line_spacing = self.video_settings.get('line_spacing', 10)
+        
+    def generate_video(self, input_text: str, output_path: str, font_path: str = None) -> None:
+        """从文本生成视频"""
         try:
-            with open(text_file, 'r', encoding='utf-8') as f:
+            if not os.path.exists(input_text):
+                raise FileNotFoundError(f"输入文件不存在: {input_text}")
+                
+            with open(input_text, 'r', encoding='utf-8') as f:
                 text = f.read()
-
-            lines = self._split_text(text)
-            frames = self._generate_frames(lines)
+                
+            if not text.strip():
+                raise ValueError("输入文件为空")
+                
+            self.generate_from_text(text, output_path, font_path)
             
-            clip = ImageSequenceClip(frames, fps=self.fps)
-            clip.write_videofile(output_file, codec=self.codec)
-            
-            logger.info(f"视频生成成功：{output_file}")
-            return True
-        except IOError as e:
-            logger.error(f"文件操作失败：{str(e)}")
-        except (ValueError, AttributeError) as e:
-            logger.error(f"配置参数错误：{str(e)}")
         except Exception as e:
-            logger.error(f"未知错误：{str(e)}")
-        return False
+            logger.error(f"视频生成失败: {str(e)}")
+            raise
 
-    def _split_text(self, text: str) -> list[str]:
-        """
-        将长文本分割为适合屏幕显示的行
-        
-        Args:
-            text: 输入文本
+    def generate_from_text(self, text: str, output_path: str, font_path: str = None) -> None:
+        """从文本内容生成视频"""
+        try:
+            # 确保输出目录存在
+            output_dir = os.path.dirname(output_path)
+            if output_dir:
+                os.makedirs(output_dir, exist_ok=True)
+                
+            # 分割文本为段落
+            paragraphs = self._split_text(text)
+            if not paragraphs:
+                raise ValueError("没有可处理的文本内容")
+                
+            # 设置字体
+            if font_path is None:
+                font_path = os.path.join(os.path.dirname(__file__), '..', 'resources', 'SimHei.ttf')
+                
+            if not os.path.exists(font_path):
+                logger.warning(f"字体文件不存在，使用默认字体: {font_path}")
+                font = ImageFont.load_default()
+            else:
+                try:
+                    font = ImageFont.truetype(font_path, self.font_size)
+                except Exception as e:
+                    logger.warning(f"加载字体失败，使用默认字体: {str(e)}")
+                    font = ImageFont.load_default()
             
-        Returns:
-            分割后的文本行列表
-        """
-        char_per_line = self.width // (self.font_size // 2)
-        # 使用生成器表达式减少内存占用
-        return list(text[i:i+char_per_line] for i in range(0, len(text), char_per_line))
+            # 创建视频写入器
+            fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+            out = cv2.VideoWriter(output_path, fourcc, self.fps, (self.width, self.height))
+            
+            if not out.isOpened():
+                raise RuntimeError("无法创建视频文件")
+                
+            logger.info(f"开始生成视频，共{len(paragraphs)}个段落")
+            
+            # 为每个段落生成帧
+            for i, paragraph in enumerate(paragraphs):
+                frames = self._create_paragraph_frames(paragraph, font)
+                for frame in frames:
+                    out.write(frame)
+                    
+                if i % 10 == 0:
+                    logger.info(f"已处理 {i+1}/{len(paragraphs)} 个段落")
+            
+            out.release()
+            logger.info(f"视频生成完成: {output_path}")
+            
+        except Exception as e:
+            logger.error(f"视频生成失败: {str(e)}")
+            if 'out' in locals():
+                out.release()
+            raise
 
-    def _generate_frames(self, lines: list[str]) -> list[np.ndarray]:
-        """
-        生成滚动文本的视频帧序列
+    def _split_text(self, text: str) -> List[str]:
+        """将文本分割为适合显示的段落"""
+        # 按句子分割
+        sentences = re.split(r'[。！？.!?]+', text)
+        paragraphs = []
+        current_para = ""
         
-        Args:
-            lines: 分割后的文本行列表
+        for sentence in sentences:
+            sentence = sentence.strip()
+            if not sentence:
+                continue
+                
+            if len(current_para + sentence) < 200:  # 每段约200字符
+                current_para += sentence + "。"
+            else:
+                if current_para:
+                    paragraphs.append(current_para)
+                current_para = sentence + "。"
+        
+        if current_para:
+            paragraphs.append(current_para)
             
-        Returns:
-            包含所有视频帧的numpy数组列表
-        """
-        # 预分配内存
-        total_frames = (len(lines) * self.height) // self.scroll_speed
-        frames = [None] * total_frames
+        return paragraphs
+
+    def _create_paragraph_frames(self, text: str, font: ImageFont.FreeTypeFont) -> List[np.ndarray]:
+        """为段落创建视频帧"""
+        frames = []
         
-        # 预创建图像对象
-        img = Image.new('RGB', (self.width, self.height), color=(0, 0, 0))
+        # 计算文本在图像中的位置
+        wrapped_lines = self._wrap_text(text, font)
+        
+        # 创建背景图像
+        img = Image.new('RGB', (self.width, self.height), self.bg_color)
         draw = ImageDraw.Draw(img)
         
-        for frame_num in range(total_frames):
-            # 复用图像对象
-            img.paste((0, 0, 0), (0, 0, self.width, self.height))
-            y_pos = self.height - (frame_num * self.scroll_speed)
-            
-            for i, line in enumerate(lines):
-                draw.text(
-                    (10, y_pos + i * self.font_size),
-                    line,
-                    font=self.font,
-                    fill=(255, 255, 255))
-            
-            frames[frame_num] = np.array(img)
+        # 计算文本起始位置（垂直居中）
+        total_height = len(wrapped_lines) * (self.font_size + self.line_spacing)
+        start_y = (self.height - total_height) // 2
         
+        # 绘制文本
+        y = start_y
+        for line in wrapped_lines:
+            # 计算水平居中位置
+            bbox = draw.textbbox((0, 0), line, font=font)
+            text_width = bbox[2] - bbox[0]
+            x = (self.width - text_width) // 2
+            
+            draw.text((x, y), line, font=font, fill=self.text_color)
+            y += self.font_size + self.line_spacing
+        
+        # 将PIL图像转换为OpenCV格式
+        frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        
+        # 每段文字显示3秒
+        frames_count = int(self.fps * 3)
+        for _ in range(frames_count):
+            frames.append(frame.copy())
+            
         return frames
 
-    def _load_font(self) -> ImageFont.FreeTypeFont:
-        """
-        加载字体文件
+    def _wrap_text(self, text: str, font: ImageFont.FreeTypeFont) -> List[str]:
+        """文本换行处理"""
+        max_width = self.width - 2 * self.margin
         
-        Returns:
-            FreeTypeFont: 加载的字体对象
+        # 使用textwrap进行换行
+        wrapped_lines = textwrap.wrap(text, width=30)  # 中文字符宽度约为英文字符的2倍
         
-        Raises:
-            FontNotFound: 字体加载失败时抛出
-        """
+        # 进一步处理每行，确保不超出边界
+        lines = []
+        for line in wrapped_lines:
+            if self._get_text_width(line, font) <= max_width:
+                lines.append(line)
+            else:
+                # 如果单行仍然太宽，强制分割
+                words = list(line)
+                current_line = ""
+                for char in words:
+                    test_line = current_line + char
+                    if self._get_text_width(test_line, font) <= max_width:
+                        current_line = test_line
+                    else:
+                        if current_line:
+                            lines.append(current_line)
+                        current_line = char
+                if current_line:
+                    lines.append(current_line)
+        
+        return lines
+
+    def _get_text_width(self, text: str, font: ImageFont.FreeTypeFont) -> int:
+        """获取文本宽度"""
         try:
-            return ImageFont.truetype(
-                self.config['settings']['video']['font'],
-                self.font_size)
+            # 使用PIL的textbbox方法
+            img = Image.new('RGB', (1, 1))
+            draw = ImageDraw.Draw(img)
+            bbox = draw.textbbox((0, 0), text, font=font)
+            return bbox[2] - bbox[0]
+        except:
+            # 备用方法
+            return len(text) * self.font_size
+
+    def generate_from_directory(self, directory: str, output_path: str, font_path: str = None) -> None:
+        """从目录中的多个文本文件生成视频"""
+        try:
+            if not os.path.exists(directory):
+                raise FileNotFoundError(f"目录不存在: {directory}")
+                
+            text_files = [f for f in os.listdir(directory) if f.endswith('.txt')]
+            if not text_files:
+                raise ValueError("目录中没有文本文件")
+                
+            text_files.sort()
+            
+            all_text = ""
+            for text_file in text_files:
+                file_path = os.path.join(directory, text_file)
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read().strip()
+                        if content:
+                            all_text += f"\n\n=== {text_file} ===\n\n{content}"
+                except Exception as e:
+                    logger.warning(f"读取文件失败: {text_file}, 错误: {str(e)}")
+            
+            if not all_text.strip():
+                raise ValueError("所有文本文件都为空")
+                
+            self.generate_from_text(all_text, output_path, font_path)
+            
         except Exception as e:
-            logger.error(f"字体加载失败：{str(e)}")
-            raise RuntimeError(f"字体加载失败：{str(e)}") from e
-
-    def __init__(self) -> None:
-        from model_handler import ModelHandler
-        self.model_handler = ModelHandler()
-        self.config = self.model_handler.config
-        self._parse_video_params()
-        self.font = self._load_font()
-
-    def _parse_video_params(self):
-        self.video_config = VideoConfig(self.config)
-
-class VideoConfig:
-    def __init__(self, config: dict):
-        self._load_config(config)
-
-    def _load_config(self, config: dict) -> None:
-        """
-        加载并验证视频配置参数
-        
-        Args:
-            config: 从config.yaml加载的配置字典
-            
-        Raises:
-            KeyError: 当缺少必需配置项时
-            ValueError: 当配置值无效时
-        """
-        try:
-            video_settings = config['settings']['video']
-            
-            # 解析分辨率
-            self.resolution: str = video_settings['resolution']
-            try:
-                self.width, self.height = map(int, self.resolution.split('x'))
-            except ValueError:
-                raise ValueError(f"无效的分辨率格式: {self.resolution}, 应为'宽度x高度'格式")
-                
-            # 视频参数
-            self.font_size: int = video_settings.get('font_size', 24)
-            self.scroll_speed: int = video_settings.get('scroll_speed', 2)
-            self.fps: int = video_settings.get('fps', 24)
-            self.codec: str = video_settings.get('codec', 'libx264')
-            
-            # 必需参数检查
-            self.font_file: str = video_settings['font']
-            if not os.path.exists(self.font_file):
-                raise FileNotFoundError(f"字体文件不存在: {self.font_file}")
-                
-        except KeyError as e:
-            raise KeyError(f"缺少必需的视频配置项: {str(e)}")
-
-def main() -> None:
-    """
-    命令行入口函数
-    
-    功能：
-    - 解析输入输出路径参数
-    - 初始化视频生成器
-    - 执行视频生成流程
-    - 输出最终状态码
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description='文本视频生成器',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("--input", 
-                      required=True,
-                      type=str,
-                      help="输入文本文件路径")
-    parser.add_argument("--output",
-                      required=True,
-                      type=str,
-                      help="输出视频文件路径")
-    args = parser.parse_args()
-
-    try:
-        generator = VideoGenerator()
-        success = generator.generate_video(args.input, args.output)
-        exit_code = 0 if success else 1
-        logger.info(f"程序退出代码: {exit_code}")
-    except Exception as e:
-        logger.critical(f"程序异常终止: {str(e)}")
-        exit_code = 2
-    finally:
-        exit(exit_code)
-
-if __name__ == "__main__":
-    main()
+            logger.error(f"从目录生成视频失败: {str(e)}")
+            raise

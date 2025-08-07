@@ -1,18 +1,14 @@
+# -*- coding: utf-8 -*-
+# File: model_handler.py
 import logging
 import os
 import torch
 import gc
-import json
 from typing import Optional, Dict, Any
-import yaml
 import openai
 import requests
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
-import accelerate
-import bitsandbytes as bnb
-from utils import load_config
-
-
+from .utils import load_config
 
 logger = logging.getLogger('ModelHandler')
 
@@ -44,10 +40,7 @@ class ModelHandler:
         """优化内存管理设置"""
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
-            # 设置固定内存大小以减少内存碎片
             torch.backends.cudnn.benchmark = True
-            if hasattr(torch.cuda, 'memory_reserved'):
-                torch.cuda.memory_reserved()
 
     def _get_device(self):
         """统一设备检测与内存管理设置"""
@@ -55,16 +48,13 @@ class ModelHandler:
             if not torch.cuda.is_available():
                 return torch.device("cpu")
         
-            # 统一检测流程
             torch.cuda.init()
             device = torch.device("cuda")
             
-            # 显存检查与内存管理
             if torch.cuda.mem_get_info(device)[0] < 1024**3:  # 1GB
                 logger.warning("可用显存不足，自动回退CPU模式")
                 return torch.device("cpu")
             
-            # 测试设备可用性并设置内存优化
             torch.zeros(1).to(device)
             torch.cuda.empty_cache()
             torch.backends.cudnn.benchmark = True
@@ -79,50 +69,39 @@ class ModelHandler:
 
     def _find_model_subdir(self, base_path: str) -> Optional[str]:
         """智能查找模型子目录"""
-        # 定义必要文件列表
         required_files = ["config.json", "tokenizer_config.json"]
         
-        # 检查模型目录是否存在
         if not os.path.exists(base_path):
             raise FileNotFoundError(f"模型目录不存在: {base_path}")
             
-        # 检查safetensors或pytorch_model.bin文件
         safetensors_files = []
         if os.path.exists(base_path):
             safetensors_files = [f for f in os.listdir(base_path) if f.startswith('model-') and f.endswith('.safetensors')]
             
-        # 修复未定义model_dir问题
         if not safetensors_files and not os.path.exists(os.path.join(base_path, "pytorch_model.bin")):
             raise FileNotFoundError(f"模型目录缺少必要文件: 未找到pytorch_model.bin或safetensors文件")
         
-        # 1. 检查当前目录是否包含所有必要文件
         if all(os.path.exists(os.path.join(base_path, f)) for f in required_files):
             return base_path
             
-        # 2. 检查配置中指定的模型子目录
         model_name = self.config['ollama'].get("hf_model")
         if model_name:
             subdir = os.path.join(base_path, model_name)
             if os.path.isdir(subdir):
                 if all(os.path.exists(os.path.join(subdir, f)) for f in required_files):
                     return subdir
-                logger.debug(f"模型子目录存在但缺少必要文件: {subdir}")
                 
-        # 3. 检查常见模型子目录结构
         common_subdirs = ["model", "models", "checkpoint", "checkpoints"]
         for subdir in common_subdirs:
             candidate = os.path.join(base_path, subdir)
             if os.path.isdir(candidate):
                 if all(os.path.exists(os.path.join(candidate, f)) for f in required_files):
                     return candidate
-                logger.debug(f"常见子目录存在但缺少必要文件: {candidate}")
                 
-        # 4. 遍历所有子目录查找
         for root, dirs, files in os.walk(base_path):
             if all(f in files for f in required_files):
                 return root
                 
-        # 5. 尝试查找部分文件匹配的情况
         for root, dirs, files in os.walk(base_path):
             if "config.json" in files and "pytorch_model.bin" in files:
                 logger.warning(f"找到部分匹配的模型目录: {root}, 缺少tokenizer_config.json")
@@ -149,23 +128,18 @@ class ModelHandler:
             
     def _load_model_from_dir(self, model_dir: str):
         """从目录加载模型"""
-        # 按照PEP8规范，避免重复检查目录是否存在
         if not os.path.exists(model_dir):
             raise FileNotFoundError(f"模型目录不存在: {model_dir}")
         
-        # 定义必要文件列表
         required_files = ["config.json", "tokenizer_config.json"]
         
-        # 检查safetensors或pytorch_model.bin文件
         safetensors_files = [f for f in os.listdir(model_dir) if f.startswith('model-') and f.endswith('.safetensors')] if os.path.exists(model_dir) else []
         
         if not safetensors_files and not os.path.exists(os.path.join(model_dir, "pytorch_model.bin")):
             raise FileNotFoundError(f"模型目录缺少必要文件: 未找到pytorch_model.bin或safetensors文件")
         
-        # 查找有效的模型目录
         found_path = self._find_model_subdir(model_dir)
         if not found_path:
-            # 获取更详细的错误信息
             dir_contents = []
             for root, dirs, files in os.walk(model_dir):
                 dir_contents.extend(f"{root}/{f}" for f in files)
@@ -174,7 +148,6 @@ class ModelHandler:
             logger.error(f"模型目录结构检查失败，路径: {model_dir}, 缺少文件: {missing_files}")
             logger.debug(f"目录内容: {dir_contents}")
             
-            # 检查是否有部分匹配的文件
             partial_matches = []
             for root, dirs, files in os.walk(model_dir):
                 found_files = [f for f in required_files if f in files]
@@ -196,7 +169,6 @@ class ModelHandler:
         
         logger.info(f"加载模型目录: {model_dir}")
         
-        # 设备配置
         device_config = {
             "device_map": "cuda" if torch.cuda.is_available() else "cpu",
             "torch_dtype": torch.float16,
@@ -204,23 +176,8 @@ class ModelHandler:
         }
         
         try:
-            # 加载tokenizer，优先尝试从目录加载
-            tokenizer_path = os.path.join(model_dir, "tokenizer_config.json")
-            if os.path.exists(tokenizer_path):
-                tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=self.config['ollama'].get('trust_remote_code', False))
-            else:
-                logger.warning(f"tokenizer_config.json不存在，尝试使用默认tokenizer")
-                tokenizer = AutoTokenizer.from_pretrained(
-                    self.config['ollama'].get("hf_model"), 
-                    trust_remote_code=self.config['ollama'].get('trust_remote_code', False)
-                )
-            
-            # 加载模型
-            model = AutoModelForCausalLM.from_pretrained(
-                model_dir,
-                **device_config,
-                trust_remote_code=self.config['ollama'].get('trust_remote_code', False)
-            )
+            tokenizer = AutoTokenizer.from_pretrained(model_dir, trust_remote_code=self.config['ollama'].get('trust_remote_code', False))
+            model = AutoModelForCausalLM.from_pretrained(model_dir, **device_config, trust_remote_code=self.config['ollama'].get('trust_remote_code', False))
             
             return pipeline(
                 "text-generation",
@@ -233,7 +190,7 @@ class ModelHandler:
             if torch.cuda.is_available():
                 logger.debug(f"当前显存占用: {torch.cuda.memory_allocated()/1024**2:.2f}MB")
             raise
-        
+
     def initialize_model(self, model_type: str):
         if model_type in self._model_cache:
             logger.info("使用缓存模型")
@@ -241,12 +198,10 @@ class ModelHandler:
             
         model_name = self.config['ollama'].get("hf_model")
         
-        # 优先检查本地模型路径
         local_model_name = model_name.replace('/', '_')
         models_dir = os.path.join(os.path.dirname(__file__), "models")
         model_path = os.path.join(models_dir, local_model_name)
         
-        # 设置models为默认缓存目录
         if not self.model_cache_dir:
             self.model_cache_dir = models_dir
             
@@ -265,7 +220,6 @@ class ModelHandler:
         try:
             if model_type == "tf":
                 self._init_transformer_model(model_name)
-            
             elif model_type == "ollama":
                 self._init_ollama_model()
             elif model_type == "openai" and "openai" in self.config:
@@ -291,7 +245,6 @@ class ModelHandler:
         }
         
         try:
-            # 简化模型加载逻辑
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             model = AutoModelForCausalLM.from_pretrained(model_name, **device_config)
             
@@ -310,8 +263,6 @@ class ModelHandler:
                 if os.path.exists(model_path):
                     return self._load_model_from_path(model_path)
             raise
-
-    
 
     def _init_ollama_model(self):
         self._model_cache["ollama"] = {
@@ -347,7 +298,10 @@ class ModelHandler:
             if hasattr(model, "state_dict"):
                 del model
 
-    def generate_text(self, prompt: str, model_type: str, temperature: Optional[float] = None) -> str:
+    def generate_text(self, prompt: str, model_type: str = None, temperature: Optional[float] = None) -> str:
+        if model_type is None:
+            model_type = self.model_type
+            
         if model_type not in self._model_cache:
             self.initialize_model(model_type)
             
@@ -355,7 +309,6 @@ class ModelHandler:
             return self._ollama_generate(prompt, temperature)
         elif model_type == "tf":
             return self._transformer_generate(prompt, temperature)
-        
         elif model_type == "openai":
             return self._openai_generate(prompt, temperature)
         else:
@@ -373,8 +326,12 @@ class ModelHandler:
         }
         
         try:
+            endpoint = self._model_cache["ollama"]["endpoint"]
+            if not endpoint.endswith('/api/generate'):
+                endpoint = f"{endpoint.rstrip('/')}/api/generate"
+                
             response = self.session.post(
-                self._model_cache["ollama"]["endpoint"],
+                endpoint,
                 json=payload,
                 timeout=self.config['settings']['timeout']
             )
@@ -409,8 +366,6 @@ class ModelHandler:
             logger.error(f"Transformer模型生成失败: {str(e)}")
             raise
 
-    
-
     def _openai_generate(self, prompt: str, temperature: Optional[float]) -> str:
         try:
             response = openai.Completion.create(
@@ -423,8 +378,3 @@ class ModelHandler:
         except Exception as e:
             logger.error(f"OpenAI API调用失败: {str(e)}")
             raise
-
-        # 在novel_generator.py中修复字符串拼接错误
-        if isinstance(prompt, BatchEncoding):
-            prompt = self._model_cache[model_type].tokenizer.decode(prompt['input_ids'][0], skip_special_tokens=True)
-        prompt = str(prompt)
