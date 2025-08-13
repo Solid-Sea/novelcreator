@@ -66,7 +66,8 @@ def run_command_line(args):
             generator.continue_novel(args.title, args.output_dir)
             print(f"小说续写完成! 保存至: {args.output_dir}/{args.title}")
         elif args.action == 'merge':
-            merge_chapters(os.path.join(args.output_dir, args.title))
+            blacklist = load_blacklist()
+            merge_chapters(os.path.join(args.output_dir, args.title), blacklist)
             print(f"章节合并完成! 完整小说保存至: {args.output_dir}/{args.title}/full_novel.txt")
 
     elif args.mode == 'video':
@@ -208,7 +209,8 @@ def merge_novel_chapters():
         return
         
     try:
-        merge_chapters(novel_dir)
+        blacklist = load_blacklist()
+        merge_chapters(novel_dir, blacklist)
         print(f"章节合并完成! 完整小说保存至: {novel_dir}/full_novel.txt")
     except Exception as e:
         logger.error(f"章节合并失败: {str(e)}")
