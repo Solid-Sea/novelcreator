@@ -325,29 +325,39 @@ class ModelHandler:
             }
         }
         
-        try:
-            endpoint = self._model_cache["ollama"]["endpoint"]
-            if not endpoint.endswith('/api/generate'):
-                endpoint = f"{endpoint.rstrip('/')}/api/generate"
+        max_retries = 3
+        retry_delay = 2
+        
+        for attempt in range(max_retries):
+            try:
+                endpoint = self._model_cache["ollama"]["endpoint"]
+                if not endpoint.endswith('/api/generate'):
+                    endpoint = f"{endpoint.rstrip('/')}/api/generate"
+                    
+                response = self.session.post(
+                    endpoint,
+                    json=payload,
+                    timeout=self.config['settings']['timeout']
+                )
+                response.raise_for_status()
+                data = response.json()
                 
-            response = self.session.post(
-                endpoint,
-                json=payload,
-                timeout=self.config['settings']['timeout']
-            )
-            response.raise_for_status()
-            data = response.json()
-            
-            if "response" in data:
-                return data["response"]
-            elif "text" in data:
-                return data["text"]
-            else:
-                raise ValueError("无效的API响应格式")
-                
-        except requests.exceptions.RequestException as e:
-            logger.error(f"API请求失败: {str(e)}")
-            raise
+                if "response" in data:
+                    return data["response"]
+                elif "text" in data:
+                    return data["text"]
+                else:
+                    raise ValueError("无效的API响应格式")
+                    
+            except requests.exceptions.RequestException as e:
+                if attempt < max_retries - 1:
+                    logger.warning(f"API请求失败，{retry_delay}秒后重试({attempt+1}/{max_retries}): {str(e)}")
+                    import time
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # 指数退避
+                else:
+                    logger.error(f"API请求最终失败: {str(e)}")
+                    raise
 
     def _transformer_generate(self, prompt: str, temperature: Optional[float]) -> str:
         try:

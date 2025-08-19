@@ -11,7 +11,19 @@ paths:
 
 # 系统设置
 settings:
-  timeout: 120                # API请求超时（秒）
+  timeout: 240                # API请求超时（秒）
+
+  # Reader机制配置（M1）
+  reader:
+    enabled: true
+    max_review_rounds: 2
+    min_total_score: 7
+    hard_fail_dims: ["coherence", "character_consistency", "safety"]
+    sample_review: true
+    sample_strategy: ["head", "key", "tail"]
+    max_summary_len: 400
+    min_chapter_chars: 4000
+    sample_threshold_chars: 5000
 
   # 视频生成参数（与实现对齐）
   video:

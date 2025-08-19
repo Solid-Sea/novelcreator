@@ -1,997 +1,270 @@
-[2025-04-06 10:27:58] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 10:30:28] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 10:34:01] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 10:34:03] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 10:34:03] ERROR - 模型加载失败: 'NoneType' object has no attribute 'replace'
-[2025-04-06 10:34:03] ERROR - 模型tf初始化失败: 'NoneType' object has no attribute 'replace'
-[2025-04-06 10:34:03] ERROR - 模型初始化失败: 'NoneType' object has no attribute 'replace'
-[2025-04-06 11:01:35] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 11:01:37] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 11:01:38] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 11:02:18] ERROR - 模型加载失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 11:02:18] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 11:02:18] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 13:21:40] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 13:21:42] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 13:21:42] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 18:20:05] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 18:20:09] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 18:20:09] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 18:20:49] ERROR - 模型加载失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 18:20:49] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 18:20:50] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 18:28:36] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 18:28:38] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 18:28:38] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:04:23] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:04:23] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:04:23] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:07:11] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:07:14] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 19:07:14] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:07:17] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:07:17] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:07:17] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:10:31] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:10:33] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 19:10:33] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 19:10:33] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:10:36] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:10:36] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:10:36] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:26:53] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:26:55] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:26:55] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:27:03] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:27:03] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:27:03] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:28:42] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:28:43] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:28:43] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:28:46] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:28:46] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:28:46] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:31:38] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:31:40] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:31:40] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:31:42] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:31:42] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:31:42] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:33:49] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:33:51] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:33:51] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:33:54] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:33:54] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:33:54] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:35:21] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:35:23] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:35:23] ERROR - CUDA初始化失败: Expected one of cpu, cuda, ipu, xpu, mkldnn, opengl, opencl, ideep, hip, ve, fpga, maia, xla, lazy, vulkan, mps, meta, hpu, mtia, privateuseone device type at start of device string: integers
-[2025-04-06 19:35:23] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 19:35:23] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:35:26] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:35:26] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:35:26] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:36:17] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:36:18] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:36:19] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:36:21] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:36:21] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:36:21] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:37:33] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:37:34] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:37:34] ERROR - CUDA初始化失败: Invalid device string: 'integers:cuda'
-[2025-04-06 19:37:34] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 19:37:34] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:37:36] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:37:36] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:37:37] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:41:19] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:41:20] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:41:20] ERROR - CUDA初始化失败: Invalid device string: 'integers:cuda:0'
-[2025-04-06 19:41:20] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 19:41:20] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:41:23] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:41:23] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:41:23] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 19:43:52] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:43:54] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:43:54] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:43:57] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:43:57] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:43:57] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:45:40] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:45:42] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:45:42] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:45:45] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:45:45] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:45:45] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:47:05] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:47:07] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:47:07] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:47:09] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:47:09] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:47:09] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:51:45] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:51:47] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:51:48] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:51:50] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:51:50] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:51:50] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 19:51:50] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 19:51:50] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 19:51:50] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:56:58] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:57:00] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:57:01] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:57:03] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:57:03] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:57:03] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 19:57:03] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 19:57:03] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 19:57:03] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:58:31] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 19:58:33] INFO - 检测到CUDA设备: Tesla T10
-[2025-04-06 19:58:33] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 19:58:35] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:58:35] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 19:58:35] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 19:58:35] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 19:58:35] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 19:58:36] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:03:07] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:03:09] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:03:09] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:03:11] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:03:11] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:03:11] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 20:03:11] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 20:03:11] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 20:03:11] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:04:36] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:04:37] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:04:37] ERROR - CUDA初始化失败: Invalid device string: '0'
-[2025-04-06 20:04:37] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 20:04:37] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:04:40] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:04:40] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:04:40] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:05:35] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:05:37] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:05:37] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:05:39] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:05:39] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:05:39] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 20:05:39] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 20:05:39] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 20:05:39] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:06:13] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:06:15] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:06:15] ERROR - CUDA初始化失败: Invalid device string: 'cuda0'
-[2025-04-06 20:06:15] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 20:06:15] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:06:18] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:06:18] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:06:18] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:07:06] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:07:07] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:07:07] ERROR - CUDA初始化失败: Expected one of cpu, cuda, ipu, xpu, mkldnn, opengl, opencl, ideep, hip, ve, fpga, maia, xla, lazy, vulkan, mps, meta, hpu, mtia, privateuseone device type at start of device string: integers
-[2025-04-06 20:07:07] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 20:07:07] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:07:10] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:07:10] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:07:10] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:09:20] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:09:22] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:09:22] ERROR - CUDA初始化失败: Invalid device string: 'cuda:integers:0'
-[2025-04-06 20:09:22] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 20:09:22] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:09:26] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:09:26] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:09:26] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:10:13] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:10:14] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:10:14] ERROR - CUDA初始化失败: Invalid device string: 'cuda:integers'
-[2025-04-06 20:10:14] WARNING - CUDA不可用，将使用CPU模式
-[2025-04-06 20:10:14] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:10:17] ERROR - 模型加载失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:10:17] ERROR - 模型tf初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:10:17] ERROR - 模型初始化失败: [enforce fail at alloc_cpu.cpp:115] data. DefaultCPUAllocator: not enough memory: you tried to allocate 59080134656 bytes.
-[2025-04-06 20:11:24] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:11:26] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:11:27] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:11:29] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:11:29] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:11:29] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 20:11:29] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 20:11:29] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 20:11:29] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:12:13] WARNING - vLLM导入失败，vllm模式将不可用
-[2025-04-06 20:12:15] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 20:12:15] INFO - 开始下载模型到本地: ./models\unsloth_DeepSeek-R1-Distill-Qwen-14B
-[2025-04-06 20:12:19] ERROR - 模型加载失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:12:19] ERROR - 模型tf初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:12:19] DEBUG - CUDA设备信息: _CudaDeviceProperties(name='Tesla T10', major=7, minor=5, total_memory=16383MB, multi_processor_count=56, uuid=e8e28404-ec17-4a48-8767-e678c0c62988, L2_cache_size=4MB)
-[2025-04-06 20:12:19] DEBUG - 当前显存占用: 0.00MB
-[2025-04-06 20:12:19] DEBUG - PyTorch编译版本: 12.4
-[2025-04-06 20:12:20] ERROR - 模型初始化失败: Device cuda:0 is not recognized, available devices are integers(for GPU/XPU), 'mps', 'cpu' and 'disk'
-[2025-04-06 20:28:04] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:08:45] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:10:10] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have a file named model-00006-of-00006.safetensors. Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-06 21:10:10] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have a file named model-00006-of-00006.safetensors. Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-06 21:14:28] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:15:09] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 21:15:09] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 21:19:33] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:20:13] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 21:20:13] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-06 21:50:58] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:51:59] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:57:28] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 21:59:09] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:03:02] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:06:06] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:08:49] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:11:18] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:19:52] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:23:03] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:26:26] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:41:04] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-06 22:44:50] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 12:49:14] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 12:57:56] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 13:03:32] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-07 13:03:36] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-07 13:15:48] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 13:18:30] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-07 13:18:36] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-07 13:20:30] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 13:24:16] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 13:24:56] ERROR - 模型tf初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-07 13:24:56] ERROR - 模型初始化失败: We couldn't connect to 'https://huggingface.co' to load the files, and couldn't find them in the cached files.
-Checkout your internet connection or see how to run the library in offline mode at 'https://huggingface.co/docs/transformers/installation#offline-mode'.
-[2025-04-07 21:20:55] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 21:22:19] ERROR - 模型tf初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-07 21:22:19] ERROR - 模型初始化失败: unsloth/DeepSeek-R1-Distill-Qwen-14B does not appear to have files named ('model-00002-of-00006.safetensors', 'model-00003-of-00006.safetensors', 'model-00004-of-00006.safetensors', 'model-00005-of-00006.safetensors', 'model-00006-of-00006.safetensors'). Checkout 'https://huggingface.co/unsloth/DeepSeek-R1-Distill-Qwen-14B/tree/main'for available files.
-[2025-04-07 21:26:25] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 21:27:49] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:27:49] ERROR - 模型初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:39:14] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 21:40:38] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:40:38] ERROR - 模型初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:43:16] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 21:44:40] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:44:40] ERROR - 模型初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:46:55] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 21:48:20] ERROR - 模型tf初始化失败: name 'base_path' is not defined
-[2025-04-07 21:48:20] ERROR - 模型初始化失败: name 'base_path' is not defined
-[2025-04-07 21:54:32] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 21:56:04] ERROR - 模型tf初始化失败: name 'model_dir' is not defined
-[2025-04-07 21:56:04] ERROR - 模型初始化失败: name 'model_dir' is not defined
-[2025-04-07 22:00:34] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 22:01:58] ERROR - 模型tf初始化失败: name 'base_path' is not defined
-[2025-04-07 22:01:58] ERROR - 模型初始化失败: name 'base_path' is not defined
-[2025-04-07 22:04:02] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 22:40:28] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-07 22:55:24] INFO - 开始生成大纲...
-[2025-04-07 22:55:24] ERROR - 本地模型生成失败: 'NovelGenerator' object has no attribute 'tf_pipeline'
-[2025-04-07 22:55:24] CRITICAL - 生成失败: 'NovelGenerator' object has no attribute 'tf_pipeline'
-[2025-04-08 06:29:14] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-08 06:39:55] INFO - 开始生成大纲...
-[2025-04-08 06:39:57] ERROR - API请求失败: 404 Client Error: Not Found for url: http://localhost:11434/api/generate
-[2025-04-08 06:39:57] CRITICAL - 生成失败: 404 Client Error: Not Found for url: http://localhost:11434/api/generate
-[2025-04-08 09:18:28] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-08 09:18:28] INFO - 开始生成大纲...
-[2025-04-08 09:45:09] INFO - 检测到CUDA设备[0]: Tesla T10
-[2025-04-08 09:45:09] INFO - 开始生成大纲...
-[2025-04-08 09:45:09] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 09:45:09] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 13:10:33] INFO - 开始生成大纲...
-[2025-04-08 13:10:33] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 13:10:33] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 13:27:13] INFO - 开始生成大纲...
-[2025-04-08 13:27:14] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 13:27:14] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 15:29:39] INFO - 开始生成大纲...
-[2025-04-08 15:29:40] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 15:29:40] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 21:15:56] INFO - 开始生成大纲...
-[2025-04-08 21:15:56] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 21:15:56] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 21:32:22] INFO - 开始生成大纲...
-[2025-04-08 21:32:22] ERROR - 本地模型生成失败: name 'BatchEncoding' is not defined
-[2025-04-08 21:32:22] CRITICAL - 生成失败: name 'BatchEncoding' is not defined
-[2025-04-08 21:56:06] INFO - 开始生成大纲...
-[2025-04-08 21:56:06] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 21:56:06] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 22:11:23] INFO - 开始生成大纲...
-[2025-04-08 22:11:23] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 22:11:23] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 22:58:11] INFO - 开始生成大纲...
-[2025-04-08 22:58:12] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 22:58:12] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 23:13:44] INFO - 开始生成大纲...
-[2025-04-08 23:13:44] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-08 23:13:44] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 06:30:35] INFO - 开始生成大纲...
-[2025-04-09 06:30:35] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 06:30:35] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 09:23:08] INFO - 开始生成大纲...
-[2025-04-09 09:23:08] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 09:23:08] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 09:41:02] INFO - 开始生成大纲...
-[2025-04-09 09:41:02] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 09:41:02] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 13:26:10] INFO - 开始生成大纲...
-[2025-04-09 13:26:10] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 13:26:10] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 15:26:27] INFO - 开始生成大纲...
-[2025-04-09 15:26:43] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 15:26:52] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 22:00:32] INFO - 开始生成大纲...
-[2025-04-09 22:01:25] ERROR - 本地模型生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 22:01:35] CRITICAL - 生成失败: can only concatenate str (not "BatchEncoding") to str
-[2025-04-09 22:16:17] INFO - 开始生成大纲...
-[2025-04-09 22:17:02] ERROR - 本地模型生成失败: TextGenerationPipeline.__call__() missing 1 required positional argument: 'text_inputs'
-[2025-04-09 22:30:31] INFO - 开始生成大纲...
-[2025-04-09 22:34:39] ERROR - 本地模型生成失败: TextGenerationPipeline.__call__() missing 1 required positional argument: 'text_inputs'
-[2025-04-11 00:57:16] INFO - 开始生成大纲...
-[2025-04-11 01:16:42] INFO - 大纲生成完成
-[2025-04-11 01:16:42] INFO - 开始生成章节大纲...
-[2025-07-22 10:19:02] INFO - 测试日志系统正常
-[2025-07-22 10:22:23] INFO - 测试日志消息
-[2025-07-22 10:22:23] INFO - 测试日志消息
-[2025-07-22 10:27:45] INFO - 测试日志消息
-[2025-07-22 10:27:45] INFO - 测试日志消息
-[2025-07-22 10:38:22] INFO - 测试日志消息
-[2025-07-22 10:38:22] INFO - 测试日志消息
-[2025-07-22 10:43:21] INFO - 测试日志消息
-[2025-07-22 10:43:21] INFO - 测试日志消息
-[2025-07-22 10:44:32] ERROR - 生成大纲失败: 404 Client Error: Not Found for url: http://localhost:11434/api/generate
-[2025-07-22 10:44:32] ERROR - 生成大纲失败: 404 Client Error: Not Found for url: http://localhost:11434/api/generate
-[2025-07-22 10:44:32] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:44:32] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:46:46] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 10:46:46] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 10:46:46] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:46:46] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:47:43] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 10:47:43] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 10:47:43] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:47:43] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:49:27] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 10:49:27] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 10:49:27] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 10:49:27] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 11:05:54] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 11:05:54] ERROR - 生成大纲失败: 405 Client Error: Method Not Allowed for url: http://localhost:11434/
-[2025-07-22 11:05:54] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 11:05:54] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 11:31:52] ERROR - 生成大纲失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 11:31:52] ERROR - 生成大纲失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 11:31:52] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 11:31:52] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 11:56:34] INFO - 第1章生成完成
-[2025-07-22 11:56:34] INFO - 第1章生成完成
-[2025-07-22 11:56:57] INFO - 第2章生成完成
-[2025-07-22 11:56:57] INFO - 第2章生成完成
-[2025-07-22 11:57:36] INFO - 第3章生成完成
-[2025-07-22 11:57:36] INFO - 第3章生成完成
-[2025-07-22 11:59:05] INFO - 第4章生成完成
-[2025-07-22 11:59:05] INFO - 第4章生成完成
-[2025-07-22 12:00:00] INFO - 第5章生成完成
-[2025-07-22 12:00:00] INFO - 第5章生成完成
-[2025-07-22 12:00:59] INFO - 第6章生成完成
-[2025-07-22 12:00:59] INFO - 第6章生成完成
-[2025-07-22 12:01:34] INFO - 第7章生成完成
-[2025-07-22 12:01:34] INFO - 第7章生成完成
-[2025-07-22 12:02:23] INFO - 第8章生成完成
-[2025-07-22 12:02:23] INFO - 第8章生成完成
-[2025-07-22 12:03:02] INFO - 第9章生成完成
-[2025-07-22 12:03:02] INFO - 第9章生成完成
-[2025-07-22 12:04:11] INFO - 第10章生成完成
-[2025-07-22 12:04:11] INFO - 第10章生成完成
-[2025-07-22 12:04:11] INFO - 小说合并完成：novels\星海形骸\full_novel.txt
-[2025-07-22 12:04:11] INFO - 小说合并完成：novels\星海形骸\full_novel.txt
-[2025-07-22 12:04:11] INFO - 小说《星海形骸》生成完成
-[2025-07-22 12:04:11] INFO - 小说《星海形骸》生成完成
-[2025-07-22 13:37:32] ERROR - 生成大纲失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 13:37:32] ERROR - 生成大纲失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 13:37:32] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:37:32] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:37:32] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:37:32] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:56:19] ERROR - 生成大纲失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 13:56:19] ERROR - 生成大纲失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 13:56:19] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:56:19] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:56:19] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 13:56:19] ERROR - 小说生成失败: 无法生成小说大纲
-[2025-07-22 14:00:35] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 14:00:35] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-22 14:00:35] WARNING - 第1章生成失败，内容为空
-[2025-07-22 14:00:35] WARNING - 第1章生成失败，内容为空
-[2025-07-22 14:45:17] INFO - 开始生成视频，共76个段落
-[2025-07-22 14:45:17] INFO - 开始生成视频，共76个段落
-[2025-07-22 14:45:19] INFO - 已处理 1/76 个段落
-[2025-07-22 14:45:19] INFO - 已处理 1/76 个段落
-[2025-07-22 14:45:33] INFO - 已处理 11/76 个段落
-[2025-07-22 14:45:33] INFO - 已处理 11/76 个段落
-[2025-07-22 14:45:47] INFO - 已处理 21/76 个段落
-[2025-07-22 14:45:47] INFO - 已处理 21/76 个段落
-[2025-07-22 14:46:01] INFO - 已处理 31/76 个段落
-[2025-07-22 14:46:01] INFO - 已处理 31/76 个段落
-[2025-07-22 14:46:15] INFO - 已处理 41/76 个段落
-[2025-07-22 14:46:15] INFO - 已处理 41/76 个段落
-[2025-07-22 14:46:29] INFO - 已处理 51/76 个段落
-[2025-07-22 14:46:29] INFO - 已处理 51/76 个段落
-[2025-07-22 14:46:43] INFO - 已处理 61/76 个段落
-[2025-07-22 14:46:43] INFO - 已处理 61/76 个段落
-[2025-07-22 14:46:57] INFO - 已处理 71/76 个段落
-[2025-07-22 14:46:57] INFO - 已处理 71/76 个段落
-[2025-07-22 14:47:04] INFO - 视频生成完成: output.mp4
-[2025-07-22 14:47:04] INFO - 视频生成完成: output.mp4
-[2025-07-22 15:00:59] INFO - 开始生成视频，共76个段落
-[2025-07-22 15:00:59] INFO - 开始生成视频，共76个段落
-[2025-07-22 15:01:00] INFO - 已处理 1/76 个段落
-[2025-07-22 15:01:00] INFO - 已处理 1/76 个段落
-[2025-07-22 15:01:14] INFO - 已处理 11/76 个段落
-[2025-07-22 15:01:14] INFO - 已处理 11/76 个段落
-[2025-07-22 15:01:28] INFO - 已处理 21/76 个段落
-[2025-07-22 15:01:28] INFO - 已处理 21/76 个段落
-[2025-07-22 15:01:42] INFO - 已处理 31/76 个段落
-[2025-07-22 15:01:42] INFO - 已处理 31/76 个段落
-[2025-07-22 15:01:56] INFO - 已处理 41/76 个段落
-[2025-07-22 15:01:56] INFO - 已处理 41/76 个段落
-[2025-07-22 15:02:10] INFO - 已处理 51/76 个段落
-[2025-07-22 15:02:10] INFO - 已处理 51/76 个段落
-[2025-07-22 15:02:24] INFO - 已处理 61/76 个段落
-[2025-07-22 15:02:24] INFO - 已处理 61/76 个段落
-[2025-07-22 15:02:37] INFO - 已处理 71/76 个段落
-[2025-07-22 15:02:37] INFO - 已处理 71/76 个段落
-[2025-07-22 15:02:43] INFO - 视频生成完成: output.mp4
-[2025-07-22 15:02:43] INFO - 视频生成完成: output.mp4
-[2025-07-22 22:24:16] INFO - 检测到已有进度，从第11章继续生成
-[2025-07-22 22:24:16] INFO - 检测到已有进度，从第11章继续生成
-[2025-07-23 11:33:08] INFO - 第1章生成完成
-[2025-07-23 11:33:08] INFO - 第1章生成完成
-[2025-07-23 11:34:44] INFO - 第2章生成完成
-[2025-07-23 11:34:44] INFO - 第2章生成完成
-[2025-07-23 11:36:28] INFO - 第3章生成完成
-[2025-07-23 11:36:28] INFO - 第3章生成完成
-[2025-07-23 11:38:11] INFO - 第4章生成完成
-[2025-07-23 11:38:11] INFO - 第4章生成完成
-[2025-07-23 11:39:23] INFO - 第5章生成完成
-[2025-07-23 11:39:23] INFO - 第5章生成完成
-[2025-07-23 11:40:53] INFO - 第6章生成完成
-[2025-07-23 11:40:53] INFO - 第6章生成完成
-[2025-07-23 11:42:40] INFO - 第7章生成完成
-[2025-07-23 11:42:40] INFO - 第7章生成完成
-[2025-07-23 11:44:02] INFO - 第8章生成完成
-[2025-07-23 11:44:02] INFO - 第8章生成完成
-[2025-07-23 11:45:43] INFO - 第9章生成完成
-[2025-07-23 11:45:43] INFO - 第9章生成完成
-[2025-07-23 11:47:07] INFO - 第10章生成完成
-[2025-07-23 11:47:07] INFO - 第10章生成完成
-[2025-07-23 11:48:35] INFO - 第11章生成完成
-[2025-07-23 11:48:35] INFO - 第11章生成完成
-[2025-07-23 11:49:50] INFO - 第12章生成完成
-[2025-07-23 11:49:50] INFO - 第12章生成完成
-[2025-07-23 11:51:05] INFO - 第13章生成完成
-[2025-07-23 11:51:05] INFO - 第13章生成完成
-[2025-07-23 11:52:43] INFO - 第14章生成完成
-[2025-07-23 11:52:43] INFO - 第14章生成完成
-[2025-07-23 11:54:05] INFO - 第15章生成完成
-[2025-07-23 11:54:05] INFO - 第15章生成完成
-[2025-07-23 11:55:54] INFO - 第16章生成完成
-[2025-07-23 11:55:54] INFO - 第16章生成完成
-[2025-07-23 11:57:26] INFO - 第17章生成完成
-[2025-07-23 11:57:26] INFO - 第17章生成完成
-[2025-07-23 11:58:58] INFO - 第18章生成完成
-[2025-07-23 11:58:58] INFO - 第18章生成完成
-[2025-07-23 12:00:58] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 12:00:58] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 12:00:58] WARNING - 第19章生成失败，内容为空
-[2025-07-23 12:00:58] WARNING - 第19章生成失败，内容为空
-[2025-07-23 12:02:29] INFO - 第20章生成完成
-[2025-07-23 12:02:29] INFO - 第20章生成完成
-[2025-07-23 12:04:02] INFO - 第21章生成完成
-[2025-07-23 12:04:02] INFO - 第21章生成完成
-[2025-07-23 12:05:33] INFO - 第22章生成完成
-[2025-07-23 12:05:33] INFO - 第22章生成完成
-[2025-07-23 12:06:55] INFO - 第23章生成完成
-[2025-07-23 12:06:55] INFO - 第23章生成完成
-[2025-07-23 12:08:34] INFO - 第24章生成完成
-[2025-07-23 12:08:34] INFO - 第24章生成完成
-[2025-07-23 12:10:13] INFO - 第25章生成完成
-[2025-07-23 12:10:13] INFO - 第25章生成完成
-[2025-07-23 12:12:13] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 12:12:13] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 12:12:13] WARNING - 第26章生成失败，内容为空
-[2025-07-23 12:12:13] WARNING - 第26章生成失败，内容为空
-[2025-07-23 12:13:50] INFO - 第27章生成完成
-[2025-07-23 12:13:50] INFO - 第27章生成完成
-[2025-07-23 12:15:20] INFO - 第28章生成完成
-[2025-07-23 12:15:20] INFO - 第28章生成完成
-[2025-07-23 12:16:58] INFO - 第29章生成完成
-[2025-07-23 12:16:58] INFO - 第29章生成完成
-[2025-07-23 12:18:31] INFO - 第30章生成完成
-[2025-07-23 12:18:31] INFO - 第30章生成完成
-[2025-07-23 12:19:56] INFO - 第31章生成完成
-[2025-07-23 12:19:56] INFO - 第31章生成完成
-[2025-07-23 12:21:51] INFO - 第32章生成完成
-[2025-07-23 12:21:51] INFO - 第32章生成完成
-[2025-07-23 12:23:21] INFO - 第33章生成完成
-[2025-07-23 12:23:21] INFO - 第33章生成完成
-[2025-07-23 12:24:52] INFO - 第34章生成完成
-[2025-07-23 12:24:52] INFO - 第34章生成完成
-[2025-07-23 12:26:22] INFO - 第35章生成完成
-[2025-07-23 12:26:22] INFO - 第35章生成完成
-[2025-07-23 12:28:14] INFO - 第36章生成完成
-[2025-07-23 12:28:14] INFO - 第36章生成完成
-[2025-07-23 12:30:14] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 12:30:14] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 12:30:14] WARNING - 第37章生成失败，内容为空
-[2025-07-23 12:30:14] WARNING - 第37章生成失败，内容为空
-[2025-07-23 12:31:40] INFO - 第38章生成完成
-[2025-07-23 12:31:40] INFO - 第38章生成完成
-[2025-07-23 12:33:24] INFO - 第39章生成完成
-[2025-07-23 12:33:24] INFO - 第39章生成完成
-[2025-07-23 12:35:04] INFO - 第40章生成完成
-[2025-07-23 12:35:04] INFO - 第40章生成完成
-[2025-07-23 12:36:44] INFO - 第41章生成完成
-[2025-07-23 12:36:44] INFO - 第41章生成完成
-[2025-07-23 12:38:36] INFO - 第42章生成完成
-[2025-07-23 12:38:36] INFO - 第42章生成完成
-[2025-07-23 12:40:06] INFO - 第43章生成完成
-[2025-07-23 12:40:06] INFO - 第43章生成完成
-[2025-07-23 12:41:45] INFO - 第44章生成完成
-[2025-07-23 12:41:45] INFO - 第44章生成完成
-[2025-07-23 12:43:20] INFO - 第45章生成完成
-[2025-07-23 12:43:20] INFO - 第45章生成完成
-[2025-07-23 12:45:01] INFO - 第46章生成完成
-[2025-07-23 12:45:01] INFO - 第46章生成完成
-[2025-07-23 12:46:51] INFO - 第47章生成完成
-[2025-07-23 12:46:51] INFO - 第47章生成完成
-[2025-07-23 12:48:32] INFO - 第48章生成完成
-[2025-07-23 12:48:32] INFO - 第48章生成完成
-[2025-07-23 12:49:53] INFO - 第49章生成完成
-[2025-07-23 12:49:53] INFO - 第49章生成完成
-[2025-07-23 12:51:22] INFO - 第50章生成完成
-[2025-07-23 12:51:22] INFO - 第50章生成完成
-[2025-07-23 12:52:39] INFO - 第51章生成完成
-[2025-07-23 12:52:39] INFO - 第51章生成完成
-[2025-07-23 12:54:00] INFO - 第52章生成完成
-[2025-07-23 12:54:00] INFO - 第52章生成完成
-[2025-07-23 12:55:22] INFO - 第53章生成完成
-[2025-07-23 12:55:22] INFO - 第53章生成完成
-[2025-07-23 12:57:02] INFO - 第54章生成完成
-[2025-07-23 12:57:02] INFO - 第54章生成完成
-[2025-07-23 12:58:31] INFO - 第55章生成完成
-[2025-07-23 12:58:31] INFO - 第55章生成完成
-[2025-07-23 13:00:21] INFO - 第56章生成完成
-[2025-07-23 13:00:21] INFO - 第56章生成完成
-[2025-07-23 13:01:45] INFO - 第57章生成完成
-[2025-07-23 13:01:45] INFO - 第57章生成完成
-[2025-07-23 13:03:12] INFO - 第58章生成完成
-[2025-07-23 13:03:12] INFO - 第58章生成完成
-[2025-07-23 13:04:29] INFO - 第59章生成完成
-[2025-07-23 13:04:29] INFO - 第59章生成完成
-[2025-07-23 13:05:47] INFO - 第60章生成完成
-[2025-07-23 13:05:47] INFO - 第60章生成完成
-[2025-07-23 13:07:11] INFO - 第61章生成完成
-[2025-07-23 13:07:11] INFO - 第61章生成完成
-[2025-07-23 13:08:57] INFO - 第62章生成完成
-[2025-07-23 13:08:57] INFO - 第62章生成完成
-[2025-07-23 13:10:25] INFO - 第63章生成完成
-[2025-07-23 13:10:25] INFO - 第63章生成完成
-[2025-07-23 13:11:53] INFO - 第64章生成完成
-[2025-07-23 13:11:53] INFO - 第64章生成完成
-[2025-07-23 13:13:17] INFO - 第65章生成完成
-[2025-07-23 13:13:17] INFO - 第65章生成完成
-[2025-07-23 13:15:05] INFO - 第66章生成完成
-[2025-07-23 13:15:05] INFO - 第66章生成完成
-[2025-07-23 13:16:41] INFO - 第67章生成完成
-[2025-07-23 13:16:41] INFO - 第67章生成完成
-[2025-07-23 13:18:34] INFO - 第68章生成完成
-[2025-07-23 13:18:34] INFO - 第68章生成完成
-[2025-07-23 13:20:13] INFO - 第69章生成完成
-[2025-07-23 13:20:13] INFO - 第69章生成完成
-[2025-07-23 13:21:42] INFO - 第70章生成完成
-[2025-07-23 13:21:42] INFO - 第70章生成完成
-[2025-07-23 13:23:01] INFO - 第71章生成完成
-[2025-07-23 13:23:01] INFO - 第71章生成完成
-[2025-07-23 13:24:39] INFO - 第72章生成完成
-[2025-07-23 13:24:39] INFO - 第72章生成完成
-[2025-07-23 13:26:12] INFO - 第73章生成完成
-[2025-07-23 13:26:12] INFO - 第73章生成完成
-[2025-07-23 13:27:44] INFO - 第74章生成完成
-[2025-07-23 13:27:44] INFO - 第74章生成完成
-[2025-07-23 13:29:06] INFO - 第75章生成完成
-[2025-07-23 13:29:06] INFO - 第75章生成完成
-[2025-07-23 13:30:38] INFO - 第76章生成完成
-[2025-07-23 13:30:38] INFO - 第76章生成完成
-[2025-07-23 13:32:24] INFO - 第77章生成完成
-[2025-07-23 13:32:24] INFO - 第77章生成完成
-[2025-07-23 13:33:56] INFO - 第78章生成完成
-[2025-07-23 13:33:56] INFO - 第78章生成完成
-[2025-07-23 13:35:37] INFO - 第79章生成完成
-[2025-07-23 13:35:37] INFO - 第79章生成完成
-[2025-07-23 13:37:03] INFO - 第80章生成完成
-[2025-07-23 13:37:03] INFO - 第80章生成完成
-[2025-07-23 13:39:03] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 13:39:03] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 13:39:03] WARNING - 第81章生成失败，内容为空
-[2025-07-23 13:39:03] WARNING - 第81章生成失败，内容为空
-[2025-07-23 13:40:38] INFO - 第82章生成完成
-[2025-07-23 13:40:38] INFO - 第82章生成完成
-[2025-07-23 13:42:06] INFO - 第83章生成完成
-[2025-07-23 13:42:06] INFO - 第83章生成完成
-[2025-07-23 13:43:41] INFO - 第84章生成完成
-[2025-07-23 13:43:41] INFO - 第84章生成完成
-[2025-07-23 13:45:15] INFO - 第85章生成完成
-[2025-07-23 13:45:15] INFO - 第85章生成完成
-[2025-07-23 13:47:01] INFO - 第86章生成完成
-[2025-07-23 13:47:01] INFO - 第86章生成完成
-[2025-07-23 13:48:27] INFO - 第87章生成完成
-[2025-07-23 13:48:27] INFO - 第87章生成完成
-[2025-07-23 13:50:10] INFO - 第88章生成完成
-[2025-07-23 13:50:10] INFO - 第88章生成完成
-[2025-07-23 13:51:42] INFO - 第89章生成完成
-[2025-07-23 13:51:42] INFO - 第89章生成完成
-[2025-07-23 13:53:12] INFO - 第90章生成完成
-[2025-07-23 13:53:12] INFO - 第90章生成完成
-[2025-07-23 13:54:45] INFO - 第91章生成完成
-[2025-07-23 13:54:45] INFO - 第91章生成完成
-[2025-07-23 13:56:29] INFO - 第92章生成完成
-[2025-07-23 13:56:29] INFO - 第92章生成完成
-[2025-07-23 13:58:21] INFO - 第93章生成完成
-[2025-07-23 13:58:21] INFO - 第93章生成完成
-[2025-07-23 14:00:05] INFO - 第94章生成完成
-[2025-07-23 14:00:05] INFO - 第94章生成完成
-[2025-07-23 14:01:43] INFO - 第95章生成完成
-[2025-07-23 14:01:43] INFO - 第95章生成完成
-[2025-07-23 14:03:13] INFO - 第96章生成完成
-[2025-07-23 14:03:13] INFO - 第96章生成完成
-[2025-07-23 14:04:38] INFO - 第97章生成完成
-[2025-07-23 14:04:38] INFO - 第97章生成完成
-[2025-07-23 14:06:19] INFO - 第98章生成完成
-[2025-07-23 14:06:19] INFO - 第98章生成完成
-[2025-07-23 14:07:56] INFO - 第99章生成完成
-[2025-07-23 14:07:56] INFO - 第99章生成完成
-[2025-07-23 14:09:36] INFO - 第100章生成完成
-[2025-07-23 14:09:36] INFO - 第100章生成完成
-[2025-07-23 14:11:07] INFO - 第101章生成完成
-[2025-07-23 14:11:07] INFO - 第101章生成完成
-[2025-07-23 14:12:42] INFO - 第102章生成完成
-[2025-07-23 14:12:42] INFO - 第102章生成完成
-[2025-07-23 14:14:13] INFO - 第103章生成完成
-[2025-07-23 14:14:13] INFO - 第103章生成完成
-[2025-07-23 14:15:45] INFO - 第104章生成完成
-[2025-07-23 14:15:45] INFO - 第104章生成完成
-[2025-07-23 14:17:17] INFO - 第105章生成完成
-[2025-07-23 14:17:17] INFO - 第105章生成完成
-[2025-07-23 14:19:17] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:19:17] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:19:17] WARNING - 第106章生成失败，内容为空
-[2025-07-23 14:19:17] WARNING - 第106章生成失败，内容为空
-[2025-07-23 14:20:44] INFO - 第107章生成完成
-[2025-07-23 14:20:44] INFO - 第107章生成完成
-[2025-07-23 14:22:18] INFO - 第108章生成完成
-[2025-07-23 14:22:18] INFO - 第108章生成完成
-[2025-07-23 14:24:00] INFO - 第109章生成完成
-[2025-07-23 14:24:00] INFO - 第109章生成完成
-[2025-07-23 14:25:19] INFO - 第110章生成完成
-[2025-07-23 14:25:19] INFO - 第110章生成完成
-[2025-07-23 14:26:48] INFO - 第111章生成完成
-[2025-07-23 14:26:48] INFO - 第111章生成完成
-[2025-07-23 14:28:23] INFO - 第112章生成完成
-[2025-07-23 14:28:23] INFO - 第112章生成完成
-[2025-07-23 14:30:02] INFO - 第113章生成完成
-[2025-07-23 14:30:02] INFO - 第113章生成完成
-[2025-07-23 14:32:02] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:32:02] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:32:02] WARNING - 第114章生成失败，内容为空
-[2025-07-23 14:32:02] WARNING - 第114章生成失败，内容为空
-[2025-07-23 14:34:04] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:34:04] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:34:04] WARNING - 第115章生成失败，内容为空
-[2025-07-23 14:34:04] WARNING - 第115章生成失败，内容为空
-[2025-07-23 14:35:50] INFO - 第116章生成完成
-[2025-07-23 14:35:50] INFO - 第116章生成完成
-[2025-07-23 14:37:07] INFO - 第117章生成完成
-[2025-07-23 14:37:07] INFO - 第117章生成完成
-[2025-07-23 14:38:38] INFO - 第118章生成完成
-[2025-07-23 14:38:38] INFO - 第118章生成完成
-[2025-07-23 14:40:09] INFO - 第119章生成完成
-[2025-07-23 14:40:09] INFO - 第119章生成完成
-[2025-07-23 14:41:54] INFO - 第120章生成完成
-[2025-07-23 14:41:54] INFO - 第120章生成完成
-[2025-07-23 14:43:22] INFO - 第121章生成完成
-[2025-07-23 14:43:22] INFO - 第121章生成完成
-[2025-07-23 14:45:10] INFO - 第122章生成完成
-[2025-07-23 14:45:10] INFO - 第122章生成完成
-[2025-07-23 14:46:39] INFO - 第123章生成完成
-[2025-07-23 14:46:39] INFO - 第123章生成完成
-[2025-07-23 14:47:50] INFO - 第124章生成完成
-[2025-07-23 14:47:50] INFO - 第124章生成完成
-[2025-07-23 14:49:50] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:49:50] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 14:49:50] WARNING - 第125章生成失败，内容为空
-[2025-07-23 14:49:50] WARNING - 第125章生成失败，内容为空
-[2025-07-23 14:51:10] INFO - 第126章生成完成
-[2025-07-23 14:51:10] INFO - 第126章生成完成
-[2025-07-23 14:52:30] INFO - 第127章生成完成
-[2025-07-23 14:52:30] INFO - 第127章生成完成
-[2025-07-23 14:54:03] INFO - 第128章生成完成
-[2025-07-23 14:54:03] INFO - 第128章生成完成
-[2025-07-23 14:55:47] INFO - 第129章生成完成
-[2025-07-23 14:55:47] INFO - 第129章生成完成
-[2025-07-23 14:57:14] INFO - 第130章生成完成
-[2025-07-23 14:57:14] INFO - 第130章生成完成
-[2025-07-23 14:58:38] INFO - 第131章生成完成
-[2025-07-23 14:58:38] INFO - 第131章生成完成
-[2025-07-23 15:00:20] INFO - 第132章生成完成
-[2025-07-23 15:00:20] INFO - 第132章生成完成
-[2025-07-23 15:02:02] INFO - 第133章生成完成
-[2025-07-23 15:02:02] INFO - 第133章生成完成
-[2025-07-23 15:03:25] INFO - 第134章生成完成
-[2025-07-23 15:03:25] INFO - 第134章生成完成
-[2025-07-23 15:04:42] INFO - 第135章生成完成
-[2025-07-23 15:04:42] INFO - 第135章生成完成
-[2025-07-23 15:06:24] INFO - 第136章生成完成
-[2025-07-23 15:06:24] INFO - 第136章生成完成
-[2025-07-23 15:07:50] INFO - 第137章生成完成
-[2025-07-23 15:07:50] INFO - 第137章生成完成
-[2025-07-23 15:09:23] INFO - 第138章生成完成
-[2025-07-23 15:09:23] INFO - 第138章生成完成
-[2025-07-23 15:10:56] INFO - 第139章生成完成
-[2025-07-23 15:10:56] INFO - 第139章生成完成
-[2025-07-23 15:12:25] INFO - 第140章生成完成
-[2025-07-23 15:12:25] INFO - 第140章生成完成
-[2025-07-23 15:14:09] INFO - 第141章生成完成
-[2025-07-23 15:14:09] INFO - 第141章生成完成
-[2025-07-23 15:15:36] INFO - 第142章生成完成
-[2025-07-23 15:15:36] INFO - 第142章生成完成
-[2025-07-23 15:17:11] INFO - 第143章生成完成
-[2025-07-23 15:17:11] INFO - 第143章生成完成
-[2025-07-23 15:18:53] INFO - 第144章生成完成
-[2025-07-23 15:18:53] INFO - 第144章生成完成
-[2025-07-23 15:20:41] INFO - 第145章生成完成
-[2025-07-23 15:20:41] INFO - 第145章生成完成
-[2025-07-23 15:22:10] INFO - 第146章生成完成
-[2025-07-23 15:22:10] INFO - 第146章生成完成
-[2025-07-23 15:23:50] INFO - 第147章生成完成
-[2025-07-23 15:23:50] INFO - 第147章生成完成
-[2025-07-23 15:25:39] INFO - 第148章生成完成
-[2025-07-23 15:25:39] INFO - 第148章生成完成
-[2025-07-23 15:27:20] INFO - 第149章生成完成
-[2025-07-23 15:27:20] INFO - 第149章生成完成
-[2025-07-23 15:29:20] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 15:29:20] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 15:29:20] WARNING - 第150章生成失败，内容为空
-[2025-07-23 15:29:20] WARNING - 第150章生成失败，内容为空
-[2025-07-23 15:30:57] INFO - 第151章生成完成
-[2025-07-23 15:30:57] INFO - 第151章生成完成
-[2025-07-23 15:32:46] INFO - 第152章生成完成
-[2025-07-23 15:32:46] INFO - 第152章生成完成
-[2025-07-23 15:34:34] INFO - 第153章生成完成
-[2025-07-23 15:34:34] INFO - 第153章生成完成
-[2025-07-23 15:36:25] INFO - 第154章生成完成
-[2025-07-23 15:36:25] INFO - 第154章生成完成
-[2025-07-23 15:38:08] INFO - 第155章生成完成
-[2025-07-23 15:38:08] INFO - 第155章生成完成
-[2025-07-23 15:39:39] INFO - 第156章生成完成
-[2025-07-23 15:39:39] INFO - 第156章生成完成
-[2025-07-23 15:41:22] INFO - 第157章生成完成
-[2025-07-23 15:41:22] INFO - 第157章生成完成
-[2025-07-23 15:42:54] INFO - 第158章生成完成
-[2025-07-23 15:42:54] INFO - 第158章生成完成
-[2025-07-23 15:44:50] INFO - 第159章生成完成
-[2025-07-23 15:44:50] INFO - 第159章生成完成
-[2025-07-23 15:46:23] INFO - 第160章生成完成
-[2025-07-23 15:46:23] INFO - 第160章生成完成
-[2025-07-23 15:48:05] INFO - 第161章生成完成
-[2025-07-23 15:48:05] INFO - 第161章生成完成
-[2025-07-23 15:49:54] INFO - 第162章生成完成
-[2025-07-23 15:49:54] INFO - 第162章生成完成
-[2025-07-23 15:51:31] INFO - 第163章生成完成
-[2025-07-23 15:51:31] INFO - 第163章生成完成
-[2025-07-23 15:53:31] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 15:53:31] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 15:53:31] WARNING - 第164章生成失败，内容为空
-[2025-07-23 15:53:31] WARNING - 第164章生成失败，内容为空
-[2025-07-23 15:55:04] INFO - 第165章生成完成
-[2025-07-23 15:55:04] INFO - 第165章生成完成
-[2025-07-23 15:56:42] INFO - 第166章生成完成
-[2025-07-23 15:56:42] INFO - 第166章生成完成
-[2025-07-23 15:58:41] INFO - 第167章生成完成
-[2025-07-23 15:58:41] INFO - 第167章生成完成
-[2025-07-23 16:00:17] INFO - 第168章生成完成
-[2025-07-23 16:00:17] INFO - 第168章生成完成
-[2025-07-23 16:01:41] INFO - 第169章生成完成
-[2025-07-23 16:01:41] INFO - 第169章生成完成
-[2025-07-23 16:03:22] INFO - 第170章生成完成
-[2025-07-23 16:03:22] INFO - 第170章生成完成
-[2025-07-23 16:04:54] INFO - 第171章生成完成
-[2025-07-23 16:04:54] INFO - 第171章生成完成
-[2025-07-23 16:06:40] INFO - 第172章生成完成
-[2025-07-23 16:06:40] INFO - 第172章生成完成
-[2025-07-23 16:08:40] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:08:40] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:08:40] WARNING - 第173章生成失败，内容为空
-[2025-07-23 16:08:40] WARNING - 第173章生成失败，内容为空
-[2025-07-23 16:10:42] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:10:42] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:10:42] WARNING - 第174章生成失败，内容为空
-[2025-07-23 16:10:42] WARNING - 第174章生成失败，内容为空
-[2025-07-23 16:12:05] INFO - 第175章生成完成
-[2025-07-23 16:12:05] INFO - 第175章生成完成
-[2025-07-23 16:13:36] INFO - 第176章生成完成
-[2025-07-23 16:13:36] INFO - 第176章生成完成
-[2025-07-23 16:14:58] INFO - 第177章生成完成
-[2025-07-23 16:14:58] INFO - 第177章生成完成
-[2025-07-23 16:16:42] INFO - 第178章生成完成
-[2025-07-23 16:16:42] INFO - 第178章生成完成
-[2025-07-23 16:18:10] INFO - 第179章生成完成
-[2025-07-23 16:18:10] INFO - 第179章生成完成
-[2025-07-23 16:19:37] INFO - 第180章生成完成
-[2025-07-23 16:19:37] INFO - 第180章生成完成
-[2025-07-23 16:21:35] INFO - 第181章生成完成
-[2025-07-23 16:21:35] INFO - 第181章生成完成
-[2025-07-23 16:23:35] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:23:35] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:23:35] WARNING - 第182章生成失败，内容为空
-[2025-07-23 16:23:35] WARNING - 第182章生成失败，内容为空
-[2025-07-23 16:25:18] INFO - 第183章生成完成
-[2025-07-23 16:25:18] INFO - 第183章生成完成
-[2025-07-23 16:27:18] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:27:18] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 16:27:18] WARNING - 第184章生成失败，内容为空
-[2025-07-23 16:27:18] WARNING - 第184章生成失败，内容为空
-[2025-07-23 16:28:39] INFO - 第185章生成完成
-[2025-07-23 16:28:39] INFO - 第185章生成完成
-[2025-07-23 16:30:06] INFO - 第186章生成完成
-[2025-07-23 16:30:06] INFO - 第186章生成完成
-[2025-07-23 16:32:02] INFO - 第187章生成完成
-[2025-07-23 16:32:02] INFO - 第187章生成完成
-[2025-07-23 16:33:39] INFO - 第188章生成完成
-[2025-07-23 16:33:39] INFO - 第188章生成完成
-[2025-07-23 16:35:12] INFO - 第189章生成完成
-[2025-07-23 16:35:12] INFO - 第189章生成完成
-[2025-07-23 16:36:52] INFO - 第190章生成完成
-[2025-07-23 16:36:52] INFO - 第190章生成完成
-[2025-07-23 16:38:21] INFO - 第191章生成完成
-[2025-07-23 16:38:21] INFO - 第191章生成完成
-[2025-07-23 16:40:02] INFO - 第192章生成完成
-[2025-07-23 16:40:02] INFO - 第192章生成完成
-[2025-07-23 16:41:31] INFO - 第193章生成完成
-[2025-07-23 16:41:31] INFO - 第193章生成完成
-[2025-07-23 16:43:05] INFO - 第194章生成完成
-[2025-07-23 16:43:05] INFO - 第194章生成完成
-[2025-07-23 16:44:53] INFO - 第195章生成完成
-[2025-07-23 16:44:53] INFO - 第195章生成完成
-[2025-07-23 16:46:47] INFO - 第196章生成完成
-[2025-07-23 16:46:47] INFO - 第196章生成完成
-[2025-07-23 16:48:28] INFO - 第197章生成完成
-[2025-07-23 16:48:28] INFO - 第197章生成完成
-[2025-07-23 16:49:56] INFO - 第198章生成完成
-[2025-07-23 16:49:56] INFO - 第198章生成完成
-[2025-07-23 16:51:33] INFO - 第199章生成完成
-[2025-07-23 16:51:33] INFO - 第199章生成完成
-[2025-07-23 16:53:07] INFO - 第200章生成完成
-[2025-07-23 16:53:07] INFO - 第200章生成完成
-[2025-07-23 16:54:58] INFO - 第201章生成完成
-[2025-07-23 16:54:58] INFO - 第201章生成完成
-[2025-07-23 16:56:52] INFO - 第202章生成完成
-[2025-07-23 16:56:52] INFO - 第202章生成完成
-[2025-07-23 16:58:25] INFO - 第203章生成完成
-[2025-07-23 16:58:25] INFO - 第203章生成完成
-[2025-07-23 16:59:51] INFO - 第204章生成完成
-[2025-07-23 16:59:51] INFO - 第204章生成完成
-[2025-07-23 17:01:13] INFO - 第205章生成完成
-[2025-07-23 17:01:13] INFO - 第205章生成完成
-[2025-07-23 17:02:41] INFO - 第206章生成完成
-[2025-07-23 17:02:41] INFO - 第206章生成完成
-[2025-07-23 17:04:12] INFO - 第207章生成完成
-[2025-07-23 17:04:12] INFO - 第207章生成完成
-[2025-07-23 17:05:51] INFO - 第208章生成完成
-[2025-07-23 17:05:51] INFO - 第208章生成完成
-[2025-07-23 17:07:32] INFO - 第209章生成完成
-[2025-07-23 17:07:32] INFO - 第209章生成完成
-[2025-07-23 17:09:08] INFO - 第210章生成完成
-[2025-07-23 17:09:08] INFO - 第210章生成完成
-[2025-07-23 17:10:42] INFO - 第211章生成完成
-[2025-07-23 17:10:42] INFO - 第211章生成完成
-[2025-07-23 17:12:08] INFO - 第212章生成完成
-[2025-07-23 17:12:08] INFO - 第212章生成完成
-[2025-07-23 17:13:37] INFO - 第213章生成完成
-[2025-07-23 17:13:37] INFO - 第213章生成完成
-[2025-07-23 17:15:08] INFO - 第214章生成完成
-[2025-07-23 17:15:08] INFO - 第214章生成完成
-[2025-07-23 17:16:35] INFO - 第215章生成完成
-[2025-07-23 17:16:35] INFO - 第215章生成完成
-[2025-07-23 17:17:54] INFO - 第216章生成完成
-[2025-07-23 17:17:54] INFO - 第216章生成完成
-[2025-07-23 17:19:28] INFO - 第217章生成完成
-[2025-07-23 17:19:28] INFO - 第217章生成完成
-[2025-07-23 17:20:51] INFO - 第218章生成完成
-[2025-07-23 17:20:51] INFO - 第218章生成完成
-[2025-07-23 17:22:22] INFO - 第219章生成完成
-[2025-07-23 17:22:22] INFO - 第219章生成完成
-[2025-07-23 17:23:45] INFO - 第220章生成完成
-[2025-07-23 17:23:45] INFO - 第220章生成完成
-[2025-07-23 17:25:12] INFO - 第221章生成完成
-[2025-07-23 17:25:12] INFO - 第221章生成完成
-[2025-07-23 17:26:37] INFO - 第222章生成完成
-[2025-07-23 17:26:37] INFO - 第222章生成完成
-[2025-07-23 17:28:06] INFO - 第223章生成完成
-[2025-07-23 17:28:06] INFO - 第223章生成完成
-[2025-07-23 17:29:25] INFO - 第224章生成完成
-[2025-07-23 17:29:25] INFO - 第224章生成完成
-[2025-07-23 17:30:47] INFO - 第225章生成完成
-[2025-07-23 17:30:47] INFO - 第225章生成完成
-[2025-07-23 17:32:18] INFO - 第226章生成完成
-[2025-07-23 17:32:18] INFO - 第226章生成完成
-[2025-07-23 17:33:39] INFO - 第227章生成完成
-[2025-07-23 17:33:39] INFO - 第227章生成完成
-[2025-07-23 17:35:34] INFO - 第228章生成完成
-[2025-07-23 17:35:34] INFO - 第228章生成完成
-[2025-07-23 17:36:58] INFO - 第229章生成完成
-[2025-07-23 17:36:58] INFO - 第229章生成完成
-[2025-07-23 17:38:24] INFO - 第230章生成完成
-[2025-07-23 17:38:24] INFO - 第230章生成完成
-[2025-07-23 17:40:04] INFO - 第231章生成完成
-[2025-07-23 17:40:04] INFO - 第231章生成完成
-[2025-07-23 17:41:32] INFO - 第232章生成完成
-[2025-07-23 17:41:32] INFO - 第232章生成完成
-[2025-07-23 17:42:52] INFO - 第233章生成完成
-[2025-07-23 17:42:52] INFO - 第233章生成完成
-[2025-07-23 17:44:29] INFO - 第234章生成完成
-[2025-07-23 17:44:29] INFO - 第234章生成完成
-[2025-07-23 17:46:00] INFO - 第235章生成完成
-[2025-07-23 17:46:00] INFO - 第235章生成完成
-[2025-07-23 17:47:31] INFO - 第236章生成完成
-[2025-07-23 17:47:31] INFO - 第236章生成完成
-[2025-07-23 17:49:20] INFO - 第237章生成完成
-[2025-07-23 17:49:20] INFO - 第237章生成完成
-[2025-07-23 17:50:52] INFO - 第238章生成完成
-[2025-07-23 17:50:52] INFO - 第238章生成完成
-[2025-07-23 17:52:46] INFO - 第239章生成完成
-[2025-07-23 17:52:46] INFO - 第239章生成完成
-[2025-07-23 17:54:33] INFO - 第240章生成完成
-[2025-07-23 17:54:33] INFO - 第240章生成完成
-[2025-07-23 17:56:26] INFO - 第241章生成完成
-[2025-07-23 17:56:26] INFO - 第241章生成完成
-[2025-07-23 17:57:51] INFO - 第242章生成完成
-[2025-07-23 17:57:51] INFO - 第242章生成完成
-[2025-07-23 17:59:20] INFO - 第243章生成完成
-[2025-07-23 17:59:20] INFO - 第243章生成完成
-[2025-07-23 18:01:01] INFO - 第244章生成完成
-[2025-07-23 18:01:01] INFO - 第244章生成完成
-[2025-07-23 18:02:51] INFO - 第245章生成完成
-[2025-07-23 18:02:51] INFO - 第245章生成完成
-[2025-07-23 18:04:51] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 18:04:51] ERROR - 生成章节失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=120)
-[2025-07-23 18:04:51] WARNING - 第246章生成失败，内容为空
-[2025-07-23 18:04:51] WARNING - 第246章生成失败，内容为空
-[2025-07-23 18:06:20] INFO - 第247章生成完成
-[2025-07-23 18:06:20] INFO - 第247章生成完成
-[2025-07-23 18:07:38] INFO - 第248章生成完成
-[2025-07-23 18:07:38] INFO - 第248章生成完成
-[2025-07-23 18:09:15] INFO - 第249章生成完成
-[2025-07-23 18:09:15] INFO - 第249章生成完成
-[2025-08-07 19:33:48] WARNING - 未找到任何章节文件: test_output/测试小说\chaps
-[2025-08-07 19:33:49] INFO - 开始生成视频，共1个段落
-[2025-08-07 19:33:50] INFO - 已处理 1/1 个段落
-[2025-08-07 19:33:50] INFO - 视频生成完成: test_output/smoke.mp4
+[2025-08-18 18:22:10] INFO - 检测到已有进度，从第3章继续生成
+[2025-08-18 18:23:15] INFO - 第3章第1轮扩展，需增加1200字符
+[2025-08-18 18:23:47] INFO - 扩展后长度：1052字符
+[2025-08-18 18:23:49] INFO - 第3章第2轮扩展，需增加1200字符
+[2025-08-18 18:23:50] INFO - 扩展后长度：1059字符
+[2025-08-18 18:23:52] INFO - 第3章第3轮扩展，需增加1200字符
+[2025-08-18 18:23:54] INFO - 扩展后长度：1103字符
+[2025-08-18 18:23:56] INFO - 第3章第4轮扩展，需增加1200字符
+[2025-08-18 18:23:56] INFO - 扩展后长度：1110字符
+[2025-08-18 18:23:58] INFO - 第3章需追加内容以达到4000字符
+[2025-08-18 18:24:14] INFO - 追加后长度：1622字符
+[2025-08-18 18:24:15] INFO - 追加后长度：1633字符
+[2025-08-18 18:24:17] INFO - 追加后长度：1691字符
+[2025-08-18 18:24:52] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 18:25:19] INFO - 第3章生成完成
+[2025-08-18 18:25:19] INFO - 小说合并完成：novels\测试小说\full_novel.txt
+[2025-08-18 18:25:19] INFO - 小说《测试小说》生成完成
+[2025-08-18 23:00:08] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-18 23:00:09] INFO - 扩展后长度：935字符
+[2025-08-18 23:00:11] INFO - 第1章第2轮扩展，需增加1200字符
+[2025-08-18 23:01:21] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-18 23:01:23] INFO - 第1章第3轮扩展，需增加1200字符
+[2025-08-18 23:02:42] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-18 23:02:44] INFO - 第1章第4轮扩展，需增加1200字符
+[2025-08-18 23:03:38] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-18 23:03:40] INFO - 第1章需追加内容以达到4000字符
+[2025-08-18 23:05:11] INFO - 追加后长度：3673字符
+[2025-08-18 23:06:01] INFO - 追加后长度：5170字符
+[2025-08-18 23:06:12] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:06:44] INFO - 第1章生成完成
+[2025-08-18 23:07:25] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-18 23:07:26] INFO - 扩展后长度：1152字符
+[2025-08-18 23:07:28] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-18 23:09:10] INFO - 扩展后长度：4123字符
+[2025-08-18 23:09:35] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:09:37] INFO - 第2章生成完成
+[2025-08-18 23:10:13] INFO - 第3章第1轮扩展，需增加1200字符
+[2025-08-18 23:11:30] WARNING - 第1轮扩展内容重复，跳过
+[2025-08-18 23:11:32] INFO - 第3章第2轮扩展，需增加1200字符
+[2025-08-18 23:12:10] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-18 23:12:12] INFO - 第3章第3轮扩展，需增加1200字符
+[2025-08-18 23:13:16] INFO - 扩展后长度：2936字符
+[2025-08-18 23:13:18] INFO - 第3章第4轮扩展，需增加1064字符
+[2025-08-18 23:14:28] INFO - 扩展后长度：4890字符
+[2025-08-18 23:14:58] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:15:36] INFO - 第3章生成完成
+[2025-08-18 23:15:36] INFO - 小说合并完成：novels\优化测试小说\full_novel.txt
+[2025-08-18 23:15:36] INFO - 小说《优化测试小说》生成完成
+[2025-08-18 23:22:20] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-18 23:23:32] WARNING - 第1轮扩展内容重复，跳过
+[2025-08-18 23:23:34] INFO - 第1章第2轮扩展，需增加1200字符
+[2025-08-18 23:24:33] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-18 23:24:35] INFO - 第1章第3轮扩展，需增加1200字符
+[2025-08-18 23:26:13] INFO - 扩展后长度：4603字符
+[2025-08-18 23:26:27] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:28:32] INFO - 第1章生成完成
+[2025-08-18 23:30:01] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-18 23:31:48] INFO - 扩展后长度：5466字符
+[2025-08-18 23:32:48] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:33:01] INFO - 第2章生成完成
+[2025-08-18 23:34:19] INFO - 第3章第1轮扩展，需增加1200字符
+[2025-08-18 23:35:58] INFO - 扩展后长度：5051字符
+[2025-08-18 23:36:34] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:36:57] INFO - 第3章生成完成
+[2025-08-18 23:36:57] INFO - 小说合并完成：novels\最终测试小说\full_novel.txt
+[2025-08-18 23:36:57] INFO - 小说《最终测试小说》生成完成
+[2025-08-18 23:41:38] INFO - 检测到已有进度，从第4章继续生成
+[2025-08-18 23:42:51] INFO - 小说合并完成：novels\优化测试小说\full_novel.txt
+[2025-08-18 23:42:51] INFO - 小说《优化测试小说》生成完成
+[2025-08-18 23:47:25] INFO - 检测到已有进度，从第4章继续生成
+[2025-08-18 23:48:44] INFO - 小说合并完成：novels\最终测试小说\full_novel.txt
+[2025-08-18 23:48:44] INFO - 小说《最终测试小说》生成完成
+[2025-08-18 23:55:49] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-18 23:56:56] WARNING - 第1轮扩展内容重复，跳过
+[2025-08-18 23:56:58] INFO - 第1章第2轮扩展，需增加1200字符
+[2025-08-18 23:57:59] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-18 23:58:01] INFO - 第1章第3轮扩展，需增加1200字符
+[2025-08-18 23:59:20] INFO - 扩展后长度：4067字符
+[2025-08-18 23:59:40] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-18 23:59:53] INFO - 第1章生成完成
+[2025-08-19 00:00:18] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 00:00:19] INFO - 扩展后长度：746字符
+[2025-08-19 00:00:21] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-19 00:01:11] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-19 00:01:13] INFO - 第2章第3轮扩展，需增加1200字符
+[2025-08-19 00:01:55] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 00:01:57] INFO - 第2章第4轮扩展，需增加1200字符
+[2025-08-19 00:02:48] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 00:02:50] INFO - 第2章需追加内容以达到4000字符
+[2025-08-19 00:04:12] INFO - 追加后长度：3311字符
+[2025-08-19 00:05:05] INFO - 追加后长度：4831字符
+[2025-08-19 00:05:47] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 00:06:13] INFO - 第2章生成完成
+[2025-08-19 00:07:14] INFO - 第3章第1轮扩展，需增加1200字符
+[2025-08-19 00:08:25] WARNING - 第1轮扩展内容重复，跳过
+[2025-08-19 00:08:27] INFO - 第3章第2轮扩展，需增加1200字符
+[2025-08-19 00:09:36] INFO - 扩展后长度：3769字符
+[2025-08-19 00:09:38] INFO - 第3章第3轮扩展，需增加231字符
+[2025-08-19 00:10:47] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 00:10:49] INFO - 第3章第4轮扩展，需增加231字符
+[2025-08-19 00:11:59] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 00:12:01] INFO - 第3章需追加内容以达到4000字符
+[2025-08-19 00:12:49] INFO - 追加后长度：5212字符
+[2025-08-19 00:13:03] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 00:14:10] INFO - 第3章生成完成
+[2025-08-19 00:14:10] INFO - 小说合并完成：novels\清理优化测试小说\full_novel.txt
+[2025-08-19 00:14:10] INFO - 小说《清理优化测试小说》生成完成
+[2025-08-19 00:20:14] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 00:22:29] INFO - 扩展后长度：5430字符
+[2025-08-19 00:22:40] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 00:23:11] INFO - 第1章生成完成
+[2025-08-19 00:23:55] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 00:23:56] INFO - 扩展后长度：1280字符
+[2025-08-19 00:23:58] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-19 00:24:39] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-19 00:24:41] INFO - 第2章第3轮扩展，需增加1200字符
+[2025-08-19 00:25:42] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 00:25:44] INFO - 第2章第4轮扩展，需增加1200字符
+[2025-08-19 00:26:51] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 00:26:53] INFO - 第2章需追加内容以达到4000字符
+[2025-08-19 00:28:11] INFO - 追加后长度：3742字符
+[2025-08-19 00:28:51] INFO - 追加后长度：4908字符
+[2025-08-19 00:29:09] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 00:29:10] INFO - 第2章生成完成
+[2025-08-19 00:29:10] INFO - 小说合并完成：novels\测试小说优化版\full_novel.txt
+[2025-08-19 00:29:10] INFO - 小说《测试小说优化版》生成完成
+[2025-08-19 00:37:30] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 00:39:24] INFO - 扩展后长度：4374字符
+[2025-08-19 00:39:59] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 00:52:09] ERROR - 生成摘要失败: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=240)
+[2025-08-19 00:52:09] INFO - 第1章生成完成
+[2025-08-19 00:52:51] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 00:52:52] INFO - 扩展后长度：1192字符
+[2025-08-19 00:52:54] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-19 00:54:28] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-19 00:54:30] INFO - 第2章第3轮扩展，需增加1200字符
+[2025-08-19 00:55:49] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 00:55:51] INFO - 第2章第4轮扩展，需增加1200字符
+[2025-08-19 00:56:46] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 00:56:48] INFO - 第2章需追加内容以达到4000字符
+[2025-08-19 00:58:08] INFO - 追加后长度：3352字符
+[2025-08-19 00:59:07] INFO - 追加后长度：5101字符
+[2025-08-19 00:59:17] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 01:00:00] INFO - 第2章生成完成
+[2025-08-19 01:00:00] INFO - 小说合并完成：novels\测试小说最终版\full_novel.txt
+[2025-08-19 01:00:00] INFO - 小说《测试小说最终版》生成完成
+[2025-08-19 01:04:10] INFO - 检测到已有进度，从第3章继续生成
+[2025-08-19 01:05:51] INFO - 小说合并完成：novels\测试小说优化版\full_novel.txt
+[2025-08-19 01:05:51] INFO - 小说《测试小说优化版》生成完成
+[2025-08-19 01:08:17] INFO - 检测到已有进度，从第3章继续生成
+[2025-08-19 01:09:24] INFO - 小说合并完成：novels\测试小说最终版\full_novel.txt
+[2025-08-19 01:09:24] INFO - 小说《测试小说最终版》生成完成
+[2025-08-19 01:14:34] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 01:16:03] INFO - 扩展后长度：4542字符
+[2025-08-19 01:16:26] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 01:16:44] INFO - 第1章生成完成
+[2025-08-19 01:17:31] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 01:17:32] INFO - 扩展后长度：1417字符
+[2025-08-19 01:17:34] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-19 01:18:25] INFO - 扩展后长度：3019字符
+[2025-08-19 01:18:27] INFO - 第2章第3轮扩展，需增加981字符
+[2025-08-19 01:19:32] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 01:19:34] INFO - 第2章第4轮扩展，需增加981字符
+[2025-08-19 01:20:26] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 01:20:28] INFO - 第2章需追加内容以达到4000字符
+[2025-08-19 01:21:13] INFO - 追加后长度：4454字符
+[2025-08-19 01:21:26] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 01:21:41] INFO - 第2章生成完成
+[2025-08-19 01:21:41] INFO - 小说合并完成：novels\测试小说最终优化版\full_novel.txt
+[2025-08-19 01:21:41] INFO - 小说《测试小说最终优化版》生成完成
+[2025-08-19 01:27:01] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 01:28:54] INFO - 扩展后长度：5800字符
+[2025-08-19 01:29:09] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 01:29:37] INFO - 第1章生成完成
+[2025-08-19 01:30:45] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 01:32:50] WARNING - 第1轮扩展内容重复，跳过
+[2025-08-19 01:32:52] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-19 01:34:23] INFO - 扩展后长度：4748字符
+[2025-08-19 01:34:35] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 01:34:58] INFO - 第2章生成完成
+[2025-08-19 01:34:58] INFO - 小说合并完成：novels\测试小说最终清理版\full_novel.txt
+[2025-08-19 01:34:58] INFO - 小说《测试小说最终清理版》生成完成
+[2025-08-19 01:37:08] INFO - 检测到已有进度，从第3章继续生成
+[2025-08-19 01:38:09] INFO - 小说合并完成：novels\测试小说最终版\full_novel.txt
+[2025-08-19 01:38:09] INFO - 小说《测试小说最终版》生成完成
+[2025-08-19 12:40:56] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 12:42:27] INFO - 扩展后长度：5119字符
+[2025-08-19 12:42:58] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 12:43:15] INFO - 第1章生成完成
+[2025-08-19 12:43:59] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 12:44:01] INFO - 扩展后长度：1321字符
+[2025-08-19 12:44:03] INFO - 第2章第2轮扩展，需增加1200字符
+[2025-08-19 12:44:03] INFO - 扩展后长度：1328字符
+[2025-08-19 12:44:05] INFO - 第2章第3轮扩展，需增加1200字符
+[2025-08-19 12:44:10] INFO - 扩展后长度：1481字符
+[2025-08-19 12:44:12] INFO - 第2章第4轮扩展，需增加1200字符
+[2025-08-19 12:44:17] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 12:44:19] INFO - 第2章需追加内容以达到4000字符
+[2025-08-19 12:44:39] INFO - 追加后长度：2103字符
+[2025-08-19 12:44:40] INFO - 追加后长度：2114字符
+[2025-08-19 12:45:12] INFO - 追加后长度：3115字符
+[2025-08-19 12:45:30] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 12:45:33] INFO - 第2章生成完成
+[2025-08-19 12:45:33] INFO - 小说合并完成：novels\清理测试小说\full_novel.txt
+[2025-08-19 12:45:33] INFO - 小说《清理测试小说》生成完成
+[2025-08-19 12:49:35] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 12:51:54] WARNING - 第1轮扩展内容重复，跳过
+[2025-08-19 12:51:56] INFO - 第1章第2轮扩展，需增加1200字符
+[2025-08-19 12:51:57] INFO - 扩展后长度：1400字符
+[2025-08-19 12:51:59] INFO - 第1章第3轮扩展，需增加1200字符
+[2025-08-19 12:53:39] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 12:53:41] INFO - 第1章第4轮扩展，需增加1200字符
+[2025-08-19 12:55:01] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 12:55:03] INFO - 第1章需追加内容以达到4000字符
+[2025-08-19 12:56:09] INFO - 追加后长度：3364字符
+[2025-08-19 12:57:26] INFO - 追加后长度：5586字符
+[2025-08-19 12:57:39] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 12:58:28] INFO - 第1章生成完成
+[2025-08-19 12:59:28] INFO - 第2章第1轮扩展，需增加1200字符
+[2025-08-19 13:01:31] INFO - 扩展后长度：5282字符
+[2025-08-19 13:01:42] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 13:02:13] INFO - 第2章生成完成
+[2025-08-19 13:02:13] INFO - 小说合并完成：novels\最终清理测试\full_novel.txt
+[2025-08-19 13:02:13] INFO - 小说《最终清理测试》生成完成
+[2025-08-19 13:07:34] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 13:08:34] INFO - 扩展后长度：1870字符
+[2025-08-19 13:08:36] INFO - 第1章第2轮扩展，需增加1200字符
+[2025-08-19 13:10:14] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-19 13:10:16] INFO - 第1章第3轮扩展，需增加1200字符
+[2025-08-19 13:11:23] INFO - 扩展后长度：3711字符
+[2025-08-19 13:11:25] INFO - 第1章第4轮扩展，需增加289字符
+[2025-08-19 13:12:34] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 13:12:36] INFO - 第1章需追加内容以达到4000字符
+[2025-08-19 13:13:10] INFO - 追加后长度：4677字符
+[2025-08-19 13:13:25] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 13:13:46] INFO - 第1章生成完成
+[2025-08-19 13:13:46] INFO - 小说合并完成：novels\最终清理测试2\full_novel.txt
+[2025-08-19 13:13:46] INFO - 小说《最终清理测试2》生成完成
+[2025-08-19 13:18:21] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 13:19:39] INFO - 扩展后长度：3787字符
+[2025-08-19 13:19:41] INFO - 第1章第2轮扩展，需增加213字符
+[2025-08-19 13:20:44] INFO - 扩展后长度：5602字符
+[2025-08-19 13:21:18] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 13:21:54] INFO - 第1章生成完成
+[2025-08-19 13:21:54] INFO - 小说合并完成：novels\最终清理测试3\full_novel.txt
+[2025-08-19 13:21:54] INFO - 小说《最终清理测试3》生成完成
+[2025-08-19 13:25:25] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 13:26:35] INFO - 扩展后长度：2115字符
+[2025-08-19 13:26:37] INFO - 第1章第2轮扩展，需增加1200字符
+[2025-08-19 13:28:08] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-19 13:28:10] INFO - 第1章第3轮扩展，需增加1200字符
+[2025-08-19 13:29:49] WARNING - 第3轮扩展内容重复，跳过
+[2025-08-19 13:29:51] INFO - 第1章第4轮扩展，需增加1200字符
+[2025-08-19 13:31:06] WARNING - 第4轮扩展内容重复，跳过
+[2025-08-19 13:31:09] INFO - 第1章需追加内容以达到4000字符
+[2025-08-19 13:32:22] INFO - 追加后长度：4259字符
+[2025-08-19 13:32:39] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 13:32:49] INFO - 第1章生成完成
+[2025-08-19 13:32:49] INFO - 小说合并完成：novels\最终清理测试4\full_novel.txt
+[2025-08-19 13:32:49] INFO - 小说《最终清理测试4》生成完成
+[2025-08-19 13:37:44] INFO - 第1章第1轮扩展，需增加1200字符
+[2025-08-19 13:38:35] INFO - 扩展后长度：3186字符
+[2025-08-19 13:38:37] INFO - 第1章第2轮扩展，需增加814字符
+[2025-08-19 13:39:27] WARNING - 第2轮扩展内容重复，跳过
+[2025-08-19 13:39:29] INFO - 第1章第3轮扩展，需增加814字符
+[2025-08-19 13:42:07] INFO - 扩展后长度：8081字符
+[2025-08-19 13:42:21] WARNING - Reader审查失败: Expecting value: line 1 column 1 (char 0)
+[2025-08-19 13:43:36] INFO - 第1章生成完成
+[2025-08-19 13:43:36] INFO - 小说合并完成：novels\最终清理测试5\full_novel.txt
+[2025-08-19 13:43:36] INFO - 小说《最终清理测试5》生成完成
