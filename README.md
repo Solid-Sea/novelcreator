@@ -2,6 +2,32 @@
 
 一个利用大模型服务自动生成小说的工具链，包含小说生成、文本处理和视频合成功能。
 
+## 🚀 快速开始
+
+1. **确保环境准备就绪**：
+   ```bash
+   # 检查Python版本
+   python --version
+   
+   # 检查Ollama服务
+   curl http://localhost:11434/api/tags
+   ```
+
+2. **生成你的第一部小说**：
+   ```bash
+   # 生成一个简单的5章小说
+   python main.py novel --action new --title "我的第一部小说" --chapters 5
+   
+   # 查看生成结果
+   ls novels/我的第一部小说/
+   ```
+
+3. **将小说转换为视频**：
+   ```bash
+   # 生成视频
+   python main.py video --input novels/我的第一部小说/full_novel.txt --output my_first_novel.mp4
+   ```
+
 ## ✨ 功能特性
 - 基于大模型生成小说内容
 - 智能内容去重和质量优化
@@ -15,7 +41,7 @@
 ### 前置要求
 1. Python 3.8+
 2. Ollama服务（本地或远程）
-3. 支持CUDA的GPU（推荐）
+3. 支持CUDA的GPU（推荐，用于本地Transformers模型）
 
 ### 安装步骤
 ```bash
@@ -26,9 +52,12 @@ cd novelcreator-tf
 # 安装Python依赖
 pip install -r requirements.txt
 
-# 安装Ollama并下载模型（示例使用llama3）
+# 安装额外依赖（如果requirements.txt中缺失）
+pip install torch transformers opencv-python moviepy openai
+
+# 安装Ollama并下载模型（示例使用phi3）
 curl -fsSL https://ollama.com/install.sh | sh
-ollama pull llama3
+ollama pull phi3:3.8b
 
 # 启动Ollama服务（后台运行）
 ollama serve &
@@ -38,37 +67,97 @@ ollama serve &
 
 ### config.yaml
 ```yaml
-model: "llama3"  # 使用的大模型名称
-max_length: 2000  # 生成文本最大长度
-temperature: 0.7  # 生成随机性控制
+# Ollama模型配置
+ollama:
+  endpoint: "http://localhost:11434"  # Ollama API端点
+  model: "phi3:3.8b"                  # 默认使用模型
+  hf_model: "unsloth/DeepSeek-R1-Distill-Qwen-14B"  # HuggingFace模型名称
+  trust_remote_code: true             # 仅在启用本地TF模式时生效
+
+# 路径配置
+paths:
+  novels_dir: "novels"       # 小说存储目录
+
+# 系统设置
+settings:
+  timeout: 240                # API请求超时（秒）
+
+  # Reader机制配置（M1）
+  reader:
+    enabled: true
+    max_review_rounds: 2
+    min_total_score: 7
+    hard_fail_dims: ["coherence", "character_consistency", "safety"]
+    sample_review: true
+    sample_strategy: ["head", "key", "tail"]
+    max_summary_len: 400
+    min_chapter_chars: 4000
+    sample_threshold_chars: 5000
+
+  # 视频生成参数（与实现对齐）
+  video:
+    width: 1920
+    height: 1080
+    fps: 24
+    font_size: 32
+    text_color: [255, 255, 255]
+    bg_color: [0, 0, 0]
+    margin: 100
+    line_spacing: 10
 ```
 
 ### blacklist.yaml
 ```yaml
-# 内容过滤黑名单
-banned_words:
-  - "暴力"
-  - "色情"
-  - "政治敏感词"
+exact:
+  - "敏感词1"
+  - "敏感词2"
+
+ranges:
+  - "<unsafe>.*?</unsafe>"
+  - "<政治敏感>.*?</政治敏感>"
 ```
 
 ## 🚀 使用说明
 
-### 生成小说
+### 生成新小说
 ```bash
-python main.py --mode novel --prompt "科幻小说大纲" --output story.txt
+# 生成一个10章的小说
+python main.py novel --action new --title "我的科幻小说" --chapters 10
+
+# 指定输出目录
+python main.py novel --action new --title "我的奇幻小说" --output-dir "./my_novels" --chapters 5
+```
+
+### 续写小说
+```bash
+# 为现有小说添加5个新章节
+python main.py novel --action continue --title "我的科幻小说" --chapters 5
+```
+
+### 合并章节
+```bash
+# 将分散的章节文件合并为完整小说
+python main.py novel --action merge --title "我的科幻小说"
 ```
 
 ### 生成视频
 ```bash
-python main.py --mode video --input story.txt --output video.mp4 \
-  --font resources/SimHei.ttf
+# 从完整小说生成视频
+python main.py video --input novels/我的科幻小说/full_novel.txt --output my_novel.mp4
+
+# 从单个章节生成视频
+python main.py video --input novels/我的科幻小说/chaps/chapter_1.txt --output chapter1.mp4
+```
+
+### 交互式模式
+```bash
+# 运行交互式界面
+python main.py
 ```
 
 ### 可选参数
 - `--verbose`: 显示详细日志
-- `--length`: 指定生成内容长度
-- `--model`: 覆盖配置文件中的模型设置
+- `--config`: 指定配置文件路径
 
 ## 📂 文件说明
 | 文件 | 功能 |
