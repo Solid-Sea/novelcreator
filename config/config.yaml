@@ -5,6 +5,12 @@ ollama:
   hf_model: "unsloth/DeepSeek-R1-Distill-Qwen-14B"  # HuggingFace模型名称
   trust_remote_code: true             # 仅在启用本地TF模式时生效
 
+# OpenAI兼容API配置
+openai:
+  api_key: "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"
+  base_url: "https://openrouter.ai/api/v1"
+  model: "openrouter/auto"
+
 # 路径配置
 paths:
   novels_dir: "novels"       # 小说存储目录
