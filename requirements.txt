@@ -8,3 +8,4 @@ opencv-python
 pillow
 moviepy
 numpy
+openai
