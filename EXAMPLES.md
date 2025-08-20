@@ -123,6 +123,12 @@ openai:
   api_key: "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"
   base_url: "https://openrouter.ai/api/v1"
   model: "openrouter/auto"
+  
+  # 任务特定模型配置（可选）
+  models:
+    outline: "z-ai/glm-4.5-air:free"      # 大纲生成模型
+    review: "moonshotai/kimi-k2:free"     # 评论/审查模型
+    content: "deepseek/deepseek-r1-0528:free"  # 正文生成模型
 
 # 调整生成参数
 settings:

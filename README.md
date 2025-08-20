@@ -81,7 +81,13 @@ ollama:
 openai:
   api_key: "your-api-key-here"        # API密钥
   base_url: "https://api.openai.com/v1"  # API基础URL
-  model: "gpt-3.5-turbo"              # 使用的模型
+  model: "gpt-3.5-turbo"              # 默认模型
+  
+  # 任务特定模型配置（可选）
+  models:
+    outline: "z-ai/glm-4.5-air:free"      # 大纲生成模型
+    review: "moonshotai/kimi-k2:free"     # 评论/审查模型
+    content: "deepseek/deepseek-r1-0528:free"  # 正文生成模型
 
 # 路径配置
 paths:
