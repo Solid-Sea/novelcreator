@@ -158,6 +158,28 @@ python main.py video --input novels/我的第一部小说/full_novel.txt --outpu
 python main.py novel --action new --title "OpenAI测试小说" --chapters 2
 ```
 
+## 🎯 任务特定模型配置验证
+
+✅ **任务特定模型配置测试成功**
+
+测试结果:
+- 大纲生成模型: z-ai/glm-4.5-air:free
+- 评论/审查模型: moonshotai/kimi-k2:free  
+- 正文生成模型: deepseek/deepseek-r1-0528:free
+- 所有任务模型测试均成功完成
+
+现在可以为不同任务配置不同的模型！
+
+### 任务特定模型配置示例:
+```yaml
+openai:
+  models:
+    outline: "z-ai/glm-4.5-air:free"      # 大纲生成
+    review: "moonshotai/kimi-k2:free"     # 评论审查
+    content: "deepseek/deepseek-r1-0528:free"  # 正文生成
+```
+
+
 
 ---
 *环境配置完成时间：2025年8月20日*

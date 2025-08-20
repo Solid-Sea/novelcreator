@@ -276,7 +276,8 @@ class ModelHandler:
         self._model_cache["openai"] = {
             "api_key": openai.api_key,
             "base_url": openai.base_url,
-            "model": self.config['openai']['model']
+            "model": self.config['openai']['model'],
+            "models": self.config['openai'].get('models', {})
         }
 
     def _cache_model(self, model_type: str):
@@ -300,7 +301,7 @@ class ModelHandler:
             if hasattr(model, "state_dict"):
                 del model
 
-    def generate_text(self, prompt: str, model_type: str = None, temperature: Optional[float] = None) -> str:
+    def generate_text(self, prompt: str, model_type: str = None, temperature: Optional[float] = None, task_type: str = None) -> str:
         if model_type is None:
             model_type = self.model_type
             
@@ -312,7 +313,7 @@ class ModelHandler:
         elif model_type == "tf":
             return self._transformer_generate(prompt, temperature)
         elif model_type == "openai":
-            return self._openai_generate(prompt, temperature)
+            return self._openai_generate(prompt, temperature, task_type)
         else:
             raise ValueError(f"不支持的模型类型: {model_type}")
 
@@ -378,7 +379,7 @@ class ModelHandler:
             logger.error(f"Transformer模型生成失败: {str(e)}")
             raise
 
-    def _openai_generate(self, prompt: str, temperature: Optional[float]) -> str:
+    def _openai_generate(self, prompt: str, temperature: Optional[float], task_type: str = None) -> str:
         try:
             from openai import OpenAI
             
@@ -388,9 +389,17 @@ class ModelHandler:
                 base_url=self._model_cache["openai"]["base_url"]
             )
             
+            # 根据任务类型选择模型
+            model_name = self._model_cache["openai"]["model"]  # 默认模型
+            if task_type and "models" in self._model_cache["openai"]:
+                task_models = self._model_cache["openai"]["models"]
+                if task_type in task_models and task_models[task_type]:
+                    model_name = task_models[task_type]
+                    logger.info(f"使用任务特定模型: {task_type} -> {model_name}")
+            
             # 使用ChatCompletion API
             response = client.chat.completions.create(
-                model=self._model_cache["openai"]["model"],
+                model=model_name,
                 messages=[
                     {"role": "user", "content": prompt}
                 ],
@@ -402,3 +411,20 @@ class ModelHandler:
         except Exception as e:
             logger.error(f"OpenAI API调用失败: {str(e)}")
             raise
+
+    def generate_text_with_model(self, prompt: str, task_type: str, model_type: str = None, temperature: Optional[float] = None) -> str:
+        """使用特定任务模型生成文本"""
+        if model_type is None:
+            model_type = self.model_type
+            
+        if model_type not in self._model_cache:
+            self.initialize_model(model_type)
+            
+        if model_type == "ollama":
+            return self._ollama_generate(prompt, temperature)
+        elif model_type == "tf":
+            return self._transformer_generate(prompt, temperature)
+        elif model_type == "openai":
+            return self._openai_generate(prompt, temperature, task_type)
+        else:
+            raise ValueError(f"不支持的模型类型: {model_type}")

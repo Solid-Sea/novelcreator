@@ -179,7 +179,7 @@ class NovelGenerator:
 大纲内容：
 """
             
-            response = self.model_handler.generate_text(prompt, self.model_type, temperature=0.8)
+            response = self.model_handler.generate_text_with_model(prompt, "outline", self.model_type, temperature=0.8)
             return response.strip()
             
         except Exception as e:
@@ -493,7 +493,7 @@ class NovelGenerator:
 }}
 """
             
-            review_response = self.model_handler.generate_text(prompt, self.model_type, temperature=0.3)
+            review_response = self.model_handler.generate_text_with_model(prompt, "review", self.model_type, temperature=0.3)
             review_obj = json.loads(review_response)
             
             # 检查是否需要修订
