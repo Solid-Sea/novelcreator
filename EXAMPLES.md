@@ -113,10 +113,16 @@ python main.py video --input novels/星际探险/full_novel.txt --output my_nove
 ### config.yaml 自定义示例
 
 ```yaml
-# 使用更强的模型
+# 选项1: 使用Ollama模型
 ollama:
   endpoint: "http://localhost:11434"
   model: "qwen3:8b"  # 更强大的模型
+
+# 选项2: 使用OpenAI兼容API（如OpenRouter）
+openai:
+  api_key: "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"
+  base_url: "https://openrouter.ai/api/v1"
+  model: "openrouter/auto"
 
 # 调整生成参数
 settings:

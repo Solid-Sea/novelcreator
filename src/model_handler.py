@@ -272,8 +272,10 @@ class ModelHandler:
 
     def _init_openai_model(self):
         openai.api_key = self.config['openai']['api_key']
+        openai.base_url = self.config['openai'].get('base_url', 'https://api.openai.com/v1')
         self._model_cache["openai"] = {
             "api_key": openai.api_key,
+            "base_url": openai.base_url,
             "model": self.config['openai']['model']
         }
 
@@ -378,13 +380,25 @@ class ModelHandler:
 
     def _openai_generate(self, prompt: str, temperature: Optional[float]) -> str:
         try:
-            response = openai.Completion.create(
-                engine=self._model_cache["openai"]["model"],
-                prompt=prompt,
-                temperature=temperature or self.generation_config['temperature'],
-                max_tokens=self.generation_config['max_new_tokens']
+            from openai import OpenAI
+            
+            # 使用新的OpenAI客户端
+            client = OpenAI(
+                api_key=self._model_cache["openai"]["api_key"],
+                base_url=self._model_cache["openai"]["base_url"]
             )
-            return response.choices[0].text.strip()
+            
+            # 使用ChatCompletion API
+            response = client.chat.completions.create(
+                model=self._model_cache["openai"]["model"],
+                messages=[
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=temperature or self.generation_config['temperature'],
+                max_tokens=self.generation_config['max_new_tokens'],
+                timeout=self.config['settings']['timeout']
+            )
+            return response.choices[0].message.content.strip()
         except Exception as e:
             logger.error(f"OpenAI API调用失败: {str(e)}")
             raise

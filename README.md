@@ -55,12 +55,15 @@ pip install -r requirements.txt
 # 安装额外依赖（如果requirements.txt中缺失）
 pip install torch transformers opencv-python moviepy openai
 
-# 安装Ollama并下载模型（示例使用phi3）
+# 选项1: 安装Ollama并下载模型（示例使用phi3）
 curl -fsSL https://ollama.com/install.sh | sh
 ollama pull phi3:3.8b
 
 # 启动Ollama服务（后台运行）
 ollama serve &
+
+# 选项2: 配置OpenAI兼容API（如OpenRouter）
+# 在 config/config.yaml 中配置API密钥和基础URL
 ```
 
 ## 📝 配置文件
@@ -73,6 +76,12 @@ ollama:
   model: "phi3:3.8b"                  # 默认使用模型
   hf_model: "unsloth/DeepSeek-R1-Distill-Qwen-14B"  # HuggingFace模型名称
   trust_remote_code: true             # 仅在启用本地TF模式时生效
+
+# OpenAI兼容API配置（支持OpenRouter、OpenAI等）
+openai:
+  api_key: "your-api-key-here"        # API密钥
+  base_url: "https://api.openai.com/v1"  # API基础URL
+  model: "gpt-3.5-turbo"              # 使用的模型
 
 # 路径配置
 paths:
