@@ -13,9 +13,10 @@ from .utils import load_config
 logger = logging.getLogger('ModelHandler')
 
 class ModelHandler:
-    def __init__(self, model_type: str = "ollama", model_cache_dir: Optional[str] = None):
+    def __init__(self, model_type: str = None, model_cache_dir: Optional[str] = None):
         self.config = load_config()
-        self.model_type = model_type
+        # 如果没有指定模型类型，则从配置中获取默认模型类型
+        self.model_type = model_type if model_type is not None else self._get_default_model_type()
         self.model_cache_dir = model_cache_dir
         self._model_cache: Dict[str, Any] = {}
         self.session = requests.Session()
@@ -35,6 +36,19 @@ class ModelHandler:
             'eos_token_id': 2,
             'use_cache': True
         }
+
+    def _get_default_model_type(self) -> str:
+        """从配置中获取默认模型类型"""
+        model_selection = self.config.get('model_selection', {})
+        default_type = model_selection.get('default_type', 'ollama')
+        
+        # 验证模型类型
+        if default_type not in ['ollama', 'openai']:
+            logger.warning(f"无效的模型类型: {default_type}，使用默认值 'ollama'")
+            return 'ollama'
+        
+        logger.info(f"使用默认模型类型: {default_type}")
+        return default_type
 
     def _setup_memory_management(self):
         """优化内存管理设置"""
@@ -334,8 +348,14 @@ class ModelHandler:
         for attempt in range(max_retries):
             try:
                 endpoint = self._model_cache["ollama"]["endpoint"]
+                # 确保端点URL格式正确
+                if not endpoint.startswith('http'):
+                    endpoint = f"http://{endpoint}"
                 if not endpoint.endswith('/api/generate'):
                     endpoint = f"{endpoint.rstrip('/')}/api/generate"
+                    
+                logger.debug(f"Ollama API请求: {endpoint}")
+                logger.debug(f"请求载荷: {payload}")
                     
                 response = self.session.post(
                     endpoint,
@@ -344,6 +364,7 @@ class ModelHandler:
                 )
                 response.raise_for_status()
                 data = response.json()
+                logger.debug(f"Ollama API响应: {data}")
                 
                 if "response" in data:
                     return data["response"]

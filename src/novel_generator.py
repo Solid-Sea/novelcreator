@@ -12,13 +12,14 @@ from .utils import (
 from .model_handler import ModelHandler
 
 class NovelGenerator:
-    def __init__(self, model_handler: ModelHandler, model_type: str = "ollama"):
+    def __init__(self, model_handler: ModelHandler, model_type: str = None):
         """初始化小说生成器"""
         self.config = load_config()
         self.ollama_cfg = self.config['ollama']
         self.settings = self.config['settings']
         self.blacklist = load_blacklist()
-        self.model_type = model_type
+        # 如果没有指定模型类型，则使用model_handler中的模型类型
+        self.model_type = model_type if model_type is not None else model_handler.model_type
         self.model_handler = model_handler
         self._generation_cache = {}
         self._batch_size = 4
@@ -75,13 +76,39 @@ class NovelGenerator:
             if completed > 0:
                 logger.info(f"检测到已有进度，从第{completed + 1}章继续生成")
             
-            outline = self._generate_outline(title, chapters)
-            if not outline:
+            # 生成结构化大纲
+            outline_json_str = self._generate_outline(title, chapters)
+            if not outline_json_str:
                 raise ValueError("无法生成小说大纲")
             
-            outline_path = os.path.join(novel_dir, "outline.txt")
-            with open(outline_path, 'w', encoding='utf-8') as f:
-                f.write(outline)
+            # 解析结构化大纲
+            try:
+                outline_data = json.loads(outline_json_str)
+                logger.info(f"成功解析结构化大纲，共{outline_data.get('total_chapters', 0)}章")
+                
+                # 保存结构化大纲
+                structured_outline_path = os.path.join(novel_dir, "outline_structured.json")
+                with open(structured_outline_path, 'w', encoding='utf-8') as f:
+                    json.dump(outline_data, f, ensure_ascii=False, indent=2)
+                
+                # 创建故事圣经（Story Bible）
+                story_bible = self._create_story_bible(outline_data)
+                story_bible_path = os.path.join(novel_dir, "story_bible.json")
+                with open(story_bible_path, 'w', encoding='utf-8') as f:
+                    json.dump(story_bible, f, ensure_ascii=False, indent=2)
+                
+                # 保存原始大纲文本
+                outline_path = os.path.join(novel_dir, "outline.txt")
+                with open(outline_path, 'w', encoding='utf-8') as f:
+                    f.write(outline_json_str)
+                    
+            except json.JSONDecodeError as e:
+                logger.warning(f"大纲JSON解析失败，使用原始文本: {str(e)}")
+                outline_data = None
+                # 保存原始大纲文本
+                outline_path = os.path.join(novel_dir, "outline.txt")
+                with open(outline_path, 'w', encoding='utf-8') as f:
+                    f.write(outline_json_str)
             
             progress_bar = show_progress(completed, chapters)
 
@@ -92,9 +119,15 @@ class NovelGenerator:
 
             recent_summaries: List[str] = []
             
-            for chapter_num in range(completed + 1, chapters + 1):
+            # 获取章节数量
+            total_chapters = chapters
+            if outline_data and 'chapters' in outline_data:
+                total_chapters = len(outline_data['chapters'])
+                logger.info(f"从结构化大纲获取章节数: {total_chapters}")
+            
+            for chapter_num in range(completed + 1, total_chapters + 1):
                 try:
-                    chapter_content = self._generate_chapter(title, chapter_num, outline)
+                    chapter_content = self._generate_chapter_structured(title, chapter_num, outline_data or outline_json_str)
                     if not chapter_content:
                         logger.warning(f"第{chapter_num}章生成失败，内容为空")
                         progress_bar.update(1)
@@ -104,7 +137,7 @@ class NovelGenerator:
                         title=title,
                         chapter_num=chapter_num,
                         chapter_text=chapter_content,
-                        outline=outline,
+                        outline=outline_json_str,
                         target_chars=self.min_chapter_chars
                     )
                     
@@ -112,7 +145,7 @@ class NovelGenerator:
                         title=title,
                         chapter_num=chapter_num,
                         chapter_text=expanded_text,
-                        outline=outline,
+                        outline=outline_json_str,
                         target_chars=self.min_chapter_chars
                     )
 
@@ -120,7 +153,7 @@ class NovelGenerator:
                         title=title,
                         chapter_num=chapter_num,
                         chapter_text=ensured_text,
-                        outline=outline,
+                        outline=outline_json_str,
                         recent_summaries=recent_summaries,
                         story_bible_path=os.path.join(novel_dir, "story_bible.json")
                     )
@@ -144,7 +177,8 @@ class NovelGenerator:
                     cleaned_content = self._extract_and_clean_llm_analysis(final_text)
                     logger.debug(f"第{chapter_num}章清理后长度: {len(cleaned_content)}")
                     chapter_path = os.path.join(chap_dir, f"chapter_{chapter_num}.txt")
-                    with open(chapter_path, 'w', encoding='utf-8') as f:
+                    # 使用UTF-8-BOM编码写入文件，避免乱码
+                    with open(chapter_path, 'w', encoding='utf-8-sig') as f:
                         f.write(cleaned_content)
                     logger.info(f"第{chapter_num}章生成完成")
 
@@ -166,25 +200,167 @@ class NovelGenerator:
         """生成小说大纲"""
         try:
             prompt = f"""请为小说《{title}》生成一个详细的大纲，包含{chapters}个章节。
+
 要求：
 1. 每个章节有明确的主题和情节发展
 2. 章节之间要有连贯性
 3. 包含主要人物介绍和故事背景
 4. 使用中文回答
+5. 确保JSON格式正确，不要有多余的逗号或语法错误
 
-请按以下格式输出：
-小说标题：{title}
-总章节数：{chapters}
+请严格按照以下JSON格式输出，只输出JSON内容，不要添加任何其他说明或格式标记：
+{{
+    "title": "{title}",
+    "total_chapters": {chapters},
+    "story_background": "故事背景描述",
+    "main_characters": [
+        {{
+            "name": "角色姓名",
+            "role": "角色身份",
+            "characteristics": "角色特征",
+            "relationship": "与其他角色的关系"
+        }}
+    ],
+    "chapters": [
+        {{
+            "chapter_num": 1,
+            "title": "章节标题",
+            "summary": "章节概要",
+            "key_events": ["重要事件1", "重要事件2"],
+            "character_development": "角色发展",
+            "plot_points": "关键情节点"
+        }}
+    ]
+}}
 
-大纲内容：
+请直接输出纯净的JSON格式大纲，不要使用代码块标记（如```json），不要添加任何解释说明，确保JSON语法正确：
 """
             
             response = self.model_handler.generate_text_with_model(prompt, "outline", self.model_type, temperature=0.8)
-            return response.strip()
+            # 清理可能的Markdown标记
+            cleaned_response = response.strip()
+            if cleaned_response.startswith("```"):
+                # 移除代码块标记
+                lines = cleaned_response.split('\n')
+                if lines[0].strip().startswith("```"):
+                    lines.pop(0)
+                if lines and lines[-1].strip().startswith("```"):
+                    lines.pop()
+                cleaned_response = '\n'.join(lines).strip()
+            
+            # 尝试修复常见的JSON格式错误
+            cleaned_response = self._fix_json_format(cleaned_response)
+            
+            return cleaned_response
             
         except Exception as e:
             logger.error(f"生成大纲失败: {str(e)}")
             return ""
+
+    def _fix_json_format(self, json_str: str) -> str:
+        """修复常见的JSON格式错误"""
+        try:
+            # 尝试直接解析
+            json.loads(json_str)
+            return json_str
+        except json.JSONDecodeError:
+            pass
+        
+        # 修复双逗号问题
+        import re
+        fixed_str = re.sub(r',\s*,', ',', json_str)
+        
+        # 修复末尾逗号问题
+        fixed_str = re.sub(r',\s*([}\]])', r'\1', fixed_str)
+        
+        # 移除可能的额外文本
+        lines = fixed_str.split('\n')
+        json_lines = []
+        in_json = False
+        brace_count = 0
+        
+        for line in lines:
+            if line.strip().startswith('{'):
+                in_json = True
+            
+            if in_json:
+                json_lines.append(line)
+                # 计算大括号数量
+                brace_count += line.count('{') - line.count('}')
+                if brace_count == 0:
+                    break
+        
+        if json_lines:
+            fixed_str = '\n'.join(json_lines)
+        
+        return fixed_str.strip()
+
+    def _generate_chapter_structured(self, title: str, chapter_num: int, outline_data) -> str:
+        """生成结构化章节"""
+        try:
+            # 如果outline_data是字符串，说明是原始大纲
+            if isinstance(outline_data, str):
+                return self._generate_chapter(title, chapter_num, outline_data)
+            
+            # 获取章节信息
+            chapter_info = None
+            if 'chapters' in outline_data:
+                for chap in outline_data['chapters']:
+                    if chap.get('chapter_num') == chapter_num:
+                        chapter_info = chap
+                        break
+            
+            if chapter_info:
+                # 使用结构化信息生成章节
+                prompt = f"""根据以下详细大纲，为小说《{title}》生成第{chapter_num}章的内容。
+
+小说背景：
+{outline_data.get('story_background', '')}
+
+主要角色：
+{chr(10).join([f"- {char.get('name', '')}: {char.get('role', '')} - {char.get('characteristics', '')}" for char in outline_data.get('main_characters', [])])}
+
+当前章节信息：
+章节标题：{chapter_info.get('title', '')}
+章节概要：{chapter_info.get('summary', '')}
+关键事件：{', '.join(chapter_info.get('key_events', []))}
+角色发展：{chapter_info.get('character_development', '')}
+情节点：{chapter_info.get('plot_points', '')}
+
+要求：
+1. 这是第{chapter_num}章，要符合大纲中的对应部分
+2. 内容要详细生动，有对话和场景描写
+3. 字数在2000-3000字之间
+4. 使用中文写作
+5. 章节开头要有标题
+6. 严格按照章节信息展开情节
+
+请直接开始写作第{chapter_num}章的内容：
+"""
+            else:
+                # 如果没有找到章节信息，使用原始方式
+                prompt = f"""根据以下大纲，为小说《{title}》生成第{chapter_num}章的内容。
+
+大纲：
+{json.dumps(outline_data, ensure_ascii=False, indent=2) if isinstance(outline_data, dict) else outline_data}
+
+要求：
+1. 这是第{chapter_num}章，要符合大纲中的对应部分
+2. 内容要详细生动，有对话和场景描写
+3. 字数在2000-3000字之间
+4. 使用中文写作
+5. 章节开头要有标题
+
+请直接开始写作第{chapter_num}章的内容：
+"""
+            
+            response = self.model_handler.generate_text_with_model(prompt, "content", self.model_type, temperature=0.7)
+            return response.strip()
+            
+        except Exception as e:
+            logger.error(f"生成结构化章节失败: {str(e)}")
+            # 回退到原始章节生成
+            return self._generate_chapter(title, chapter_num, json.dumps(outline_data, ensure_ascii=False) if isinstance(outline_data, dict) else str(outline_data))
 
     def _generate_chapter(self, title: str, chapter_num: int, outline: str) -> str:
         """生成单个章节"""
@@ -210,6 +386,67 @@ class NovelGenerator:
         except Exception as e:
             logger.error(f"生成章节失败: {str(e)}")
             return ""
+
+    def _create_story_bible(self, outline_data: dict) -> dict:
+        """创建故事圣经（Story Bible）- 存储小说的核心信息"""
+        try:
+            story_bible = {
+                "title": outline_data.get("title", ""),
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "story_background": outline_data.get("story_background", ""),
+                "main_characters": outline_data.get("main_characters", []),
+                "total_chapters": outline_data.get("total_chapters", 0),
+                "chapters": [],
+                "consistency_tracker": {
+                    "character_traits": {},
+                    "plot_points": [],
+                    "timeline": [],
+                    "locations": [],
+                    "relationships": {}
+                }
+            }
+            
+            # 处理章节信息
+            for chapter in outline_data.get("chapters", []):
+                story_bible["chapters"].append({
+                    "chapter_num": chapter.get("chapter_num"),
+                    "title": chapter.get("title", ""),
+                    "summary": chapter.get("summary", ""),
+                    "key_events": chapter.get("key_events", []),
+                    "character_development": chapter.get("character_development", ""),
+                    "plot_points": chapter.get("plot_points", "")
+                })
+                
+                # 跟踪关键情节点
+                if "plot_points" in chapter:
+                    story_bible["consistency_tracker"]["plot_points"].append({
+                        "chapter": chapter.get("chapter_num"),
+                        "points": chapter.get("plot_points", "")
+                    })
+            
+            # 初始化角色特征跟踪
+            for character in outline_data.get("main_characters", []):
+                char_name = character.get("name", "")
+                if char_name:
+                    story_bible["consistency_tracker"]["character_traits"][char_name] = {
+                        "role": character.get("role", ""),
+                        "characteristics": character.get("characteristics", ""),
+                        "relationship": character.get("relationship", "")
+                    }
+            
+            logger.info("故事圣经创建完成")
+            return story_bible
+            
+        except Exception as e:
+            logger.error(f"创建故事圣经失败: {str(e)}")
+            return {
+                "title": outline_data.get("title", ""),
+                "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "story_background": "",
+                "main_characters": [],
+                "chapters": [],
+                "consistency_tracker": {}
+            }
 
     def continue_novel(self, title: str, output_dir: str = "novels", additional_chapters: int = 5) -> None:
         """继续生成小说"""

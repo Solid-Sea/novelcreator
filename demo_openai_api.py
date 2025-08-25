@@ -1,115 +1,123 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-OpenAI兼容API使用演示脚本
-展示如何使用OpenRouter等OpenAI兼容的API服务
+OpenAI API演示脚本
+展示如何使用OpenAI兼容API生成小说内容
 """
 
-import sys
 import os
-import time
-
-# 添加src目录到Python路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-
+import sys
 from src.model_handler import ModelHandler
-from src.utils import load_config, logger
+from src.utils import logger
 
-def setup_logging():
-    """设置日志"""
-    import logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(message)s'
-    )
-
-def demonstrate_openai_api():
-    """演示OpenAI兼容API的使用"""
-    print("🚀 OpenAI兼容API使用演示")
+def demo_novel_generation():
+    """演示小说生成"""
+    print("📚 OpenAI API小说生成演示")
     print("=" * 50)
     
     try:
-        # 加载配置
-        config = load_config()
-        print("✅ 配置文件加载成功")
+        # 创建ModelHandler实例，指定使用OpenAI
+        print("🔧 初始化OpenAI模型处理器...")
+        model_handler = ModelHandler(model_type='openai')
         
-        if 'openai' not in config:
-            print("❌ 未找到OpenAI配置")
+        # 1. 生成小说大纲
+        print("\n📝 步骤1: 生成小说大纲")
+        outline_prompt = """请为一部科幻小说生成一个详细的大纲，包含5个章节。
+要求：
+1. 每个章节有明确的主题和情节发展
+2. 章节之间要有连贯性
+3. 包含主要人物介绍和故事背景
+4. 使用中文回答
+
+请按以下格式输出：
+小说标题：[标题]
+总章节数：5
+
+大纲内容：
+"""
+        
+        print("正在生成大纲...")
+        outline = model_handler.generate_text_with_model(
+            outline_prompt, "outline", model_type='openai', temperature=0.8
+        )
+        
+        if outline:
+            print("✅ 大纲生成成功!")
+            print(f"📖 大纲内容:\n{outline}\n")
+        else:
+            print("❌ 大纲生成失败")
             return False
             
-        openai_config = config['openai']
-        print(f"📡 API配置:")
-        print(f"   基础URL: {openai_config.get('base_url', '未设置')}")
-        print(f"   模型: {openai_config.get('model', '未设置')}")
+        # 2. 生成第一章内容
+        print("\n📝 步骤2: 生成第一章内容")
+        chapter_prompt = f"""根据以下大纲，生成小说的第一章内容。
+
+大纲：
+{outline}
+
+要求：
+1. 这是第一章，要符合大纲中的对应部分
+2. 内容要详细生动，有对话和场景描写
+3. 字数在1000-1500字之间
+4. 使用中文写作
+5. 章节开头要有标题
+
+请直接开始写作第一章的内容：
+"""
         
-        # 初始化ModelHandler
-        print("\n🔧 初始化ModelHandler...")
-        model_handler = ModelHandler(model_type="openai")
-        print("✅ ModelHandler初始化成功")
+        print("正在生成第一章...")
+        chapter1 = model_handler.generate_text(
+            chapter_prompt, model_type='openai', temperature=0.7
+        )
         
-        # 测试不同的生成任务
-        test_cases = [
-            {
-                "name": "简单问答",
-                "prompt": "请用一句话回答：人工智能的未来发展方向是什么？",
-                "temperature": 0.7
-            },
-            {
-                "name": "创意写作",
-                "prompt": "请写一个关于未来城市的简短故事开头（50字以内）：",
-                "temperature": 0.8
-            },
-            {
-                "name": "技术解释",
-                "prompt": "请简单解释什么是大语言模型，适合初学者理解：",
-                "temperature": 0.3
-            }
-        ]
-        
-        print("\n🧪 开始测试生成任务...")
-        for i, test_case in enumerate(test_cases, 1):
-            print(f"\n测试 {i}/{len(test_cases)}: {test_case['name']}")
-            print(f"提示: {test_case['prompt']}")
+        if chapter1:
+            print("✅ 第一章生成成功!")
+            print(f"📖 第一章内容:\n{chapter1[:500]}{'...' if len(chapter1) > 500 else ''}\n")
+        else:
+            print("❌ 第一章生成失败")
+            return False
             
-            start_time = time.time()
-            try:
-                response = model_handler.generate_text(
-                    test_case['prompt'], 
-                    model_type="openai", 
-                    temperature=test_case['temperature']
-                )
-                end_time = time.time()
-                
-                print(f"✅ 生成成功 (耗时: {end_time - start_time:.2f}秒)")
-                print(f"结果: {response}")
-                
-            except Exception as e:
-                print(f"❌ 生成失败: {str(e)}")
-                continue
+        # 3. 生成章节摘要
+        print("\n📝 步骤3: 生成章节摘要")
+        summary_prompt = f"""请为以下小说章节生成简洁的摘要。
+
+章节内容：
+{chapter1[:1000]}
+
+要求：
+1. 用中文总结主要情节
+2. 控制在100-200字之间
+3. 突出关键事件和人物发展
+
+摘要：
+"""
         
-        print("\n" + "=" * 50)
-        print("🎉 OpenAI兼容API演示完成!")
+        print("正在生成摘要...")
+        summary = model_handler.generate_text(
+            summary_prompt, model_type='openai', temperature=0.3
+        )
+        
+        if summary:
+            print("✅ 摘要生成成功!")
+            print(f"📋 章节摘要:\n{summary}\n")
+        else:
+            print("❌ 摘要生成失败")
+            return False
+            
+        print("\n🎉 小说生成演示完成!")
+        print("💡 演示展示了如何使用OpenAI API生成完整的小说内容流程")
         return True
         
     except Exception as e:
-        print(f"❌ 演示过程中出现错误: {str(e)}")
+        print(f"❌ 演示失败: {str(e)}")
+        logger.error(f"OpenAI API演示失败: {str(e)}")
         return False
 
 def main():
     """主函数"""
-    setup_logging()
-    success = demonstrate_openai_api()
-    
-    if success:
-        print("\n✅ 演示成功完成!")
-        print("现在您可以:")
-        print("1. 修改 config/config.yaml 中的OpenAI配置")
-        print("2. 运行主程序使用OpenAI兼容API生成小说")
-        print("3. 尝试不同的模型和参数设置")
-        return 0
-    else:
-        print("\n❌ 演示失败!")
-        return 1
+    success = demo_novel_generation()
+    if not success:
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

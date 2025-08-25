@@ -24,6 +24,7 @@ def parse_arguments():
     novel_parser.add_argument('--title', required=True, help='小说标题')
     novel_parser.add_argument('--output-dir', default='novels', help='输出目录')
     novel_parser.add_argument('--chapters', type=int, default=10, help='章节数量')
+    novel_parser.add_argument('--model-type', choices=['ollama', 'openai'], help='模型类型: ollama 或 openai')
 
     # 视频生成模式
     video_parser = subparsers.add_parser('video', help='视频生成相关操作')
@@ -56,8 +57,10 @@ def run_command_line(args):
         logger.setLevel(__import__('logging').INFO)
 
     if args.mode == 'novel':
-        model_handler = ModelHandler()
-        generator = NovelGenerator(model_handler)
+        # 根据命令行参数或配置文件选择模型类型
+        model_type = getattr(args, 'model_type', None)
+        model_handler = ModelHandler(model_type=model_type)
+        generator = NovelGenerator(model_handler, model_type=model_type)
         
         if args.action == 'new':
             generator.generate_novel(args.title, args.output_dir, args.chapters)
@@ -161,9 +164,17 @@ def generate_novel():
         
     output_dir = input("请输入输出目录(默认: novels): ").strip() or "novels"
     
+    # 选择模型类型
+    print("\n请选择模型类型:")
+    print("1. Ollama (本地模型)")
+    print("2. OpenAI兼容API (如OpenRouter)")
+    model_choice = input("请输入选项编号 (默认: 2): ").strip() or "2"
+    
+    model_type = "openai" if model_choice == "2" else "ollama"
+    
     try:
-        model_handler = ModelHandler()
-        generator = NovelGenerator(model_handler)
+        model_handler = ModelHandler(model_type=model_type)
+        generator = NovelGenerator(model_handler, model_type=model_type)
         generator.generate_novel(title, output_dir, chapters)
         print(f"\n小说生成完成! 保存至: {output_dir}/{title}")
     except Exception as e:

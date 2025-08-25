@@ -1,186 +1,195 @@
-# NovelCreator 环境配置和文档更新总结报告
+# NovelCreator 设置摘要
 
-## 📋 任务完成情况
+## 📋 系统要求
 
-### ✅ 已完成的任务
+- **Python版本**: 3.8 或更高版本
+- **操作系统**: Windows, macOS, 或 Linux
+- **内存**: 至少 8GB RAM (推荐 16GB+)
+- **存储**: 至少 10GB 可用空间
 
-1. **代码检查**
-   - 验证了所有Python文件的语法正确性
-   - 确认了代码结构和依赖关系
-   - 测试了模块导入和基本功能
+## 🛠️ 安装步骤
 
-2. **文档更新**
-   - 更新了README.md，添加了详细的安装指南和使用说明
-   - 创建了EXAMPLES.md，提供了丰富的使用示例
-   - 完善了配置文件说明和参数解释
-   - 添加了快速开始指南
-
-3. **环境配置**
-   - 安装了所有必需的Python依赖包
-   - 验证了Ollama服务的可用性
-   - 创建了环境测试脚本并验证配置正确性
-   - 更新了.gitignore文件，添加了项目特定的忽略项
-
-## 📦 依赖包状态
-
-### 已安装的核心依赖
-- `torch` - 深度学习框架
-- `transformers` - Hugging Face Transformers库
-- `pyyaml` - YAML配置文件解析
-- `requests` - HTTP请求处理
-- `tqdm` - 进度条显示
-- `opencv-python` - 视频处理
-- `pillow` - 图像处理
-- `moviepy` - 视频生成
-- `numpy` - 数值计算
-- `openai` - OpenAI API客户端 (v1.0+)
-
-### 可用的模型选项
-#### Ollama模型
-- `phi3:3.8b` - 轻量级高效模型
-- `qwen3:8b` - 高质量大模型
-
-#### OpenAI兼容API
-- `openrouter/auto` - 自动选择最佳模型
-- 支持OpenRouter、OpenAI、Azure OpenAI等服务
-
-## 📁 项目结构优化
-
-### 新增文件
-- `EXAMPLES.md` - 详细的使用示例文档
-- `test_environment.py` - 环境配置验证脚本
-- 完善的`.gitignore`配置
-
-### 更新文件
-- `README.md` - 完整的文档更新
-- `requirements.txt` - 完整的依赖列表
-- `config/config.yaml` - 配置文件（保持原样）
-
-## 🧪 环境验证结果
-
-```
-🧪 NovelCreator环境配置测试
-==================================================
-🔍 检查Python版本...
-✅ Python版本: 3.13.5
-🔍 检查 torch...
-✅ torch 已安装
-🔍 检查 transformers...
-✅ transformers 已安装
-🔍 检查 PyYAML...
-✅ PyYAML 已安装
-🔍 检查 requests...
-✅ requests 已安装
-🔍 检查 tqdm...
-✅ tqdm 已安装
-🔍 检查 opencv-python...
-✅ opencv-python 已安装
-🔍 检查 pillow...
-✅ pillow 已安装
-🔍 检查 moviepy...
-✅ moviepy 已安装
-🔍 检查 numpy...
-✅ numpy 已安装
-🔍 检查 openai...
-✅ openai 已安装
-🔍 检查Ollama服务...
-✅ Ollama服务正常，可用模型: ['phi3:3.8b', 'qwen3:8b']
-🔍 检查字体文件...
-✅ 字体文件存在: resources\SimHei.ttf
-🔍 检查配置文件...
-✅ 主配置文件存在: config\config.yaml
-✅ 黑名单配置存在: config\blacklist.yaml
-==================================================
-🎉 所有检查通过 (14/14)
-✅ 环境配置完成，可以开始使用NovelCreator!
+### 1. 克隆仓库
+```bash
+git clone https://github.com/your-repo/novelcreator-tf.git
+cd novelcreator-tf
 ```
 
-## 🚀 快速开始指南
+### 2. 安装依赖
+```bash
+pip install -r requirements.txt
+```
 
-### 1. 环境检查
+### 3. 配置模型服务
+
+#### 选项A: 使用Ollama (本地模型)
+```bash
+# 安装Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# 下载模型
+ollama pull phi3:3.8b
+
+# 启动服务
+ollama serve &
+```
+
+#### 选项B: 使用OpenAI兼容API
+在 `config/config.yaml` 中配置API密钥和基础URL。
+
+## ⚙️ 配置文件说明
+
+### 主配置文件: `config/config.yaml`
+
+```yaml
+# 模型选择配置
+model_selection:
+  default_type: "openai"  # 默认模型类型: "ollama" 或 "openai"
+
+# Ollama配置
+ollama:
+  endpoint: "http://localhost:11434"
+  model: "phi3:3.8b"
+
+# OpenAI兼容API配置
+openai:
+  api_key: "your-api-key"
+  base_url: "https://api.openai.com/v1"
+  model: "gpt-3.5-turbo"
+  
+  # 任务特定模型
+  models:
+    outline: "model-for-outline"
+    review: "model-for-review"
+    content: "model-for-content"
+```
+
+## 🚀 使用方法
+
+### 命令行模式
+
+```bash
+# 生成新小说
+python main.py novel --action new --title "小说标题" --chapters 10
+
+# 指定模型类型
+python main.py novel --action new --title "小说标题" --chapters 10 --model-type openai
+
+# 续写小说
+python main.py novel --action continue --title "小说标题" --chapters 5
+
+# 合并章节
+python main.py novel --action merge --title "小说标题"
+
+# 生成视频
+python main.py video --input input.txt --output output.mp4
+```
+
+### 交互式模式
+
+```bash
+python main.py
+```
+
+## 🧪 测试工具
+
+### 环境检查
 ```bash
 python test_environment.py
 ```
 
-### 2. 生成第一部小说
+### OpenAI API测试
 ```bash
-python main.py novel --action new --title "我的第一部小说" --chapters 3
+python test_openai_api.py
 ```
 
-### 3. 生成视频
+### 任务模型测试
 ```bash
-python main.py video --input novels/我的第一部小说/full_novel.txt --output my_first_novel.mp4
+python test_task_models.py
 ```
 
-## 📚 文档资源
-
-- `README.md` - 主要文档和快速开始指南
-- `EXAMPLES.md` - 详细的使用示例和高级功能
-- `config/config.yaml` - 主配置文件说明
-- `config/blacklist.yaml` - 内容过滤配置说明
-
-## ⚠️ 注意事项
-
-1. **模型选择**：根据硬件配置选择合适的模型
-   - 轻量级任务：使用 `phi3:3.8b`
-   - 高质量要求：使用 `qwen3:8b`
-
-2. **资源监控**：大模型生成过程可能消耗较多内存和CPU资源
-
-3. **网络连接**：确保Ollama服务正常运行
-
-4. **字体文件**：视频生成需要中文字体支持
-
-## 🎯 下一步建议
-
-1. **测试生成**：运行一个简单的测试生成任务
-2. **自定义配置**：根据需要调整配置文件参数
-3. **探索功能**：尝试不同的生成模式和参数设置
-4. **性能优化**：根据硬件情况优化模型和参数配置
-
-## 🔧 OpenAI兼容API配置验证
-
-✅ **OpenAI兼容API配置测试成功**
-
-测试结果:
-- API基础URL: https://openrouter.ai/api/v1
-- 使用模型: openrouter/auto
-- API密钥: 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
-- 测试任务: 简单问答、创意写作、技术解释
-- 所有测试均成功完成
-
-现在可以使用OpenAI兼容API生成小说内容！
-
-### 使用OpenAI兼容API生成小说的命令:
+### OpenAI API演示
 ```bash
-# 修改config/config.yaml中的模型类型为openai
-# 然后运行:
-python main.py novel --action new --title "OpenAI测试小说" --chapters 2
+python demo_openai_api.py
 ```
 
-## 🎯 任务特定模型配置验证
+## 📁 目录结构
 
-✅ **任务特定模型配置测试成功**
-
-测试结果:
-- 大纲生成模型: z-ai/glm-4.5-air:free
-- 评论/审查模型: moonshotai/kimi-k2:free  
-- 正文生成模型: deepseek/deepseek-r1-0528:free
-- 所有任务模型测试均成功完成
-
-现在可以为不同任务配置不同的模型！
-
-### 任务特定模型配置示例:
-```yaml
-openai:
-  models:
-    outline: "z-ai/glm-4.5-air:free"      # 大纲生成
-    review: "moonshotai/kimi-k2:free"     # 评论审查
-    content: "deepseek/deepseek-r1-0528:free"  # 正文生成
+```
+novelcreator-tf/
+├── config/              # 配置文件
+│   ├── config.yaml      # 主配置文件
+│   └── blacklist.yaml   # 黑名单配置
+├── resources/           # 资源文件
+│   └── SimHei.ttf       # 中文字体
+├── src/                 # 源代码
+│   ├── model_handler.py # 模型处理器
+│   ├── novel_generator.py # 小说生成器
+│   ├── utils.py         # 工具函数
+│   └── video_generator.py # 视频生成器
+├── novels/              # 生成的小说目录
+├── main.py              # 主程序入口
+├── requirements.txt     # Python依赖
+└── README.md           # 项目说明
 ```
 
+## 🔧 常见问题解决
 
+### 1. 依赖安装问题
+```bash
+# 升级pip
+pip install --upgrade pip
 
----
-*环境配置完成时间：2025年8月20日*
-*状态：✅ 准备就绪，可以开始使用NovelCreator！*
+# 重新安装依赖
+pip install -r requirements.txt --force-reinstall
+```
+
+### 2. 中文字体问题
+确保 `resources/SimHei.ttf` 文件存在，或在视频生成时指定其他中文字体路径。
+
+### 3. API连接问题
+- 检查网络连接
+- 验证API密钥是否正确
+- 确认基础URL是否正确
+
+### 4. 模型加载问题
+- 检查模型是否正确下载
+- 确认模型名称是否正确
+- 验证模型服务是否正常运行
+
+### 5. FFmpeg安装问题
+- Windows: 从 https://ffmpeg.org/download.html 下载并添加至PATH，或使用conda安装: `conda install ffmpeg`
+- Linux: `sudo apt install ffmpeg`
+- Mac: `brew install ffmpeg`
+确保FFmpeg已正确安装并可在命令行中访问: `ffmpeg -version`
+
+## 🎯 最佳实践
+
+### 1. 模型选择建议
+- **本地开发**: 使用Ollama以节省API费用
+- **生产环境**: 使用高质量的OpenAI兼容API
+- **混合使用**: 根据任务类型选择合适的模型
+
+### 2. 配置管理
+- 使用环境变量存储敏感信息
+- 为不同环境创建不同的配置文件
+- 定期备份配置文件
+
+### 3. 性能优化
+- 合理设置超时时间
+- 使用适当的温度参数
+- 启用缓存机制
+
+## 📚 学习资源
+
+- [README.md](README.md) - 详细使用说明
+- [EXAMPLES.md](EXAMPLES.md) - 配置示例
+- [API文档](docs/api.md) - API使用说明
+- [开发指南](docs/development.md) - 开发者指南
+
+## 🆘 技术支持
+
+如遇到问题，请：
+1. 运行 `python test_environment.py` 检查环境
+2. 查看日志文件 `novel_gen.log`
+3. 在GitHub提交Issue

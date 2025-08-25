@@ -136,8 +136,14 @@ ranges:
 
 ### 生成新小说
 ```bash
-# 生成一个10章的小说
+# 生成一个10章的小说（使用默认模型类型，根据config.yaml配置）
 python main.py novel --action new --title "我的科幻小说" --chapters 10
+
+# 指定使用Ollama模型
+python main.py novel --action new --title "我的科幻小说" --chapters 10 --model-type ollama
+
+# 指定使用OpenAI兼容API模型
+python main.py novel --action new --title "我的科幻小说" --chapters 10 --model-type openai
 
 # 指定输出目录
 python main.py novel --action new --title "我的奇幻小说" --output-dir "./my_novels" --chapters 5
@@ -197,7 +203,7 @@ python main.py
 1. 安装依赖: `pip install -r requirements.txt`
 2. Ollama模型: 确保下载config.yaml中指定的模型 `ollama pull <model_name>`
 3. FFmpeg安装:
-   - Windows: 从 https://ffmpeg.org/download.html 下载并添加至PATH
+   - Windows: 从 https://ffmpeg.org/download.html 下载并添加至PATH，或使用conda安装: `conda install ffmpeg`
    - Linux: `sudo apt install ffmpeg`
    - Mac: `brew install ffmpeg`
 4. 字体路径: 视频生成需指定字体文件路径 `--font resources/SimHei.ttf`

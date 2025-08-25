@@ -700,8 +700,9 @@ def clean_content(text, blacklist=None):
     text = re.sub(r'- \*\*李明远的身份\*\*：.*?。', '', text, flags=re.DOTALL)
     
     # 删除更多的AI分析内容
-    text = re.sub(r'接下来的故事可能会沿着这些方向发展：', '', text, flags=re.DOTALL)
-    text = re.sub(r'- \*\*.*?\*\*：.*?。', '', text, flags=re.DOTALL)
+    text = re.sub(r'如您满意，我可以继续创作第三章，或根据您的指示调整方向。', '', text, flags=re.DOTALL)
+    text = re.sub(r'如您满意，我可以继续创作', '', text, flags=re.DOTALL)
+    text = re.sub(r'根据您的指示调整方向', '', text, flags=re.DOTALL)
     
     # 删除更多的AI分析内容
     text = re.sub(r'"同时，要增加对话、内心独白和环境描写，使故事更生动。还要注意不要重复已有的内容，避免让读者感到冗余."', '', text, flags=re.DOTALL)
@@ -954,6 +955,7 @@ def merge_chapters(novel_dir, blacklist=None):
                         # 清理内容
                         cleaned_content = clean_content(content, blacklist)
                         logger.debug(f"合并章节前清理后长度: {len(cleaned_content)}")
+                        # 确保写入的内容是正确的UTF-8编码
                         outfile.write(cleaned_content)
                         outfile.write("\n\n")
                 except Exception as e:
@@ -1035,3 +1037,26 @@ def load_config() -> dict:
         raise ValueError(f"配置文件解析错误: {str(e)}")
     except Exception as e:
         raise RuntimeError(f"配置加载失败: {str(e)}")
+
+def get_model_type(config: dict = None) -> str:
+    """获取模型类型
+    
+    Args:
+        config (dict, optional): 配置字典，如果未提供则自动加载
+        
+    Returns:
+        str: 模型类型 ("ollama" 或 "openai")
+    """
+    if config is None:
+        config = load_config()
+    
+    # 从配置中获取默认模型类型
+    model_selection = config.get('model_selection', {})
+    default_type = model_selection.get('default_type', 'ollama')
+    
+    # 验证模型类型
+    if default_type not in ['ollama', 'openai']:
+        logger.warning(f"无效的模型类型: {default_type}，使用默认值 'ollama'")
+        return 'ollama'
+    
+    return default_type
