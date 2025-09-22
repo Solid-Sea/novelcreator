@@ -36,171 +36,17 @@ def setup_logger():
 
 logger = setup_logger()
 
+# 导入预编译的正则表达式模式
+from .patterns import apply_all_patterns
+
 # 内容清洗
 def clean_content(text, blacklist=None):
     """内容清洗"""
     if not isinstance(text, str):
         text = str(text)
     
-    # 删除AI思考标签（多种格式）
-    text = re.sub(r'<tool_call>.*?</tool_call>[\s\r\n]*', '', text, flags=re.DOTALL)
-    text = re.sub(r'思考过程开始.*?思考过程结束[\s\r\n]*', '', text, flags=re.DOTALL)
-    text = re.sub(r'好的，.*?要求.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'首先，.*?需求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来，.*?预期。', '', text, flags=re.DOTALL)
-    text = re.sub(r'然后，.*?一致。', '', text, flags=re.DOTALL)
-    text = re.sub(r'最后，.*?要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'总的来说，.*?要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'请补充内容：.*?$', '', text, flags=re.DOTALL)
-    text = re.sub(r'让我.*?扩写.*?内容。', '', text, flags=re.DOTALL)
-    text = re.sub(r'现在，我需要.*?扩写.*?内容。', '', text, flags=re.DOTALL)
-    text = re.sub(r'当前章节中，.*?然后.*?最后.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'用户希望.*?扩展内容。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在扩写过程中，.*?最后.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'期待您的指示！', '', text)
-    text = re.sub(r'请您提供.*?版本。', '', text, flags=re.DOTALL)
-    text = re.sub(r'好，我现在需要帮用户扩写一个小说章节.*?如果需要调整或补充，请随时告诉我。', '', text, flags=re.DOTALL)
-    text = re.sub(r'如果您有其他想法，可以随时提出，我会进行调整。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个扩展内容能满足你的要求。如果需要调整或补充，请随时告诉我。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个扩展符合您的预期。如果需要更多细节或调整，请随时告诉我。', '', text, flags=re.DOTALL)
-    
-    # 删除单独的AI标签
-    text = re.sub(r'<tool_call>[\s\r\n]*', '', text, flags=re.DOTALL)
-    text = re.sub(r'</tool_call>[\s\r\n]*', '', text, flags=re.DOTALL)
-    
-    # 删除更多的AI分析内容
-    text = re.sub(r'首先，我需要考虑如何.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来，.*?可以更细致一些。', '', text, flags=re.DOTALL)
-    text = re.sub(r'对话部分也可以增加，.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在扩展过程中，我需要确保.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'最后，结尾部分可以加入一些.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'总的来说，我需要通过.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'总的来说，.*?自然流畅。', '', text, flags=re.DOTALL)
-    
-    # 删除以"首先，我需要"、"接下来，我需要"、"最后，我需要"开头的分析内容
-    text = re.sub(r'首先，我需要.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来，我需要.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'最后，我需要.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'让我.*?。', '', text, flags=re.DOTALL)
-    
-    # 删除更多的AI分析内容模式
-    text = re.sub(r'首先，这.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'然后，我需要.*?。', '', text, flags=re.DOTALL)
-    
-    # 删除用户交互相关的AI分析内容
-    text = re.sub(r'好的，请您提供需要处理的文本，我会为您清理掉所有AI生成的分析内容，只保留小说正文。', '', text, flags=re.DOTALL)
-    text = re.sub(r'请提供需要处理的文本。', '', text, flags=re.DOTALL)
-    text = re.sub(r'作为专业的小说编辑，你的任务是从以下文本中删除所有AI生成的分析内容，只保留小说正文。', '', text, flags=re.DOTALL)
-    text = re.sub(r'我的任务是识别并删除这些分析内容，只保留小说正文。', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来，我需要明确什么是AI生成的分析内容。', '', text, flags=re.DOTALL)
-    text = re.sub(r'通常，这包括对需求的分析、结构的理解、扩展重点等。', '', text, flags=re.DOTALL)
-    text = re.sub(r'而正文则是故事本身，包含情节、对话和人物描写等内容。', '', text, flags=re.DOTALL)
-    text = re.sub(r'我会逐段检查文本，判断每一部分是否属于分析内容还是正文。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在确认哪些是需要保留的内容时，我会寻找明显的故事情节或人物互动部分。', '', text, flags=re.DOTALL)
-    text = re.sub(r'完成识别后，我将删除所有分析性内容，只保留小说正文，并确保格式不变，不添加任何额外信息。', '', text, flags=re.DOTALL)
-    text = re.sub(r'最后，我会输出清理后的正文，确保符合用户的要求，没有遗漏或错误。', '', text, flags=re.DOTALL)
-    text = re.sub(r'总结一下，我的步骤是：.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'这样就能满足用户的需求，提供一个干净的小说正文。', '', text, flags=re.DOTALL)
-    
-    # 删除重复的提示和说明
-    text = re.sub(r'用户明确要求.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'这意味着我需要.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'首先，我会确定.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来，我要围绕主角.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'关键是要有生动的场景和对话，让读者感受到紧张和悬念。', '', text, flags=re.DOTALL)
-    
-    # 删除更多的分析内容
-    text = re.sub(r'好，我现在需要帮用户生成小说.*?。根据用户的请求，我得先仔细分析他的需求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'首先，用户提供了一个详细的大纲，分为三个章节。', '', text, flags=re.DOTALL)
-    text = re.sub(r'最后，检查字数是否达到要求，并确保整体流畅，没有重复的内容。这样，扩写后的内容不仅丰富了故事，还深化了人物形象和主题。', '', text, flags=re.DOTALL)
-    text = re.sub(r'为了让内容更加自然连贯，我会先分析', '', text, flags=re.DOTALL)
-    
-    # 删除写作指导和扩展说明
-    text = re.sub(r'在写作时，我需要详细描写场景和对话，使情节生动有趣。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在写作时，我需要详细描写场景和对话，使情节生动有趣。', '', text, flags=re.DOTALL)
-    text = re.sub(r'首先，我会.*?。然后.*?。接着.*?。最后.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在写作过程中，我要注意.*?。同时，加入一些.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'通过这些思考，我可以.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'当前章节.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'同时，不要重复已有的内容。', '', text, flags=re.DOTALL)
-    text = re.sub(r'为了让内容更加丰富，我会先列出一些具体的扩展点：', '', text, flags=re.DOTALL)
-    text = re.sub(r'为了让故事更完整，我会先列出一些基本的情节安排。', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 章节概要', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 故事梗概', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 世界观设定', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 详细情节安排', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 详细情节设计', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 扩展问题框架', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 补充内容概要', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 详细扩展内容', '', text, flags=re.DOTALL)
-    text = re.sub(r'- \*\*.*?\*\*：.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'- \*\*.*?\*\*：', '', text, flags=re.DOTALL)
-    text = re.sub(r'重点展现.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'我们将重点描写.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'这一段将重点描写.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'这一段主要描写.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'请您看看以下内容是否符合您的预期。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个故事.*?能满足你的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个扩写能满足您的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个扩展内容能满足你的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个扩写内容能满足你的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个故事片段能满足你的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个故事开头能满足你的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望这个扩展.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望以上内容符合您的要求。', '', text, flags=re.DOTALL)
-    text = re.sub(r'---+', '', text, flags=re.DOTALL)
-    
-    # 删除扩展说明和写作提示
-    text = re.sub(r'\*\*写作提示\*\*：', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*扩展内容：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*新增细节描写：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*增加对话内容：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*丰富内心独白：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*自然融入扩展：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*标题：.*?\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*正文：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*尾声：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*扩展说明：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'【补充】', '', text, flags=re.DOTALL)
-    text = re.sub(r'【补充内容】', '', text, flags=re.DOTALL)
-    
-    # 删除章节开头的分析内容
-    text = re.sub(r'为了让故事更加生动，我会先列出一些基本的问题来理清思路。', '', text, flags=re.DOTALL)
-    text = re.sub(r'为了让内容更加丰富完整，我会先列出一些补充的情节脉络。', '', text, flags=re.DOTALL)
-    text = re.sub(r'测试学院是挑选未来领导者的场所。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在写作时，我需要详细描写场景和对话，使情节生动有趣。', '', text, flags=re.DOTALL)
-    text = re.sub(r'首先，我会.*?。然后.*?。接着.*?。最后.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'在写作过程中，我要注意.*?。同时，加入一些.*?。', '', text, flags=re.DOTALL)
-    text = re.sub(r'通过这些思考，我可以.*?。', '', text, flags=re.DOTALL)
-    
-    # 删除章节结尾的分析内容
-    text = re.sub(r'\*\*接下来故事可能会沿着这些方向发展\*\*：', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*结尾\*\*：', '', text, flags=re.DOTALL)
-    text = re.sub(r'当艾琳离开测试场时，天空依旧阴沉。她没有回头，也没有思考未来的方向。她知道，自己已经站在了一个新的起点上，而这场"最终测试"，才刚刚拉开序幕。', '', text, flags=re.DOTALL)
-    text = re.sub(r'希望以上内容符合您的要求。', '', text, flags=re.DOTALL)
-    
-    # 删除章节中的分析标记和说明
-    text = re.sub(r'\*\*标题：.*?\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*正文：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*尾声：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*扩展内容：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*扩展说明：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*新增细节描写：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*增加对话内容：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*丰富内心独白：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'\*\*自然融入扩展：\*\*', '', text, flags=re.DOTALL)
-    text = re.sub(r'当前章节.*?。', '', text, flags=re.DOTALL)
-    
-    # 删除更多的分析内容标记
-    text = re.sub(r'### 章节内容概要', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 补充内容概要', '', text, flags=re.DOTALL)
-    text = re.sub(r'### 详细扩展内容', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来通过这些情节展现她的内心世界，并为后续发展埋下伏笔。', '', text, flags=re.DOTALL)
-    text = re.sub(r'同时，要确保扩展的内容与原故事主题一致，即艾琳在压力下的成长和选择。', '', text, flags=re.DOTALL)
-    text = re.sub(r'现在，我会逐步分析每个部分，寻找可以扩展的点，并添加必要的细节和对话，使章节更加丰满。', '', text, flags=re.DOTALL)
-    text = re.sub(r'为了让故事更丰富，我会先列出一些基本的情节发展脉络。', '', text, flags=re.DOTALL)
-    text = re.sub(r'艾琳是其中一个具有特殊天赋的学生，而伊恩教授掌握着重要的秘密实验。', '', text, flags=re.DOTALL)
-    text = re.sub(r'接下来', '', text, flags=re.DOTALL)
+    # 应用所有预定义的正则表达式模式
+    text = apply_all_patterns(text)
     
     # 删除重复的段落（完全相同的段落）
     lines = text.split('\n')
@@ -905,6 +751,7 @@ def clean_content(text, blacklist=None):
     result = re.sub(r'glance around her apartment', '环顾她的公寓', result)
     
     return result
+
 # 加载违禁词列表
 def load_blacklist():
     """加载违禁词列表"""
@@ -949,14 +796,43 @@ def merge_chapters(novel_dir, blacklist=None):
                     with open(file_path, 'r', encoding='utf-8') as infile:
                         chapter_num = filename.split('_')[1].split('.')[0] if len(filename.split('_')) > 1 else '未知'
                         outfile.write(f"=== 第{chapter_num}章 ===\n\n")
-                        content = infile.read().strip()
-                        # 调试输出，检查清理前的内容
-                        logger.debug(f"合并章节前清理前长度: {len(content)}")
-                        # 清理内容
-                        cleaned_content = clean_content(content, blacklist)
-                        logger.debug(f"合并章节前清理后长度: {len(cleaned_content)}")
-                        # 确保写入的内容是正确的UTF-8编码
-                        outfile.write(cleaned_content)
+                        
+                        # 流式处理大文件，避免一次性加载整个文件到内存
+                        buffer = []
+                        buffer_size = 0
+                        chunk_limit = 8192  # 8KB缓冲区限制
+                        
+                        # 逐行读取并处理文件内容
+                        for line in infile:
+                            buffer.append(line)
+                            buffer_size += len(line)
+                            
+                            # 当缓冲区达到限制时，处理并写入内容
+                            if buffer_size >= chunk_limit:
+                                content = ''.join(buffer).strip()
+                                # 调试输出，检查清理前的内容
+                                logger.debug(f"合并章节前清理前长度: {len(content)}")
+                                # 清理内容
+                                cleaned_content = clean_content(content, blacklist)
+                                logger.debug(f"合并章节前清理后长度: {len(cleaned_content)}")
+                                # 确保写入的内容是正确的UTF-8编码
+                                outfile.write(cleaned_content)
+                                
+                                # 重置缓冲区
+                                buffer = []
+                                buffer_size = 0
+                        
+                        # 处理剩余的内容
+                        if buffer:
+                            content = ''.join(buffer).strip()
+                            # 调试输出，检查清理前的内容
+                            logger.debug(f"合并章节前清理前长度: {len(content)}")
+                            # 清理内容
+                            cleaned_content = clean_content(content, blacklist)
+                            logger.debug(f"合并章节前清理后长度: {len(cleaned_content)}")
+                            # 确保写入的内容是正确的UTF-8编码
+                            outfile.write(cleaned_content)
+                        
                         outfile.write("\n\n")
                 except Exception as e:
                     logger.error(f"读取章节文件失败: {file_path}, 错误: {str(e)}")

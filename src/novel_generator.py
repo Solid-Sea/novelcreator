@@ -4,6 +4,7 @@ import os
 import re
 import json
 import time
+import concurrent.futures
 from typing import Dict, Any, List, Tuple
 from .utils import (
     logger, create_folder, get_progress, show_progress,
@@ -23,6 +24,7 @@ class NovelGenerator:
         self.model_handler = model_handler
         self._generation_cache = {}
         self._batch_size = 4
+        self._max_workers = min(32, os.cpu_count() + 4)  # 限制最大并发数
         
         # Reader配置
         reader_cfg = self.settings.get('reader', {})
@@ -125,68 +127,31 @@ class NovelGenerator:
                 total_chapters = len(outline_data['chapters'])
                 logger.info(f"从结构化大纲获取章节数: {total_chapters}")
             
-            for chapter_num in range(completed + 1, total_chapters + 1):
-                try:
-                    chapter_content = self._generate_chapter_structured(title, chapter_num, outline_data or outline_json_str)
-                    if not chapter_content:
-                        logger.warning(f"第{chapter_num}章生成失败，内容为空")
-                        progress_bar.update(1)
-                        continue
-
-                    expanded_text = self._ensure_min_length(
-                        title=title,
-                        chapter_num=chapter_num,
-                        chapter_text=chapter_content,
-                        outline=outline_json_str,
-                        target_chars=self.min_chapter_chars
+            # 使用线程池并发生成章节
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_workers) as executor:
+                # 提交章节生成任务
+                future_to_chapter = {}
+                for chapter_num in range(completed + 1, total_chapters + 1):
+                    future = executor.submit(
+                        self._generate_single_chapter,
+                        title, chapter_num, outline_data or outline_json_str, 
+                        novel_dir, reviews_dir, summaries_dir, recent_summaries
                     )
-                    
-                    ensured_text = self._ensure_hard_min_length_by_append(
-                        title=title,
-                        chapter_num=chapter_num,
-                        chapter_text=expanded_text,
-                        outline=outline_json_str,
-                        target_chars=self.min_chapter_chars
-                    )
-
-                    final_text, review_obj = self._reader_review_and_revise(
-                        title=title,
-                        chapter_num=chapter_num,
-                        chapter_text=ensured_text,
-                        outline=outline_json_str,
-                        recent_summaries=recent_summaries,
-                        story_bible_path=os.path.join(novel_dir, "story_bible.json")
-                    )
-
-                    if review_obj is not None:
-                        review_path = os.path.join(reviews_dir, f"chapter_{chapter_num}.json")
-                        with open(review_path, 'w', encoding='utf-8') as rf:
-                            json.dump(review_obj, rf, ensure_ascii=False, indent=2)
-
-                    summary_text = self._summarize_chapter(final_text)
-                    if summary_text:
-                        with open(os.path.join(summaries_dir, f"chapter_{chapter_num}.txt"), 'w', encoding='utf-8') as sf:
-                            sf.write(summary_text)
-                        recent_summaries.append(summary_text)
-                        if len(recent_summaries) > 3:
-                            recent_summaries.pop(0)
-
-                    # 立即清理AI分析内容
-                    logger.debug(f"第{chapter_num}章清理前长度: {len(final_text)}")
-                    # 提取清洗表达式（llm驱动的）
-                    cleaned_content = self._extract_and_clean_llm_analysis(final_text)
-                    logger.debug(f"第{chapter_num}章清理后长度: {len(cleaned_content)}")
-                    chapter_path = os.path.join(chap_dir, f"chapter_{chapter_num}.txt")
-                    # 使用UTF-8-BOM编码写入文件，避免乱码
-                    with open(chapter_path, 'w', encoding='utf-8-sig') as f:
-                        f.write(cleaned_content)
-                    logger.info(f"第{chapter_num}章生成完成")
-
-                except Exception as e:
-                    logger.error(f"生成第{chapter_num}章失败: {str(e)}")
-                    pass
+                    future_to_chapter[future] = chapter_num
                 
-                progress_bar.update(1)
+                # 处理完成的任务
+                for future in concurrent.futures.as_completed(future_to_chapter):
+                    chapter_num = future_to_chapter[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            logger.info(f"第{chapter_num}章生成完成")
+                        else:
+                            logger.warning(f"第{chapter_num}章生成失败")
+                    except Exception as e:
+                        logger.error(f"生成第{chapter_num}章时发生异常: {str(e)}")
+                    finally:
+                        progress_bar.update(1)
             
             progress_bar.close()
             merge_chapters(novel_dir, self.blacklist)
@@ -196,44 +161,110 @@ class NovelGenerator:
             logger.error(f"小说生成失败: {str(e)}")
             raise
 
+    def _generate_single_chapter(self, title: str, chapter_num: int, outline_data, novel_dir: str, 
+                                reviews_dir: str, summaries_dir: str, recent_summaries: List[str]) -> bool:
+        """生成单个章节"""
+        try:
+            chapter_content = self._generate_chapter_structured(title, chapter_num, outline_data)
+            if not chapter_content:
+                logger.warning(f"第{chapter_num}章生成失败，内容为空")
+                return False
+
+            expanded_text = self._ensure_min_length(
+                title=title,
+                chapter_num=chapter_num,
+                chapter_text=chapter_content,
+                outline=outline_data if isinstance(outline_data, str) else json.dumps(outline_data),
+                target_chars=self.min_chapter_chars
+            )
+            
+            ensured_text = self._ensure_hard_min_length_by_append(
+                title=title,
+                chapter_num=chapter_num,
+                chapter_text=expanded_text,
+                outline=outline_data if isinstance(outline_data, str) else json.dumps(outline_data),
+                target_chars=self.min_chapter_chars
+            )
+
+            final_text, review_obj = self._reader_review_and_revise(
+                title=title,
+                chapter_num=chapter_num,
+                chapter_text=ensured_text,
+                outline=outline_data if isinstance(outline_data, str) else json.dumps(outline_data),
+                recent_summaries=recent_summaries,
+                story_bible_path=os.path.join(novel_dir, "story_bible.json")
+            )
+
+            if review_obj is not None:
+                review_path = os.path.join(reviews_dir, f"chapter_{chapter_num}.json")
+                with open(review_path, 'w', encoding='utf-8') as rf:
+                    json.dump(review_obj, rf, ensure_ascii=False, indent=2)
+
+            summary_text = self._summarize_chapter(final_text)
+            if summary_text:
+                with open(os.path.join(summaries_dir, f"chapter_{chapter_num}.txt"), 'w', encoding='utf-8') as sf:
+                    sf.write(summary_text)
+                # 注意：这里不更新recent_summaries，因为在并发环境下会有竞争条件
+
+            # 立即清理AI分析内容
+            logger.debug(f"第{chapter_num}章清理前长度: {len(final_text)}")
+            # 提取清洗表达式（llm驱动的）
+            cleaned_content = self._extract_and_clean_llm_analysis(final_text)
+            logger.debug(f"第{chapter_num}章清理后长度: {len(cleaned_content)}")
+            chapter_path = os.path.join(novel_dir, "chaps", f"chapter_{chapter_num}.txt")
+            # 使用UTF-8-BOM编码写入文件，避免乱码
+            with open(chapter_path, 'w', encoding='utf-8-sig') as f:
+                f.write(cleaned_content)
+            
+            return True
+        except Exception as e:
+            logger.error(f"生成第{chapter_num}章失败: {str(e)}")
+            return False
+
     def _generate_outline(self, title: str, chapters: int) -> str:
         """生成小说大纲"""
         try:
-            prompt = f"""请为小说《{title}》生成一个详细的大纲，包含{chapters}个章节。
+            prompt = f"""你是一位专业的小说创作顾问，你的任务是为《{title}》这部科幻小说创作一个引人入胜的大纲，包含{chapters}个章节。
 
-要求：
-1. 每个章节有明确的主题和情节发展
-2. 章节之间要有连贯性
-3. 包含主要人物介绍和故事背景
-4. 使用中文回答
-5. 确保JSON格式正确，不要有多余的逗号或语法错误
+你的目标是创造一个既有深刻主题又能吸引读者的故事。请考虑以下要素：
+1. 强烈的情感线索：故事应该能引起读者的情感共鸣
+2. 复杂而有深度的角色：角色应该有成长和变化
+3. 意想不到的情节转折：保持读者的兴趣
+4. 深刻的主题：探讨有意义的思想和概念
 
 请严格按照以下JSON格式输出，只输出JSON内容，不要添加任何其他说明或格式标记：
 {{
     "title": "{title}",
     "total_chapters": {chapters},
-    "story_background": "故事背景描述",
+    "story_background": "详细的故事背景设定，包括世界观、时代背景等",
+    "main_themes": ["主要主题1", "主要主题2"],  // 添加主题元素
+    "emotional_arc": "整体情感弧线描述",  // 添加情感线索
     "main_characters": [
         {{
             "name": "角色姓名",
             "role": "角色身份",
-            "characteristics": "角色特征",
-            "relationship": "与其他角色的关系"
+            "characteristics": "角色特征，包括性格、动机、恐惧等",
+            "arc": "角色在整个故事中的成长弧线",  // 添加角色发展
+            "relationship": "与其他角色的关系及变化",
+            "conflict": "角色面临的主要内外部冲突"  // 添加角色冲突
         }}
     ],
     "chapters": [
         {{
             "chapter_num": 1,
             "title": "章节标题",
-            "summary": "章节概要",
+            "summary": "章节概要，包括关键事件和转折点",
             "key_events": ["重要事件1", "重要事件2"],
-            "character_development": "角色发展",
-            "plot_points": "关键情节点"
+            "character_development": "本章中角色的重要发展",
+            "emotional_beat": "本章的情感节拍",  // 添加情感节拍
+            "plot_points": "关键情节点",
+            "conflict": "本章的主要冲突",  // 添加章节冲突
+            "themes_explored": ["本章探讨的主题"]  // 添加主题探讨
         }}
     ]
 }}
 
-请直接输出纯净的JSON格式大纲，不要使用代码块标记（如```json），不要添加任何解释说明，确保JSON语法正确：
+请直接输出纯净的JSON格式大纲，不要使用代码块标记（如```json），不要添加任何解释说明，确保JSON语法正确。确保内容具有情感深度和吸引力：
 """
             
             response = self.model_handler.generate_text_with_model(prompt, "outline", self.model_type, temperature=0.8)
@@ -312,31 +343,49 @@ class NovelGenerator:
             
             if chapter_info:
                 # 使用结构化信息生成章节
-                prompt = f"""根据以下详细大纲，为小说《{title}》生成第{chapter_num}章的内容。
-
-小说背景：
-{outline_data.get('story_background', '')}
-
-主要角色：
-{chr(10).join([f"- {char.get('name', '')}: {char.get('role', '')} - {char.get('characteristics', '')}" for char in outline_data.get('main_characters', [])])}
-
-当前章节信息：
-章节标题：{chapter_info.get('title', '')}
-章节概要：{chapter_info.get('summary', '')}
-关键事件：{', '.join(chapter_info.get('key_events', []))}
-角色发展：{chapter_info.get('character_development', '')}
-情节点：{chapter_info.get('plot_points', '')}
-
-要求：
-1. 这是第{chapter_num}章，要符合大纲中的对应部分
-2. 内容要详细生动，有对话和场景描写
-3. 字数在2000-3000字之间
-4. 使用中文写作
-5. 章节开头要有标题
-6. 严格按照章节信息展开情节
-
-请直接开始写作第{chapter_num}章的内容：
-"""
+                prompt = f"""你是一位才华横溢的科幻小说作家，你的任务是为《{title}》第{chapter_num}章创作一段引人入胜的内容。
+    
+    你的写作风格应该是：
+    1. 情感丰富：深入描绘角色的内心世界和情感变化
+    2. 感官生动：使用丰富的感官描写让读者身临其境
+    3. 节奏紧凑：平衡动作、对话和描述，保持读者兴趣
+    4. 主题深刻：自然地融入故事主题和思想
+    
+    小说背景：
+    {outline_data.get('story_background', '')}
+    
+    主要主题：
+    {', '.join(outline_data.get('main_themes', []))}
+    
+    整体情感弧线：
+    {outline_data.get('emotional_arc', '')}
+    
+    主要角色：
+    {chr(10).join([f"- {char.get('name', '')}: {char.get('role', '')} - {char.get('characteristics', '')} - 角色弧线: {char.get('arc', '')} - 冲突: {char.get('conflict', '')}" for char in outline_data.get('main_characters', [])])}
+    
+    当前章节信息：
+    章节标题：{chapter_info.get('title', '')}
+    章节概要：{chapter_info.get('summary', '')}
+    关键事件：{', '.join(chapter_info.get('key_events', []))}
+    角色发展：{chapter_info.get('character_development', '')}
+    情感节拍：{chapter_info.get('emotional_beat', '')}
+    情节点：{chapter_info.get('plot_points', '')}
+    冲突：{chapter_info.get('conflict', '')}
+    探讨主题：{', '.join(chapter_info.get('themes_explored', []))}
+    
+    写作要求：
+    1. 这是第{chapter_num}章，要符合大纲中的对应部分
+    2. 内容要详细生动，有丰富的对话和场景描写
+    3. 字数在2500-3500字之间
+    4. 使用中文写作
+    5. 章节开头要有引人入胜的标题
+    6. 严格按照章节信息展开情节
+    7. 重点刻画角色的情感变化和内心冲突
+    8. 创造强烈的画面感和氛围感
+    9. 在章节结尾设置悬念或转折，吸引读者继续阅读
+    
+    请直接开始写作第{chapter_num}章的内容，确保文字具有吸引力、连贯性和情感共鸣：
+    """
             else:
                 # 如果没有找到章节信息，使用原始方式
                 prompt = f"""根据以下大纲，为小说《{title}》生成第{chapter_num}章的内容。
@@ -365,19 +414,28 @@ class NovelGenerator:
     def _generate_chapter(self, title: str, chapter_num: int, outline: str) -> str:
         """生成单个章节"""
         try:
-            prompt = f"""根据以下大纲，为小说《{title}》生成第{chapter_num}章的内容。
+            prompt = f"""你是一位才华横溢的科幻小说作家，你的任务是为《{title}》第{chapter_num}章创作一段引人入胜的内容。
+
+你的写作风格应该是：
+1. 情感丰富：深入描绘角色的内心世界和情感变化
+2. 感官生动：使用丰富的感官描写让读者身临其境
+3. 节奏紧凑：平衡动作、对话和描述，保持读者兴趣
+4. 主题深刻：自然地融入故事主题和思想
 
 大纲：
 {outline}
 
-要求：
+写作要求：
 1. 这是第{chapter_num}章，要符合大纲中的对应部分
-2. 内容要详细生动，有对话和场景描写
-3. 字数在2000-3000字之间
+2. 内容要详细生动，有丰富的对话和场景描写
+3. 字数在2500-3500字之间
 4. 使用中文写作
-5. 章节开头要有标题
+5. 章节开头要有引人入胜的标题
+6. 重点刻画角色的情感变化和内心冲突
+7. 创造强烈的画面感和氛围感
+8. 在章节结尾设置悬念或转折，吸引读者继续阅读
 
-请直接开始写作第{chapter_num}章的内容：
+请直接开始写作第{chapter_num}章的内容，确保文字具有吸引力、连贯性和情感共鸣：
 """
             
             response = self.model_handler.generate_text(prompt, self.model_type, temperature=0.7)
@@ -492,69 +550,31 @@ class NovelGenerator:
             except Exception:
                 pass
             
-            for chapter_num in range(current_chapters + 1, total_chapters + 1):
-                try:
-                    chapter_content = self._generate_continuation_chapter(
-                        title, chapter_num, existing_chapters, outline
+            # 使用线程池并发生成章节
+            with concurrent.futures.ThreadPoolExecutor(max_workers=self._max_workers) as executor:
+                # 提交章节生成任务
+                future_to_chapter = {}
+                for chapter_num in range(current_chapters + 1, total_chapters + 1):
+                    future = executor.submit(
+                        self._generate_single_chapter,
+                        title, chapter_num, outline,
+                        novel_dir, reviews_dir, summaries_dir, recent_summaries
                     )
-                    if not chapter_content:
-                        logger.error(f"生成第{chapter_num}章失败：无内容")
-                        progress_bar.update(1)
-                        continue
-
-                    expanded_text = self._ensure_min_length(
-                        title=title,
-                        chapter_num=chapter_num,
-                        chapter_text=chapter_content,
-                        outline=outline,
-                        target_chars=self.min_chapter_chars
-                    )
-                    
-                    ensured_text = self._ensure_hard_min_length_by_append(
-                        title=title,
-                        chapter_num=chapter_num,
-                        chapter_text=expanded_text,
-                        outline=outline,
-                        target_chars=self.min_chapter_chars
-                    )
-
-                    final_text, review_obj = self._reader_review_and_revise(
-                        title=title,
-                        chapter_num=chapter_num,
-                        chapter_text=ensured_text,
-                        outline=outline,
-                        recent_summaries=recent_summaries,
-                        story_bible_path=os.path.join(novel_dir, "story_bible.json")
-                    )
-
-                    if review_obj is not None:
-                        review_path = os.path.join(reviews_dir, f"chapter_{chapter_num}.json")
-                        with open(review_path, 'w', encoding='utf-8') as rf:
-                            json.dump(review_obj, rf, ensure_ascii=False, indent=2)
-
-                    summary_text = self._summarize_chapter(final_text)
-                    if summary_text:
-                        with open(os.path.join(summaries_dir, f"chapter_{chapter_num}.txt"), 'w', encoding='utf-8') as sf:
-                            sf.write(summary_text)
-                        recent_summaries.append(summary_text)
-                        if len(recent_summaries) > 3:
-                            recent_summaries.pop(0)
-
-                    # 立即清理AI分析内容
-                    logger.debug(f"第{chapter_num}章清理前长度: {len(final_text)}")
-                    # 提取清洗表达式（llm驱动的）
-                    cleaned_content = self._extract_and_clean_llm_analysis(final_text)
-                    logger.debug(f"第{chapter_num}章清理后长度: {len(cleaned_content)}")
-                    chapter_path = os.path.join(chap_dir, f"chapter_{chapter_num}.txt")
-                    with open(chapter_path, 'w', encoding='utf-8') as f:
-                        f.write(cleaned_content)
-                    logger.info(f"第{chapter_num}章生成完成")
-
-                except Exception as e:
-                    logger.error(f"生成第{chapter_num}章失败: {str(e)}")
-                    pass
+                    future_to_chapter[future] = chapter_num
                 
-                progress_bar.update(1)
+                # 处理完成的任务
+                for future in concurrent.futures.as_completed(future_to_chapter):
+                    chapter_num = future_to_chapter[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            logger.info(f"第{chapter_num}章续写完成")
+                        else:
+                            logger.warning(f"第{chapter_num}章续写失败")
+                    except Exception as e:
+                        logger.error(f"续写第{chapter_num}章时发生异常: {str(e)}")
+                    finally:
+                        progress_bar.update(1)
             
             progress_bar.close()
             merge_chapters(novel_dir, self.blacklist)
@@ -609,20 +629,28 @@ class NovelGenerator:
             logger.info(f"第{chapter_num}章第{rounds}轮扩展，需增加{needed}字符")
             
             try:
-                prompt = f"""扩写以下小说章节内容，增加{needed}字符左右。
-
-当前章节内容：
-{expanded_text[-1500:] if len(expanded_text) > 1500 else expanded_text}
-
-要求：
-1. 保持原有情节连贯性
-2. 增加细节描写、对话或内心独白
-3. 自然融入扩展内容
-4. 使用中文写作
-5. 不要重复已有的内容
-
-请扩写内容：
-"""
+                prompt = f"""你是一位专业的小说编辑，你的任务是为以下科幻小说章节内容进行高质量的扩写，增加约{needed}个字符。
+    
+    你的扩写应该：
+    1. 增强情感深度：深入描绘角色的内心世界和情感变化
+    2. 丰富感官体验：添加更多视觉、听觉、触觉等感官描写
+    3. 强化角色动机：更清楚地展现角色的行为原因和心理活动
+    4. 营造氛围：通过细节描写增强场景的氛围感
+    5. 保持连贯性：确保新内容与原有情节无缝衔接
+    
+    当前章节内容：
+    {expanded_text[-1500:] if len(expanded_text) > 1500 else expanded_text}
+    
+    扩写要求：
+    1. 保持原有情节连贯性
+    2. 重点增加情感描写、内心独白和感官细节
+    3. 自然融入扩展内容，不要显得突兀
+    4. 使用中文写作
+    5. 不要重复已有的内容
+    6. 增强读者的情感共鸣和沉浸感
+    
+    请进行高质量的扩写：
+    """
                 
                 expansion = self.model_handler.generate_text(prompt, self.model_type, temperature=0.6)
                 if expansion.strip():
@@ -658,19 +686,26 @@ class NovelGenerator:
             missing = target_chars - current_len
             
             try:
-                prompt = f"""为小说《{title}》第{chapter_num}章补充内容，增加{missing}字符。
-
-当前章节结尾：
-{final_text[-800:] if len(final_text) > 800 else final_text}
-
-要求：
-1. 补充与主线相关的额外情节或细节
-2. 可以是角色的回忆、背景故事或后续发展
-3. 保持风格一致
-4. 使用中文写作
-
-请补充内容：
-"""
+                prompt = f"""你是一位才华横溢的科幻小说作家，你的任务是为《{title}》第{chapter_num}章补充高质量的内容，增加约{missing}个字符。
+    
+    你的补充内容应该：
+    1. 增强故事的吸引力：添加引人入胜的情节元素
+    2. 深化角色塑造：展现角色更深层的动机和情感
+    3. 丰富世界观：提供更多关于故事背景的细节
+    4. 强化主题表达：更清晰地传达故事的核心思想
+    
+    当前章节结尾：
+    {final_text[-800:] if len(final_text) > 800 else final_text}
+    
+    补充要求：
+    1. 补充与主线紧密相关的情节或细节
+    2. 可以是角色的回忆、背景故事、内心独白或后续发展
+    3. 保持风格一致，确保文字质量
+    4. 使用中文写作
+    5. 增强情感深度和读者的沉浸感
+    
+    请补充高质量的内容：
+    """
                 
                 supplement = self.model_handler.generate_text(prompt, self.model_type, temperature=0.5)
                 if supplement.strip():
@@ -700,10 +735,17 @@ class NovelGenerator:
             
             # 构建审查提示
             summaries_str = "\n".join(recent_summaries) if recent_summaries else "无"
-            prompt = f"""请审查以下小说章节，从多个维度评分并提供改进建议。
+            prompt = f"""你是一位经验丰富的科幻小说编辑和评论家，你的任务是从多个维度对以下小说章节进行专业评估，以帮助提升作品质量。你的评估将直接影响作品的最终质量，请务必认真对待。
 
-小说标题：《{title}》
-第{chapter_num}章
+你的评估应该：
+1. 客观公正：基于文本本身进行评价，避免主观偏见
+2. 具体详细：提供具体的例子和改进建议，避免空泛的评价
+3. 关注情感共鸣：特别注意作品是否能引起读者的情感共鸣，这是优秀小说的核心
+4. 注重吸引力：评估作品是否能吸引和保持读者的兴趣，是否有足够的悬念和冲突
+5. 重视创新性：评估作品是否有独特的创意和新颖的表达方式
+6. 关注技术细节：检查语言表达、情节逻辑、角色塑造等方面的技术问题
+
+小说标题：《{title}》第{chapter_num}章
 
 大纲：
 {outline}
@@ -714,19 +756,37 @@ class NovelGenerator:
 审查内容：
 {review_text}
 
-请按以下JSON格式回复：
+评估标准（满分5分）：
+- 情节连贯性（coherence）：情节发展是否合理，逻辑是否清晰
+- 角色一致性（character_consistency）：角色行为是否符合其设定，是否有明显矛盾
+- 情节推进（plot_progression）：情节是否有足够的推进力，是否吸引人
+- 写作风格（writing_style）：语言表达是否流畅，风格是否统一
+- 情感冲击力（emotional_impact）：是否能引起读者的情感共鸣，是否有感染力
+- 吸引力（engagement）：是否能吸引读者继续阅读，是否有足够的悬念
+- 创新性（creativity）：是否有独特的创意和新颖的表达
+- 安全性（safety）：内容是否符合法律法规和社会道德
+
+请按以下JSON格式回复，评分要严格按标准执行：
 {{
     "scores": {{
-        "coherence": 1-5,
-        "character_consistency": 1-5,
-        "plot_progression": 1-5,
-        "writing_style": 1-5,
-        "safety": 1-5
+        "coherence": 1-5, // 情节连贯性
+        "character_consistency": 1-5,  // 角色一致性
+        "plot_progression": 1-5,  // 情节推进
+        "writing_style": 1-5,  // 写作风格
+        "emotional_impact": 1-5,  // 情感冲击力
+        "engagement": 1-5,  // 吸引力
+        "creativity": 1-5,  // 创新性（新增）
+        "safety": 1-5  // 安全性
     }},
-    "total_score": 5-25,
-    "issues": ["问题列表"],
-    "suggestions": ["改进建议"],
-    "needs_revision": true/false
+    "total_score": 8-40,  // 总分范围更新（8项评分）
+    "strengths": ["具体优点列表，每项都要有具体例子"],  // 详细优点评估
+    "issues": ["具体问题列表，每项都要有具体例子"],
+    "suggestions": ["具体改进建议，每项都要有针对性"],
+    "emotional_analysis": "详细的情感共鸣分析，包括哪些段落引起了情感共鸣，哪些没有",  // 详细情感分析
+    "engagement_analysis": "详细的吸引力分析，包括哪些地方吸引人，哪些地方显得平淡",  // 详细吸引力分析
+    "creativity_analysis": "详细的创新性分析，包括哪些地方有创意，哪些地方显得平庸",  // 新增创新性分析
+    "needs_revision": true/false,  // 是否需要修订（总分低于30分且有具体问题时为true）
+    "revision_priority": "high/medium/low"  // 修订优先级
 }}
 """
             
@@ -734,7 +794,12 @@ class NovelGenerator:
             review_obj = json.loads(review_response)
             
             # 检查是否需要修订
-            if review_obj.get("needs_revision", False) and review_obj.get("total_score", 0) < self.reader_min_total:
+            # 改进修订条件：总分低于32分或修订优先级为high时才进行修订
+            total_score = review_obj.get("total_score", 0)
+            needs_revision = review_obj.get("needs_revision", False)
+            revision_priority = review_obj.get("revision_priority", "low")
+            
+            if needs_revision and (total_score < self.reader_min_total or revision_priority == "high"):
                 revised_text = self._revise_chapter(title, chapter_num, chapter_text, review_obj.get("suggestions", []))
                 return revised_text, review_obj
             
@@ -765,7 +830,15 @@ class NovelGenerator:
         """根据建议修订章节"""
         try:
             suggestions_str = "\n".join(f"- {s}" for s in suggestions)
-            prompt = f"""根据以下建议修订小说章节。
+            prompt = f"""你是一位专业的小说编辑，你的任务是根据以下建议对小说章节进行高质量的修订，以显著提升作品质量。请认真对待每一项建议，确保修订后的内容有明显改善。
+
+你的修订应该：
+1. 全面解决指出的问题：仔细分析每一条建议，确保问题得到彻底解决
+2. 增强情感深度和角色塑造：深入刻画角色内心世界，增强情感表达的感染力
+3. 提高文字的吸引力和流畅性：优化语言表达，使文字更具吸引力和阅读流畅性
+4. 保持原有情节和风格的一致性：在改进的同时确保不破坏原有故事线和写作风格
+5. 增强创新性：在修订中加入新颖的元素和创意表达
+6. 提升悬念和冲突：增强故事的吸引力，增加读者的阅读兴趣
 
 小说：《{title}》第{chapter_num}章
 
@@ -775,12 +848,16 @@ class NovelGenerator:
 改进建议：
 {suggestions_str}
 
-要求：
-1. 解决所有指出的问题
-2. 保持原有情节和风格
-3. 使用中文写作
+修订要求：
+1. 解决所有指出的问题：每一条建议都必须得到回应和解决
+2. 重点增强情感描写和角色内心世界：增加能够引起读者情感共鸣的描写
+3. 提高文字的吸引力和沉浸感：使用更生动、更具吸引力的语言
+4. 保持原有情节和风格：确保修订后的内容与原作风格一致
+5. 增强创新性表达：在保持原意的基础上，尝试新颖的表达方式
+6. 使用中文写作：确保语言符合中文表达习惯
+7. 确保修订后的内容更加引人入胜：修订后的内容应该在各个方面都有明显提升
 
-请提供修订后的完整章节：
+请提供修订后的完整章节，确保文字具有更强的吸引力、连贯性、情感共鸣和创新性。修订后的内容应该比原文有显著提升：
 """
             
             revised = self.model_handler.generate_text(prompt, self.model_type, temperature=0.4)
@@ -793,17 +870,24 @@ class NovelGenerator:
     def _summarize_chapter(self, chapter_text: str) -> str:
         """生成章节摘要"""
         try:
-            prompt = f"""请为以下小说章节生成简洁的摘要。
+            prompt = f"""你是一位专业的文学编辑，你的任务是为以下科幻小说章节生成高质量的摘要。
+
+你的摘要应该：
+1. 突出情节核心：准确概括主要事件
+2. 强调情感线索：体现角色的情感变化
+3. 保持吸引力：让读者对后续内容产生兴趣
 
 章节内容：
 {chapter_text[:2000] if len(chapter_text) > 2000 else chapter_text}
 
-要求：
+摘要要求：
 1. 用中文总结主要情节
-2. 控制在200-400字之间
-3. 突出关键事件和人物发展
+2. 控制在250-350字之间
+3. 突出关键事件、角色发展和情感变化
+4. 避免剧透重要情节转折
+5. 语言简洁有力，具有吸引力
 
-摘要：
+请生成高质量的摘要：
 """
             
             summary = self.model_handler.generate_text(prompt, self.model_type, temperature=0.3)

@@ -23,6 +23,9 @@ class ModelHandler:
         self.device = self._get_device()
         self._setup_memory_management()
         
+        # 预加载常用模型
+        self._preload_models()
+        
         self.generation_config = {
             'max_new_tokens': 8192,
             'temperature': 0.7,
@@ -36,6 +39,24 @@ class ModelHandler:
             'eos_token_id': 2,
             'use_cache': True
         }
+
+    def _preload_models(self):
+        """预加载常用模型"""
+        try:
+            # 预加载默认模型类型
+            if self.model_type and self.model_type not in self._model_cache:
+                logger.info(f"预加载模型: {self.model_type}")
+                self.initialize_model(self.model_type)
+                
+            # 如果配置中有其他常用模型，也进行预加载
+            if 'model_selection' in self.config:
+                common_models = self.config['model_selection'].get('common_models', [])
+                for model_type in common_models:
+                    if model_type not in self._model_cache:
+                        logger.info(f"预加载常用模型: {model_type}")
+                        self.initialize_model(model_type)
+        except Exception as e:
+            logger.warning(f"模型预加载失败: {e}")
 
     def _get_default_model_type(self) -> str:
         """从配置中获取默认模型类型"""
@@ -259,6 +280,10 @@ class ModelHandler:
         }
         
         try:
+            # 强制使用hf-mirror.com作为镜像站
+            os.environ['HF_ENDPOINT'] = 'https://hf-mirror.com'
+            os.environ['HF_HOME'] = 'E:/hf-home'  # 设置模型缓存目录
+            
             tokenizer = AutoTokenizer.from_pretrained(model_name)
             model = AutoModelForCausalLM.from_pretrained(model_name, **device_config)
             
@@ -285,11 +310,15 @@ class ModelHandler:
         }
 
     def _init_openai_model(self):
-        openai.api_key = self.config['openai']['api_key']
-        openai.base_url = self.config['openai'].get('base_url', 'https://api.openai.com/v1')
+        # 检查环境变量中的API配置
+        api_key = os.environ.get('OPENROUTER_API_KEY') or self.config['openai']['api_key']
+        base_url = os.environ.get('OPENROUTER_BASE_URL') or self.config['openai'].get('base_url', 'https://api.openai.com/v1')
+        
+        openai.api_key = api_key
+        openai.base_url = base_url
         self._model_cache["openai"] = {
-            "api_key": openai.api_key,
-            "base_url": openai.base_url,
+            "api_key": api_key,
+            "base_url": base_url,
             "model": self.config['openai']['model'],
             "models": self.config['openai'].get('models', {})
         }
@@ -417,6 +446,11 @@ class ModelHandler:
                 if task_type in task_models and task_models[task_type]:
                     model_name = task_models[task_type]
                     logger.info(f"使用任务特定模型: {task_type} -> {model_name}")
+            
+            # 检查环境变量中是否指定了模型
+            if "OPENROUTER_MODEL" in os.environ:
+                model_name = os.environ["OPENROUTER_MODEL"]
+                logger.info(f"使用环境变量指定的模型: {model_name}")
             
             # 使用ChatCompletion API
             response = client.chat.completions.create(
