@@ -18,7 +18,7 @@ ollama:
 
 # OpenAI兼容API配置
 openai:
-  api_key: "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"
+  api_key: "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"
   base_url: "https://openrouter.ai/api/v1"
   # 默认模型
   model: "openrouter/auto"
@@ -41,7 +41,7 @@ settings:
   reader:
     enabled: true
     max_review_rounds: 2
-    min_total_score: 7
+    min_total_score: 32  # 提高最小总分阈值，8项评分每项至少4分
     hard_fail_dims: ["coherence", "character_consistency", "safety"]
     sample_review: true
     sample_strategy: ["head", "key", "tail"]

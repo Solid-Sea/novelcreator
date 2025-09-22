@@ -46,7 +46,7 @@
 ### 安装步骤
 ```bash
 # 克隆仓库
-git clone https://github.com/your-repo/novelcreator-tf.git
+git clone https://github.com/Solid-Sea/novelcreator.git
 cd novelcreator-tf
 
 # 安装Python依赖
@@ -187,6 +187,7 @@ python main.py
 | `video_generator.py` | 视频合成模块 |
 | `model_handler.py`   | 大模型交互接口 |
 | `utils.py`           | 通用工具函数 |
+| `patterns.py`        | 正则表达式模式定义 |
 | `blacklist.yaml`     | 内容过滤配置 |
 | `config.yaml`        | 全局配置文件 |
 | `resources/SimHei.ttf` | 中文字体文件 |

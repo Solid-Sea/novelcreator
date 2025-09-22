@@ -1,0 +1,179 @@
+{
+  "timestamp": "2025-09-19T01:24:31.532837",
+  "generation_tests": {
+    "status": "completed",
+    "results": {
+      "moonshotai/kimi-k2:free": {
+        "generation_time": 70.25295853614807,
+        "text_length": 5219,
+        "chars_per_second": 74.28868632364582,
+        "status": "success"
+      },
+      "deepseek/deepseek-chat-v3.1:free": {
+        "generation_time": 53.41331696510315,
+        "text_length": 2451,
+        "chars_per_second": 45.887432933650736,
+        "status": "success"
+      },
+      "deepseek/deepseek-r1-0528:free": {
+        "generation_time": 108.36456108093262,
+        "text_length": 4202,
+        "chars_per_second": 38.77651473955323,
+        "status": "success"
+      },
+      "qwen/qwen3-14b:free": {
+        "generation_time": 43.40613913536072,
+        "text_length": 2036,
+        "chars_per_second": 46.905807347914454,
+        "status": "success"
+      }
+    }
+  },
+  "coherence_tests": {
+    "status": "completed",
+    "results": {
+      "连贯文本": {
+        "sentence_coherence": 0.7635963410139084,
+        "topic_coherence": 0.8974412441253662,
+        "overall_coherence": 0.8305187925696373,
+        "status": "success"
+      },
+      "不连贯文本": {
+        "sentence_coherence": 0.568915531039238,
+        "topic_coherence": 0.8464511036872864,
+        "overall_coherence": 0.7076833173632622,
+        "status": "success"
+      }
+    }
+  },
+  "quality_tests": {
+    "status": "completed",
+    "results": {
+      "moonshotai/kimi-k2:free": {
+        "scores": [
+          3.0,
+          3.0,
+          3.0,
+          3.0,
+          3.0
+        ],
+        "average_score": 3.0,
+        "status": "success"
+      },
+      "deepseek/deepseek-r1-0528:free": {
+        "scores": [
+          4.0,
+          3.0
+        ],
+        "average_score": 3.5,
+        "status": "success"
+      }
+    },
+    "test_text": "今天天气很好。阳光明媚，鸟语花香。我决定去公园散步。公园里有很多人在锻炼身体。我也加入了他们，感觉非常愉快。这是一个美好的一天。"
+  },
+  "comparison_tests": {
+    "status": "completed",
+    "results": {
+      "with_reader": {
+        "generation_time": 11.47359824180603,
+        "text_length": 0,
+        "chars_per_second": 0.0,
+        "coherence_metrics": {
+          "sentence_coherence": 0.0,
+          "topic_coherence": 0.0,
+          "overall_coherence": 0.0,
+          "status": "insufficient_sentences"
+        },
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "average_quality_score": 1.0,
+        "status": "success"
+      },
+      "without_reader": {
+        "generation_time": 40.527069330215454,
+        "text_length": 0,
+        "chars_per_second": 0.0,
+        "coherence_metrics": {
+          "sentence_coherence": 0.0,
+          "topic_coherence": 0.0,
+          "overall_coherence": 0.0,
+          "status": "insufficient_sentences"
+        },
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "average_quality_score": 1.0,
+        "status": "success"
+      }
+    }
+  },
+  "additional_tests": {
+    "status": "completed",
+    "results": {
+      "vocabulary_richness": {
+        "type_token_ratio": 1.0,
+        "unique_words_count": 11,
+        "total_words_count": 11,
+        "status": "success"
+      },
+      "sentence_complexity": {
+        "avg_sentence_length": 12.25,
+        "avg_words_per_sentence": 1.375,
+        "sentence_count": 8,
+        "status": "success"
+      },
+      "pos_distribution": {
+        "noun_ratio": 0.09090909090909091,
+        "verb_ratio": 0.0,
+        "adjective_ratio": 0.18181818181818182,
+        "adverb_ratio": 0.0,
+        "status": "success"
+      },
+      "readability_score": {
+        "readability_score": 11.573863636363626,
+        "avg_sentence_length": 1.375,
+        "avg_word_length": 8.636363636363637,
+        "status": "success"
+      }
+    },
+    "test_text": "今天天气很好。阳光明媚，鸟语花香。我决定去公园散步。公园里有很多人在锻炼身体。我也加入了他们，感觉非常愉快。这是一个美好的一天。科技的发展日新月异，人工智能技术正在改变我们的生活。未来的世界将更加智能化和便捷化。"
+  },
+  "novelcreator_comparison_tests": {
+    "status": "completed",
+    "results": {
+      "novelcreator": {
+        "outline_generation_time": 6.337559461593628,
+        "chapter_generation_time": 4.946913957595825,
+        "total_time": 11.284473419189453,
+        "text_length": 0,
+        "coherence_metrics": {
+          "sentence_coherence": 0.0,
+          "topic_coherence": 0.0,
+          "overall_coherence": 0.0,
+          "status": "insufficient_sentences"
+        },
+        "quality_scores": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "average_quality_score": 1.0,
+        "status": "success"
+      },
+      "simple_prompt": {
+        "generation_time": 5.4780662059783936,
+        "error": "Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'deepseek/deepseek-r1-0528:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'Chutes'}}, 'user_id': 'user_2wZGyIBKSCGLyQwjbHqVhG9ZMic'}",
+        "status": "failed"
+      }
+    }
+  }
+}

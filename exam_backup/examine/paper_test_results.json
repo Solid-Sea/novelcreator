@@ -1,0 +1,140 @@
+{
+  "timestamp": "2025-09-19T00:10:02.547497",
+  "generation_tests": {
+    "status": "completed",
+    "results": {
+      "moonshotai/kimi-k2:free": {
+        "generation_time": 10.21070408821106,
+        "error": "Error code: 429 - {'error': {'message': 'Provider returned error', 'code': 429, 'metadata': {'raw': 'moonshotai/kimi-k2:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations', 'provider_name': 'OpenInference'}}, 'user_id': 'user_2wZGyIBKSCGLyQwjbHqVhG9ZMic'}",
+        "status": "failed"
+      },
+      "deepseek/deepseek-chat-v3.1:free": {
+        "generation_time": 99.16259860992432,
+        "text_length": 1920,
+        "chars_per_second": 19.362138819623915,
+        "status": "success"
+      },
+      "deepseek/deepseek-r1-0528:free": {
+        "generation_time": 66.63859581947327,
+        "text_length": 3463,
+        "chars_per_second": 51.966881315767985,
+        "status": "success"
+      },
+      "qwen/qwen3-14b:free": {
+        "generation_time": 28.250892162322998,
+        "text_length": 1729,
+        "chars_per_second": 61.201607017065925,
+        "status": "success"
+      }
+    }
+  },
+  "coherence_tests": {
+    "status": "completed",
+    "results": {
+      "连贯文本": {
+        "sentence_coherence": 0.0,
+        "topic_coherence": 0.0,
+        "overall_coherence": 0.0,
+        "status": "bert_unavailable"
+      },
+      "不连贯文本": {
+        "sentence_coherence": 0.0,
+        "topic_coherence": 0.0,
+        "overall_coherence": 0.0,
+        "status": "bert_unavailable"
+      }
+    }
+  },
+  "quality_tests": {
+    "status": "completed",
+    "results": {
+      "moonshotai/kimi-k2:free": {
+        "scores": [],
+        "average_score": 0.0,
+        "status": "failed"
+      },
+      "deepseek/deepseek-r1-0528:free": {
+        "scores": [
+          4.0,
+          4.0,
+          4.0
+        ],
+        "average_score": 4.0,
+        "status": "success"
+      }
+    },
+    "test_text": "今天天气很好。阳光明媚，鸟语花香。我决定去公园散步。公园里有很多人在锻炼身体。我也加入了他们，感觉非常愉快。这是一个美好的一天。"
+  },
+  "comparison_tests": {
+    "status": "completed",
+    "results": {
+      "with_reader": {
+        "generation_time": 89.42295384407043,
+        "text_length": 4235,
+        "chars_per_second": 47.35920496861131,
+        "coherence_metrics": {
+          "sentence_coherence": 0.0,
+          "topic_coherence": 0.0,
+          "overall_coherence": 0.0,
+          "status": "bert_unavailable"
+        },
+        "quality_scores": [
+          4.745,
+          4.745,
+          4.745
+        ],
+        "average_quality_score": 4.745,
+        "status": "success"
+      },
+      "without_reader": {
+        "generation_time": 86.23958373069763,
+        "text_length": 4686,
+        "chars_per_second": 54.33699697151928,
+        "coherence_metrics": {
+          "sentence_coherence": 0.0,
+          "topic_coherence": 0.0,
+          "overall_coherence": 0.0,
+          "status": "bert_unavailable"
+        },
+        "quality_scores": [
+          4.895333333333333,
+          4.895333333333333,
+          4.895333333333333
+        ],
+        "average_quality_score": 4.895333333333333,
+        "status": "success"
+      }
+    }
+  },
+  "additional_tests": {
+    "status": "completed",
+    "results": {
+      "vocabulary_richness": {
+        "type_token_ratio": 1.0,
+        "unique_words_count": 11,
+        "total_words_count": 11,
+        "status": "success"
+      },
+      "sentence_complexity": {
+        "avg_sentence_length": 12.25,
+        "avg_words_per_sentence": 1.375,
+        "sentence_count": 8,
+        "status": "success"
+      },
+      "pos_distribution": {
+        "noun_ratio": 0.09090909090909091,
+        "verb_ratio": 0.0,
+        "adjective_ratio": 0.18181818181818182,
+        "adverb_ratio": 0.0,
+        "status": "success"
+      },
+      "readability_score": {
+        "readability_score": 11.573863636363626,
+        "avg_sentence_length": 1.375,
+        "avg_word_length": 8.636363636363637,
+        "status": "success"
+      }
+    },
+    "test_text": "今天天气很好。阳光明媚，鸟语花香。我决定去公园散步。公园里有很多人在锻炼身体。我也加入了他们，感觉非常愉快。这是一个美好的一天。科技的发展日新月异，人工智能技术正在改变我们的生活。未来的世界将更加智能化和便捷化。"
+  }
+}
