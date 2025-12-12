@@ -1,4 +1,5 @@
 # NovelCreator Transformer
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Solid-Sea/novelcreator)
 
 一个利用大模型服务自动生成小说的工具链，包含小说生成、文本处理和视频合成功能。
 
@@ -212,3 +213,4 @@ python main.py
 
 ## 📜 许可证
 本项目采用 [MIT License](LICENSE)
+
