@@ -18,7 +18,7 @@ ollama:
 
 # OpenAI兼容API配置
 openai:
-  api_key: "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"
+  api_key: "your_api_key_here"
   base_url: "https://openrouter.ai/api/v1"
   # 默认模型
   model: "openrouter/auto"
