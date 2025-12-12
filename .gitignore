@@ -47,6 +47,9 @@ novel_gen.log
 temp/
 cache/
 
+#configs
+config/config.yaml
+
 # Output directories
 novels/
 *.mp4
@@ -62,3 +65,4 @@ Thumbs.db
 
 # Local config
 config/local_*.yaml
+config/config.yaml
