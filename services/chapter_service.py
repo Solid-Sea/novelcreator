@@ -6,6 +6,7 @@ import logging
 from typing import Optional, List
 
 from .prompt_loader import format_prompt
+from .text_optimizer import optimize_chapter_text, strip_ai_prefix, strip_suffix
 
 logger = logging.getLogger('ChapterService')
 
@@ -30,7 +31,6 @@ class ChapterService:
                 break
 
         if chapter_info is None:
-            # Fallback: 用整个大纲
             return self._generate_from_outline_text(
                 title, chapter_num, json.dumps(outline_data, ensure_ascii=False)
             )
@@ -53,8 +53,12 @@ class ChapterService:
             temperature=prompt['temperature'],
             max_tokens=prompt['max_tokens'],
             task_type='content',
+            tier='basic',
         )
-        return response.strip()
+        raw = response.strip()
+        raw = strip_ai_prefix(raw)
+        raw = strip_suffix(raw)
+        return optimize_chapter_text(raw)
 
     def _generate_from_outline_text(self, title: str, chapter_num: int, outline: str) -> str:
         """回退：用纯文本大纲生成章节。"""
@@ -71,8 +75,12 @@ class ChapterService:
             temperature=prompt['temperature'],
             max_tokens=prompt['max_tokens'],
             task_type='content',
+            tier='basic',
         )
-        return response.strip()
+        raw = response.strip()
+        raw = strip_ai_prefix(raw)
+        raw = strip_suffix(raw)
+        return optimize_chapter_text(raw)
 
     def generate_continuation(
         self,
@@ -101,5 +109,9 @@ class ChapterService:
             temperature=0.7,
             max_tokens=8192,
             task_type='content',
+            tier='basic',
         )
-        return response.strip()
+        raw = response.strip()
+        raw = strip_ai_prefix(raw)
+        raw = strip_suffix(raw)
+        return optimize_chapter_text(raw)

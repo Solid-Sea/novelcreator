@@ -46,6 +46,7 @@ class CleanerService:
                 messages=prompt['messages'],
                 temperature=prompt['temperature'],
                 max_tokens=prompt['max_tokens'],
+                tier='advanced',
             )
 
             if response and len(response) > 50:

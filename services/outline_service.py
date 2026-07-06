@@ -27,6 +27,7 @@ class OutlineService:
                 temperature=prompt['temperature'],
                 max_tokens=prompt['max_tokens'],
                 task_type='outline',
+                tier='advanced',
             )
 
             # 清理可能的 Markdown 标记

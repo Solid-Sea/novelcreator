@@ -70,10 +70,11 @@ class ReaderService:
                 summaries=summaries_str,
             )
             response = self.api.chat_completion(
-                messages=prompt['messages'],
-                temperature=prompt['temperature'],
-                max_tokens=prompt['max_tokens'],
-                task_type='review',
+            messages=prompt['messages'],
+            temperature=prompt['temperature'],
+            max_tokens=prompt['max_tokens'],
+            task_type='review',
+            tier='advanced',
             )
 
             review_obj = json.loads(self._clean_json(response))
@@ -108,10 +109,11 @@ class ReaderService:
                 chapter_text=chapter_text,
             )
             response = self.api.chat_completion(
-                messages=prompt['messages'],
-                temperature=prompt['temperature'],
-                max_tokens=prompt['max_tokens'],
-                task_type='review',
+            messages=prompt['messages'],
+            temperature=prompt['temperature'],
+            max_tokens=prompt['max_tokens'],
+            task_type='review',
+            tier='advanced',
             )
             return response.strip() if response.strip() else chapter_text
 
@@ -131,6 +133,7 @@ class ReaderService:
                 messages=prompt['messages'],
                 temperature=prompt['temperature'],
                 max_tokens=prompt['max_tokens'],
+                tier='advanced',
             )
             return response.strip()[:self.max_summary_len]
 

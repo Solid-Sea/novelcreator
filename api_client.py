@@ -52,6 +52,7 @@ class APIClient:
         max_tokens: int = 8192,
         task_type: Optional[str] = None,
         model: Optional[str] = None,
+        tier: str = 'basic',
     ) -> str:
         """调用 Chat Completion API，返回回复文本。
 
@@ -61,11 +62,12 @@ class APIClient:
             max_tokens: 最大生成 token 数
             task_type: 任务类型（用于按任务选模型）
             model: 直接指定模型名，优先级高于 task_type
+            tier: 模型等级 ('advanced' 或 'basic')
 
         Returns:
             模型回复文本（strip 后）
         """
-        model_name = model or self._resolve_model(task_type)
+        model_name = model or self._resolve_model(task_type, tier=tier)
         last_error = None
 
         for attempt in range(3):
@@ -115,11 +117,17 @@ class APIClient:
 
     # ── 工具方法 ──────────────────────────────────────────
 
-    def _resolve_model(self, task_type: Optional[str] = None) -> str:
-        """按任务类型解析模型名。"""
-        if task_type and task_type in self.models:
-            return self.models[task_type]
-        return self.models.get('default', 'openrouter/auto')
+    def _resolve_model(self, task_type: Optional[str] = None, tier: str = 'basic') -> str:
+        """按任务类型和模型等级解析模型名。
+
+        Args:
+            task_type: 任务类型 (outline/review/content/expand/...)
+            tier: 模型等级 ('advanced' 或 'basic')
+        """
+        tier_models = self.models.get(tier, {})
+        if task_type and task_type in tier_models:
+            return tier_models[task_type]
+        return tier_models.get('default', self.models.get('advanced', {}).get('default', 'deepseek-chat'))
 
     def count_tokens(self, text: str) -> int:
         """粗略估算 token 数（中英文混合）。"""

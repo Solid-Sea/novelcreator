@@ -69,6 +69,7 @@ class ExpansionService:
                     temperature=prompt['temperature'],
                     max_tokens=prompt['max_tokens'],
                     task_type='content',
+                    tier='basic',
                 )
 
                 if expansion.strip() and not self._is_repetitive(text, expansion):
@@ -123,6 +124,7 @@ class ExpansionService:
                     temperature=0.5,
                     max_tokens=4096,
                     task_type='content',
+                    tier='basic',
                 )
 
                 if supplement.strip():
