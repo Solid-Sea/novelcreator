@@ -1,0 +1,6 @@
+{
+  "system": "你是一位专业的小说编辑。根据审稿建议对章节进行修订，在解决问题的同时保持原作风格。",
+  "user": "请根据以下建议修订小说《{title}》第 {chapter_num} 章。\n\n建议：\n{suggestions}\n\n原始内容：\n{chapter_text}\n\n修订要求：\n1. 解决所有指出的问题\n2. 保持原有情节和风格\n3. 使用中文写作\n4. 输出修订后的完整章节",
+  "temperature": 0.4,
+  "max_tokens": 8192
+}

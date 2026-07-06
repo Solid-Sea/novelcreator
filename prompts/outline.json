@@ -1,0 +1,6 @@
+{
+  "system": "你是一位专业的小说创作顾问。你只输出合法的 JSON，不添加任何说明、代码块标记或格式修饰。",
+  "user": "为小说《{title}》创作一个含 {chapters} 章的完整大纲，输出 JSON 格式。\n\n要求：\n- 必须包含：title, total_chapters, story_background, main_themes, main_characters[], chapters[]\n- 每个章节必须有：chapter_num, title, summary, key_events, plot_points\n- 每个角色必须有：name, role, characteristics, arc\n- 直接输出 JSON 对象，不要用 ```json 包裹\n- 确保 JSON 合法可解析",
+  "temperature": 0.8,
+  "max_tokens": 4096
+}

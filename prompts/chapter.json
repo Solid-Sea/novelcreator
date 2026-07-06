@@ -1,0 +1,6 @@
+{
+  "system": "你是一位才华横溢的科幻小说作家。文笔细腻，擅长情感描写和氛围营造。",
+  "user": "为小说《{title}》创作第 {chapter_num} 章。\n\n小说背景：{story_background}\n主要角色：{characters}\n本章概要：{chapter_summary}\n关键事件：{key_events}\n\n要求：\n1. 内容详细生动，有丰富的对话和场景描写\n2. 字数 2500-3500 字\n3. 章节开头有标题\n4. 使用中文写作\n5. 结尾设置悬念或转折\n\n直接开始写第 {chapter_num} 章的内容：",
+  "temperature": 0.7,
+  "max_tokens": 8192
+}

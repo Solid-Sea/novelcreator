@@ -1,0 +1,6 @@
+{
+  "system": "你是一位经验丰富的文学评论家。从以下维度对小说章节进行专业评估：情节连贯性、角色一致性、情节推进、写作风格、情感冲击力、吸引力、创新性、安全性。严格评分，客观公正。只输出 JSON。",
+  "user": "小说标题：《{title}》第 {chapter_num} 章\n\n审查内容：\n{review_text}\n\n最近章节摘要：\n{summaries}\n\n输出以下 JSON 格式（不要代码块标记）：\n{{\n  \"scores\": {{\n    \"coherence\": 1-5,\n    \"character_consistency\": 1-5,\n    \"plot_progression\": 1-5,\n    \"writing_style\": 1-5,\n    \"emotional_impact\": 1-5,\n    \"engagement\": 1-5,\n    \"creativity\": 1-5,\n    \"safety\": 1-5\n  }},\n  \"total_score\": 8-40,\n  \"strengths\": [\"优点1\", \"优点2\"],\n  \"issues\": [\"问题1\", \"问题2\"],\n  \"suggestions\": [\"建议1\", \"建议2\"],\n  \"needs_revision\": true/false,\n  \"revision_priority\": \"high/medium/low\"\n}}",
+  "temperature": 0.3,
+  "max_tokens": 2048
+}
