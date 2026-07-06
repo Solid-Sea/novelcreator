@@ -7,10 +7,17 @@ api:
   timeout: 240
 
   models:
-    default: "deepseek-chat"
-    outline: "deepseek-chat"
-    review: "deepseek-chat"
-    content: "deepseek-chat"
+    advanced:
+      default: "deepseek-chat"
+      outline: "deepseek-chat"
+      review: "deepseek-chat"
+      clean: "deepseek-chat"
+      summary: "deepseek-chat"
+      revise: "deepseek-chat"
+    basic:
+      default: "deepseek-chat"
+      content: "deepseek-chat"
+      expand: "deepseek-chat"
 
 paths:
   novels_dir: "novels"
