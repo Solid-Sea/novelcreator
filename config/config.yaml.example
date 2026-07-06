@@ -1,0 +1,27 @@
+# NovelCreator 配置示例
+# 复制为 config.yaml 并填入真实 API key
+
+api:
+  base_url: "https://api.deepseek.com"  # 或 https://openrouter.ai/api/v1
+  api_key: "sk-your-api-key-here"
+  timeout: 240
+
+  models:
+    default: "deepseek-chat"
+    outline: "deepseek-chat"
+    review: "deepseek-chat"
+    content: "deepseek-chat"
+
+paths:
+  novels_dir: "novels"
+
+settings:
+  video:
+    width: 1920
+    height: 1080
+    fps: 24
+    font_size: 32
+    text_color: [255, 255, 255]
+    bg_color: [0, 0, 0]
+    margin: 100
+    line_spacing: 10
